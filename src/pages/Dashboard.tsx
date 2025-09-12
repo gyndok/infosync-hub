@@ -7,7 +7,6 @@ import { MajorIndicesWidget } from '@/components/widgets/MajorIndicesWidget';
 import { StockWatchlistWidget } from '@/components/widgets/StockWatchlistWidget';
 import { CryptocurrencyWidget } from '@/components/widgets/CryptocurrencyWidget';
 import { SportsWidget } from '@/components/widgets/SportsWidget';
-import { AnalyticsWidget } from '@/components/widgets/AnalyticsWidget';
 import { 
   Newspaper, 
   Cloud, 
@@ -26,27 +25,14 @@ const Dashboard: React.FC = () => {
     <DashboardLayout>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Left Column - 2/3 width */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Top Row - News and Weather */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-[500px]">
-              <NewsWidget />
-            </div>
-            <div className="h-[500px]">
-              <WeatherWidget />
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* News Widget */}
+          <div className="h-[500px]">
+            <NewsWidget />
           </div>
 
-          {/* Analytics Widget */}
-          <div className="h-[350px]">
-            <AnalyticsWidget />
-          </div>
-        </div>
-
-        {/* Right Column - 1/3 width */}
-        <div className="space-y-8">
           {/* Finance Widgets */}
           <div className="h-[400px] overflow-hidden">
             <MajorIndicesWidget />
@@ -54,6 +40,14 @@ const Dashboard: React.FC = () => {
           
           <div className="h-[450px] overflow-hidden">
             <StockWatchlistWidget />
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Weather Widget */}
+          <div className="h-[500px]">
+            <WeatherWidget />
           </div>
           
           <div className="h-[450px] overflow-hidden">
@@ -64,7 +58,7 @@ const Dashboard: React.FC = () => {
             <SportsWidget />
           </div>
 
-          {/* Reminders Card - moved below finance widgets */}
+          {/* Reminders Card */}
           <Card className="dashboard-card">
             <CardHeader className="widget-header">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold">
