@@ -109,12 +109,15 @@ serve(async (req) => {
     // Generate cache key
     const cacheKey = `${endpoint}:${JSON.stringify(params)}`;
 
+    // Normalize widget type for cache to satisfy constraints
+    const normalizedWidgetType = (service === 'alpha_vantage' || service === 'coingecko') ? 'finance' : service;
+
     // Check cache first
     const { data: cachedData } = await supabase
       .from('widget_cache')
       .select('data, expires_at')
       .eq('user_id', user.id)
-      .eq('widget_type', service)
+      .eq('widget_type', normalizedWidgetType)
       .eq('cache_key', cacheKey)
       .gte('expires_at', new Date().toISOString())
       .single() as { data: CacheEntry | null };
@@ -160,6 +163,7 @@ serve(async (req) => {
           urlParams.append('appid', apiKey);
           break;
         case 'finance':
+        case 'alpha_vantage':
           urlParams.append('apikey', apiKey);
           break;
         case 'sports':
@@ -168,8 +172,10 @@ serve(async (req) => {
       }
     }
 
-    // Add custom parameters
+    // Add custom parameters (avoid duplicating API key placeholders)
     Object.entries(params).forEach(([key, value]) => {
+      const k = key.toLowerCase();
+      if (service === 'alpha_vantage' && k === 'apikey') return; // we'll inject the real key
       urlParams.append(key, String(value));
     });
 
@@ -247,7 +253,7 @@ serve(async (req) => {
 
     await supabase.from('widget_cache').upsert({
       user_id: user.id,
-      widget_type: service,
+      widget_type: normalizedWidgetType,
       cache_key: cacheKey,
       data: responseData,
       expires_at: expiresAt.toISOString(),
