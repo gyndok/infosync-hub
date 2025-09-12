@@ -148,7 +148,7 @@ export const useLayoutConfig = () => {
     saveLayoutConfig(newConfig);
   };
 
-  // Update widget layout
+  // Update widget layout (local only)
   const updateWidgetLayout = (layouts: any[]) => {
     const newConfig = {
       ...layoutConfig,
@@ -166,7 +166,26 @@ export const useLayoutConfig = () => {
     setLayoutConfig(newConfig);
   };
 
-  // Save current layout
+  // Save widget layout immediately from RGL callback
+  const saveLayoutFromLayouts = (layouts: any[]) => {
+    const newConfig = {
+      ...layoutConfig,
+      widgets: layouts.map(layout => {
+        const existingWidget = layoutConfig.widgets.find(w => w.id === layout.i);
+        return {
+          ...existingWidget!,
+          x: layout.x,
+          y: layout.y,
+          w: layout.w,
+          h: layout.h
+        };
+      })
+    };
+    setLayoutConfig(newConfig);
+    saveLayoutConfig(newConfig);
+  };
+
+  // Manual save current layout
   const saveCurrentLayout = () => {
     saveLayoutConfig(layoutConfig);
   };
@@ -179,13 +198,13 @@ export const useLayoutConfig = () => {
     };
     saveLayoutConfig(resetConfig);
   };
-
   return {
     layoutConfig,
     isLoading,
     isSaving,
     updateColumnCount,
     updateWidgetLayout,
+    saveLayoutFromLayouts,
     saveCurrentLayout,
     resetLayout
   };

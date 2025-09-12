@@ -278,9 +278,9 @@ export const SportsWidget: React.FC = () => {
               </div>
             ) : (
               <div className="px-1 pb-4">
-                {sportsData.map((match) => (
+                {sportsData.map((match, idx) => (
                   <MatchItem
-                    key={match.idEvent}
+                    key={`${match.idEvent}-${idx}`}
                     homeTeam={match.strHomeTeam}
                     awayTeam={match.strAwayTeam}
                     homeScore={match.intHomeScore}

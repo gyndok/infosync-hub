@@ -18,10 +18,10 @@ const widgetComponents = {
   watchlist: StockWatchlistWidget,
   crypto: CryptocurrencyWidget,
   sports: SportsWidget,
-};
+} as const;
 
 export const GridLayout: React.FC = () => {
-  const { layoutConfig, updateWidgetLayout, saveCurrentLayout } = useLayoutConfig();
+  const { layoutConfig, updateWidgetLayout, saveLayoutFromLayouts } = useLayoutConfig();
 
   const layouts = useMemo(() => {
     const baseLayouts = layoutConfig.widgets.map(widget => ({
@@ -34,6 +34,7 @@ export const GridLayout: React.FC = () => {
       maxW: widget.maxW || layoutConfig.columns,
       minH: widget.minH || 2,
       maxH: widget.maxH || 6,
+      static: false
     }));
 
     return {
@@ -49,31 +50,25 @@ export const GridLayout: React.FC = () => {
     md: 996,
     sm: 768,
     xs: 480,
-  };
+  } as const;
 
   const cols = {
     lg: layoutConfig.columns,
     md: layoutConfig.columns,
     sm: 2,
     xs: 1,
-  };
+  } as const;
 
-  const handleLayoutChange = (layout: any[], layouts: any) => {
+  const handleLayoutChange = (layout: any[]) => {
     updateWidgetLayout(layout);
   };
 
-  const handleDragStop = () => {
-    // Auto-save after drag
-    setTimeout(() => {
-      saveCurrentLayout();
-    }, 1000);
+  const handleDragStop = (layout: any[]) => {
+    saveLayoutFromLayouts(layout);
   };
 
-  const handleResizeStop = () => {
-    // Auto-save after resize
-    setTimeout(() => {
-      saveCurrentLayout();
-    }, 1000);
+  const handleResizeStop = (layout: any[]) => {
+    saveLayoutFromLayouts(layout);
   };
 
   return (
