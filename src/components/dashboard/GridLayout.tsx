@@ -61,8 +61,6 @@ export const GridLayout: React.FC = () => {
 
   const handleLayoutChange = (layout: any[]) => {
     updateWidgetLayout(layout);
-    // Save on every change to avoid snapping back if drag/resize stops aren't fired
-    saveLayoutFromLayouts(layout);
   };
 
   const handleDragStop = (layout: any[]) => {
