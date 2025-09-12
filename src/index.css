@@ -13,6 +13,10 @@
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     
+    /* Popover system */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
     /* Primary green theme inspired by reference */
     --primary: 166 76% 37%;
     --primary-foreground: 0 0% 98%;
