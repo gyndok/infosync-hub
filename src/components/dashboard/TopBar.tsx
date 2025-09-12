@@ -1,12 +1,14 @@
 import React from 'react';
-import { Search, Bell, Plus, LogOut, User } from 'lucide-react';
+import { Search, Bell, Plus, LogOut, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export const TopBar: React.FC = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   
   const userInitials = user?.email 
     ? user.email.substring(0, 2).toUpperCase() 
@@ -14,6 +16,10 @@ export const TopBar: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
   return (
@@ -65,8 +71,8 @@ export const TopBar: React.FC = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
-              <User className="w-4 h-4 mr-2" />
+            <DropdownMenuItem onClick={handleProfileClick}>
+              <Settings className="w-4 h-4 mr-2" />
               Profile Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
