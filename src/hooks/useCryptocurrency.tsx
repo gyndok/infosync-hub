@@ -25,7 +25,7 @@ export const useCryptocurrency = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const defaultCrypto = ['bitcoin', 'ethereum', 'binancecoin', 'cardano', 'solana'];
+  const defaultCrypto = ['bitcoin', 'ethereum', 'ripple', 'cardano', 'solana'];
 
   // Fetch user's crypto preferences
   const configQuery = useQuery({
