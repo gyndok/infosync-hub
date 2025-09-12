@@ -38,6 +38,111 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          auto_refresh_interval: number | null
+          created_at: string
+          dashboard_layout: Json | null
+          id: string
+          notifications_enabled: boolean | null
+          theme: string | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_refresh_interval?: number | null
+          created_at?: string
+          dashboard_layout?: Json | null
+          id?: string
+          notifications_enabled?: boolean | null
+          theme?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_refresh_interval?: number | null
+          created_at?: string
+          dashboard_layout?: Json | null
+          id?: string
+          notifications_enabled?: boolean | null
+          theme?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_widgets: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          id: string
+          is_enabled: boolean | null
+          position: number | null
+          size: string | null
+          updated_at: string
+          user_id: string
+          widget_type: string
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          position?: number | null
+          size?: string | null
+          updated_at?: string
+          user_id: string
+          widget_type: string
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          position?: number | null
+          size?: string | null
+          updated_at?: string
+          user_id?: string
+          widget_type?: string
+        }
+        Relationships: []
+      }
+      widget_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          data: Json
+          expires_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          widget_type: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          data: Json
+          expires_at: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          widget_type: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          data?: Json
+          expires_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          widget_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

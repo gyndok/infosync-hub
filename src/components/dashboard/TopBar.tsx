@@ -65,7 +65,7 @@ export const TopBar: React.FC = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
               <User className="w-4 h-4 mr-2" />
               Profile Settings
             </DropdownMenuItem>
