@@ -51,29 +51,33 @@ export const useStockWatchlist = () => {
     enabled: !!user,
   });
 
-  // Fetch current prices for watchlist stocks
+  // Fetch current prices for watchlist stocks using Finnhub
   const fetchStockPrices = async (symbols: string[]): Promise<StockPrice[]> => {
     const results: StockPrice[] = [];
     
     for (const symbol of symbols) {
       try {
         const response = await makeRequest({
-          service: 'alpha_vantage',
-          endpoint: '/query',
+          service: 'finnhub',
+          endpoint: '/quote',
           params: {
-            function: 'GLOBAL_QUOTE',
             symbol: symbol,
-            apikey: 'API_KEY'
+            token: 'FINNHUB_API_KEY' // Will be replaced by proxy
           }
         });
 
-        if (response.success && response.data['Global Quote']) {
-          const quote = response.data['Global Quote'];
+        if (response.success && response.data && response.data.c) {
+          const quote = response.data;
+          const currentPrice = quote.c; // Current price
+          const previousClose = quote.pc; // Previous close
+          const change = currentPrice - previousClose;
+          const changePercent = previousClose > 0 ? ((change / previousClose) * 100) : 0;
+          
           results.push({
-            symbol: quote['01. symbol'],
-            price: parseFloat(quote['05. price']),
-            change: parseFloat(quote['09. change']),
-            changePercent: parseFloat(quote['10. change percent'].replace('%', ''))
+            symbol: symbol,
+            price: currentPrice,
+            change: change,
+            changePercent: changePercent
           });
         }
       } catch (error) {
