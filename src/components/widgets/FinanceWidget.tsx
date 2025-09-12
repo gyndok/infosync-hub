@@ -38,7 +38,7 @@ const AssetItem: React.FC<{
       <div className="text-right">
         <div className="text-sm font-medium">
           ${typeof price === 'number' ? price.toLocaleString(undefined, { 
-            minimumFractionDigits: 2, 
+            minimumFractionDigits: price > 1000 ? 0 : 2, 
             maximumFractionDigits: price > 1000 ? 0 : 2 
           }) : '0.00'}
         </div>
