@@ -239,16 +239,27 @@ export const SportsWidget: React.FC = () => {
     const homeTeam = game.strHomeTeam.toLowerCase();
     const awayTeam = game.strAwayTeam.toLowerCase();
     
+    console.log('Checking game:', homeTeam, 'vs', awayTeam);
+    
     return config.favoriteTeams.some(team => {
       const teamLower = team.toLowerCase();
-      const teamKeywords = teamLower.split(' ');
       
-      // Check if any team keyword matches
-      return teamKeywords.some(keyword => 
-        homeTeam.includes(keyword) || awayTeam.includes(keyword)
-      ) || homeTeam.includes(teamLower) || awayTeam.includes(teamLower);
+      // Check for exact matches, partial matches, and common variations
+      const isMatch = homeTeam.includes(teamLower) || 
+                     awayTeam.includes(teamLower) ||
+                     (teamLower === 'astros' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
+                     (teamLower === 'texans' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
+                     (teamLower === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston')));
+      
+      if (isMatch) {
+        console.log('Found favorite team match:', team, 'in', homeTeam, 'vs', awayTeam);
+      }
+      
+      return isMatch;
     });
   });
+
+  console.log('Favorite team games found:', favoriteTeamGames.length);
 
   // Separate upcoming and past games for favorites
   const now = new Date();

@@ -44,7 +44,7 @@ export const useSports = () => {
   const queryClient = useQueryClient();
 
   const defaultConfig = {
-    favoriteTeams: ['Houston Astros', 'Houston Texans', 'Houston Rockets', 'Tampa Bay Lightning'],
+    favoriteTeams: ['Astros', 'Texans', 'Rockets', 'Lightning'],
     preferredLeagues: ['MLB', 'NBA', 'NFL', 'NHL', 'NCAAF'],
     enableNotifications: true
   };
@@ -99,7 +99,7 @@ export const useSports = () => {
         });
 
         if (response.success && response.data?.events) {
-          const events = response.data.events.slice(0, 3).map((event: any) => ({
+          const events = response.data.events.slice(0, 5).map((event: any) => ({
             ...event,
             strLeague: league // Add league abbreviation
           }));
@@ -118,7 +118,7 @@ export const useSports = () => {
         });
 
         if (upcomingResponse.success && upcomingResponse.data?.events) {
-          const upcomingEvents = upcomingResponse.data.events.slice(0, 5).map((event: any) => ({
+          const upcomingEvents = upcomingResponse.data.events.slice(0, 10).map((event: any) => ({
             ...event,
             strLeague: league // Add league abbreviation
           }));
@@ -126,10 +126,13 @@ export const useSports = () => {
         }
       }
       
-      // Sort by date (upcoming first, then recent) and return latest 15 events
+      // Debug: Log some sample events to see team names
+      console.log('Sample sports events:', allEvents.slice(0, 5));
+      
+      // Sort by date (upcoming first, then recent) and return latest 20 events
       return allEvents
-        .sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime())
-        .slice(0, 15);
+        .sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime())
+        .slice(0, 20);
     } catch (error) {
       console.error('Error fetching sports data:', error);
     }
