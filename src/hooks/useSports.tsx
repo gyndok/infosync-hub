@@ -44,8 +44,8 @@ export const useSports = () => {
   const queryClient = useQueryClient();
 
   const defaultConfig = {
-    favoriteTeams: ['New York Yankees', 'Los Angeles Lakers', 'Kansas City Chiefs', 'Tampa Bay Lightning'],
-    preferredLeagues: ['MLB', 'NBA', 'NFL', 'NHL'],
+    favoriteTeams: ['New York Yankees', 'Los Angeles Lakers', 'Kansas City Chiefs', 'Tampa Bay Lightning', 'Alabama Crimson Tide'],
+    preferredLeagues: ['MLB', 'NBA', 'NFL', 'NHL', 'NCAAF'],
     enableNotifications: true
   };
 
@@ -79,7 +79,8 @@ export const useSports = () => {
     MLB: '4424',
     NBA: '4387', 
     NFL: '4391',
-    NHL: '4380'
+    NHL: '4380',
+    NCAAF: '4417' // NCAA Football
   };
 
   // Fetch live sports data from multiple US leagues

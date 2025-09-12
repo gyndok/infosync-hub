@@ -297,7 +297,7 @@ export const SportsWidget: React.FC = () => {
           
           <TabsContent value="standings" className="mt-0">
             <div className="p-4 space-y-4">
-              {['MLB', 'NBA', 'NFL', 'NHL'].map((league) => (
+              {['MLB', 'NBA', 'NFL', 'NHL', 'NCAAF'].map((league) => (
                 <div key={league} className="space-y-2">
                   <div className="flex items-center gap-2">
                     <h4 className="text-sm font-semibold">{league}</h4>
