@@ -146,6 +146,104 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_holdings: {
+        Row: {
+          asset_type: string
+          avg_cost_per_unit: number
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          portfolio_id: string
+          purchase_date: string | null
+          quantity: number
+          symbol: string
+          updated_at: string
+        }
+        Insert: {
+          asset_type: string
+          avg_cost_per_unit?: number
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          portfolio_id: string
+          purchase_date?: string | null
+          quantity?: number
+          symbol: string
+          updated_at?: string
+        }
+        Update: {
+          asset_type?: string
+          avg_cost_per_unit?: number
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          portfolio_id?: string
+          purchase_date?: string | null
+          quantity?: number
+          symbol?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_holdings_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "user_portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_alerts: {
+        Row: {
+          alert_type: string
+          asset_type: string
+          created_at: string
+          current_value: number | null
+          id: string
+          is_active: boolean | null
+          is_triggered: boolean | null
+          notification_method: string | null
+          symbol: string
+          target_value: number
+          triggered_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          asset_type: string
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_triggered?: boolean | null
+          notification_method?: string | null
+          symbol: string
+          target_value: number
+          triggered_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          asset_type?: string
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_triggered?: boolean | null
+          notification_method?: string | null
+          symbol?: string
+          target_value?: number
+          triggered_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -165,6 +263,36 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_portfolios: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
           updated_at?: string
           user_id?: string
         }
