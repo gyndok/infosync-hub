@@ -44,7 +44,7 @@ export const useSports = () => {
   const queryClient = useQueryClient();
 
   const defaultConfig = {
-    favoriteTeams: ['New York Yankees', 'Los Angeles Lakers', 'Kansas City Chiefs', 'Tampa Bay Lightning', 'Alabama Crimson Tide'],
+    favoriteTeams: ['Houston Astros', 'Houston Texans', 'Houston Rockets', 'Tampa Bay Lightning'],
     preferredLeagues: ['MLB', 'NBA', 'NFL', 'NHL', 'NCAAF'],
     enableNotifications: true
   };
@@ -106,11 +106,30 @@ export const useSports = () => {
           allEvents.push(...events);
         }
       }
+
+      // Also fetch upcoming events for each league
+      for (const [league, leagueId] of Object.entries(usLeagueIds)) {
+        const upcomingResponse = await makeRequest({
+          service: 'thesportsdb',
+          endpoint: '/eventsnextleague.php',
+          params: {
+            id: leagueId
+          }
+        });
+
+        if (upcomingResponse.success && upcomingResponse.data?.events) {
+          const upcomingEvents = upcomingResponse.data.events.slice(0, 5).map((event: any) => ({
+            ...event,
+            strLeague: league // Add league abbreviation
+          }));
+          allEvents.push(...upcomingEvents);
+        }
+      }
       
-      // Sort by date and return latest 10 events
+      // Sort by date (upcoming first, then recent) and return latest 15 events
       return allEvents
         .sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime())
-        .slice(0, 10);
+        .slice(0, 15);
     } catch (error) {
       console.error('Error fetching sports data:', error);
     }

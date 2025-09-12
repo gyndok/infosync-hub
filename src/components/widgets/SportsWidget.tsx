@@ -234,15 +234,34 @@ export const SportsWidget: React.FC = () => {
     });
   };
 
-  // Filter games involving favorite teams
-  const favoriteTeamGames = sportsData.filter(game => 
-    config.favoriteTeams.some(team => 
-      game.strHomeTeam.toLowerCase().includes(team.toLowerCase()) || 
-      game.strAwayTeam.toLowerCase().includes(team.toLowerCase()) ||
-      game.strHomeTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '') ||
-      game.strAwayTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '')
-    )
-  );
+  // Filter games involving favorite teams (better matching)
+  const favoriteTeamGames = sportsData.filter(game => {
+    const homeTeam = game.strHomeTeam.toLowerCase();
+    const awayTeam = game.strAwayTeam.toLowerCase();
+    
+    return config.favoriteTeams.some(team => {
+      const teamLower = team.toLowerCase();
+      const teamKeywords = teamLower.split(' ');
+      
+      // Check if any team keyword matches
+      return teamKeywords.some(keyword => 
+        homeTeam.includes(keyword) || awayTeam.includes(keyword)
+      ) || homeTeam.includes(teamLower) || awayTeam.includes(teamLower);
+    });
+  });
+
+  // Separate upcoming and past games for favorites
+  const now = new Date();
+  const upcomingFavoriteGames = favoriteTeamGames.filter(game => 
+    new Date(game.dateEvent) >= now
+  ).sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime());
+  
+  const pastFavoriteGames = favoriteTeamGames.filter(game => 
+    new Date(game.dateEvent) < now
+  ).sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime());
+
+  // Combine: upcoming first, then recent past games
+  const combinedFavoriteGames = [...upcomingFavoriteGames, ...pastFavoriteGames.slice(0, 3)];
 
   // Other games (non-favorite teams)
   const otherGames = sportsData.filter(game => 
@@ -291,7 +310,7 @@ export const SportsWidget: React.FC = () => {
           <TabsContent value="favorites" className="mt-0">
             {isLoading ? (
               <LoadingSkeleton />
-            ) : favoriteTeamGames.length === 0 ? (
+            ) : combinedFavoriteGames.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center px-4">
                 <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground mb-1">No games for your favorite teams</p>
@@ -318,22 +337,47 @@ export const SportsWidget: React.FC = () => {
               </div>
             ) : (
               <div className="px-1 pb-4">
-                <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
-                  <p className="text-xs font-medium text-primary">Favorite Teams Games</p>
-                </div>
-                {favoriteTeamGames.map((match, idx) => (
-                  <MatchItem
-                    key={`fav-${match.idEvent}-${idx}`}
-                    homeTeam={match.strHomeTeam}
-                    awayTeam={match.strAwayTeam}
-                    homeScore={match.intHomeScore}
-                    awayScore={match.intAwayScore}
-                    status={match.strStatus}
-                    date={match.dateEvent}
-                    time={match.strTime || 'TBD'}
-                    league={match.strLeague}
-                  />
-                ))}
+                {upcomingFavoriteGames.length > 0 && (
+                  <>
+                    <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
+                      <p className="text-xs font-medium text-primary">Upcoming Games</p>
+                    </div>
+                    {upcomingFavoriteGames.map((match, idx) => (
+                      <MatchItem
+                        key={`upcoming-${match.idEvent}-${idx}`}
+                        homeTeam={match.strHomeTeam}
+                        awayTeam={match.strAwayTeam}
+                        homeScore={match.intHomeScore}
+                        awayScore={match.intAwayScore}
+                        status={match.strStatus}
+                        date={match.dateEvent}
+                        time={match.strTime || 'TBD'}
+                        league={match.strLeague}
+                      />
+                    ))}
+                  </>
+                )}
+                
+                {pastFavoriteGames.length > 0 && (
+                  <>
+                    <div className="px-3 py-2 bg-muted/30 border-l-2 border-muted mb-3 mt-4">
+                      <p className="text-xs font-medium text-muted-foreground">Recent Results</p>
+                    </div>
+                    {pastFavoriteGames.slice(0, 3).map((match, idx) => (
+                      <MatchItem
+                        key={`past-${match.idEvent}-${idx}`}
+                        homeTeam={match.strHomeTeam}
+                        awayTeam={match.strAwayTeam}
+                        homeScore={match.intHomeScore}
+                        awayScore={match.intAwayScore}
+                        status={match.strStatus}
+                        date={match.dateEvent}
+                        time={match.strTime || 'TBD'}
+                        league={match.strLeague}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </TabsContent>
