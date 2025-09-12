@@ -114,6 +114,30 @@ export const WeatherWidget: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(false);
 
+  // Convert temperature between Celsius and Fahrenheit
+  const convertTemp = (temp: number, toFahrenheit: boolean) => {
+    return toFahrenheit ? Math.round((temp * 9/5) + 32) : Math.round((temp - 32) * 5/9);
+  };
+
+  // Get displayed temperature (convert if needed)
+  const getDisplayTemp = (temp: number) => {
+    // The API returns data in the units we requested, so no conversion needed
+    return Math.round(temp);
+  };
+
+  // Handle unit toggle with immediate re-fetch
+  const handleUnitToggle = async () => {
+    const newUseFahrenheit = !useFahrenheit;
+    setUseFahrenheit(newUseFahrenheit);
+    
+    // Immediately re-fetch data with new units
+    if (currentLocation) {
+      await fetchWeatherData(currentLocation.lat, currentLocation.lon);
+    } else if (location) {
+      await fetchWeatherData();
+    }
+  };
+
   // Get current location
   const getCurrentLocation = useCallback(() => {
     if ('geolocation' in navigator) {
@@ -281,8 +305,21 @@ export const WeatherWidget: React.FC = () => {
   // Initial load and refresh when unit changes
   useEffect(() => {
     getCurrentLocation();
-    
-    // Auto-refresh every 10 minutes
+  }, [getCurrentLocation]);
+
+  // Re-fetch when units change
+  useEffect(() => {
+    if (weatherData) {
+      if (currentLocation) {
+        fetchWeatherData(currentLocation.lat, currentLocation.lon);
+      } else if (location) {
+        fetchWeatherData();
+      }
+    }
+  }, [useFahrenheit]);
+
+  // Auto-refresh every 10 minutes
+  useEffect(() => {
     const interval = setInterval(() => {
       if (currentLocation) {
         fetchWeatherData(currentLocation.lat, currentLocation.lon);
@@ -292,7 +329,7 @@ export const WeatherWidget: React.FC = () => {
     }, 10 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [getCurrentLocation, useFahrenheit]); // Re-fetch when unit changes
+  }, [currentLocation, location]);
 
   const formatTime = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleTimeString([], { 
@@ -350,9 +387,10 @@ export const WeatherWidget: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setUseFahrenheit(!useFahrenheit)}
+              onClick={handleUnitToggle}
               className="h-7 px-2 text-xs"
               title={`Switch to ${useFahrenheit ? 'Celsius' : 'Fahrenheit'}`}
+              disabled={loading}
             >
               <Thermometer className="h-3 w-3 mr-1" />
               {useFahrenheit ? '°F' : '°C'}
@@ -446,13 +484,13 @@ export const WeatherWidget: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-3xl font-bold">
-                      {weatherData.current.temp}°{useFahrenheit ? 'F' : 'C'}
+                      {getDisplayTemp(weatherData.current.temp)}°{useFahrenheit ? 'F' : 'C'}
                     </div>
                     <div className="text-sm text-muted-foreground capitalize">
                       {weatherData.current.weather.description}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Feels like {weatherData.current.feels_like}°{useFahrenheit ? 'F' : 'C'}
+                      Feels like {getDisplayTemp(weatherData.current.feels_like)}°{useFahrenheit ? 'F' : 'C'}
                     </div>
                   </div>
                   <WeatherIcon className="h-12 w-12 text-primary" />
@@ -560,7 +598,7 @@ export const WeatherWidget: React.FC = () => {
                           )}
                           <div className="text-right">
                             <div className="text-sm font-medium">
-                              {day.temp.max}°{useFahrenheit ? 'F' : 'C'} <span className="text-muted-foreground">{day.temp.min}°{useFahrenheit ? 'F' : 'C'}</span>
+                              {getDisplayTemp(day.temp.max)}°{useFahrenheit ? 'F' : 'C'} <span className="text-muted-foreground">{getDisplayTemp(day.temp.min)}°{useFahrenheit ? 'F' : 'C'}</span>
                             </div>
                           </div>
                         </div>
