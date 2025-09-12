@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import ApiHealthDashboard from "./components/admin/ApiHealthDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,18 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/api-health" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-dashboard-bg p-6">
+                    <div className="max-w-7xl mx-auto">
+                      <ApiHealthDashboard />
+                    </div>
+                  </div>
                 </ProtectedRoute>
               } 
             />

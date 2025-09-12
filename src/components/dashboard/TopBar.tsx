@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Plus, LogOut, User, Settings } from 'lucide-react';
+import { Search, Bell, Plus, LogOut, User, Settings, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -20,6 +20,10 @@ export const TopBar: React.FC = () => {
 
   const handleProfileClick = () => {
     navigate('/profile');
+  };
+
+  const handleApiHealthClick = () => {
+    navigate('/admin/api-health');
   };
 
   return (
@@ -74,6 +78,10 @@ export const TopBar: React.FC = () => {
             <DropdownMenuItem onClick={handleProfileClick}>
               <Settings className="w-4 h-4 mr-2" />
               Profile Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleApiHealthClick}>
+              <Shield className="w-4 h-4 mr-2" />
+              API Health Dashboard
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
