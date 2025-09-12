@@ -52,28 +52,9 @@ const Dashboard: React.FC = () => {
       <GridLayout />
 
       {/* Additional Static Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-        {/* Time Tracker */}
-        <Card className="dashboard-card bg-gradient-to-br from-primary to-primary-hover text-primary-foreground">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Time Tracker</h3>
-              <Activity className="w-6 h-6" />
-            </div>
-            <div className="text-3xl font-bold mb-2">01:24:08</div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/20">
-                Pause
-              </Button>
-              <Button size="sm" variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/20">
-                Stop
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-8">
         {/* Recent Activity */}
-        <Card className="dashboard-card lg:col-span-2">
+        <Card className="dashboard-card">
           <CardHeader className="widget-header">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               🎯 Recent Activity
