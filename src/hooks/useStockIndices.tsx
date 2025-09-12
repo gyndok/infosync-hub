@@ -13,12 +13,12 @@ export const useStockIndices = () => {
   const { makeRequest } = useApiProxy();
 
   const majorIndices = [
-    { symbol: '^GSPC', name: 'S&P 500' },
-    { symbol: '^IXIC', name: 'NASDAQ' },
-    { symbol: '^DJI', name: 'Dow Jones' },
-    { symbol: '^RUT', name: 'Russell 2000' },
-    { symbol: '^VIX', name: 'VIX' },
-    { symbol: '^FTSE', name: 'FTSE 100' }
+    { symbol: 'SPY', name: 'S&P 500 (SPY)' },
+    { symbol: 'QQQ', name: 'NASDAQ (QQQ)' },
+    { symbol: 'DIA', name: 'Dow Jones (DIA)' },
+    { symbol: 'IWM', name: 'Russell 2000 (IWM)' },
+    { symbol: 'VXX', name: 'VIX (VXX)' },
+    { symbol: 'EFA', name: 'EAFE (EFA)' }
   ];
 
   const fetchIndexData = async (): Promise<IndexData[]> => {
