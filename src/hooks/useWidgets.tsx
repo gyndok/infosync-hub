@@ -5,7 +5,7 @@ import { useAuth } from './useAuth';
 interface UserWidget {
   id: string;
   user_id: string;
-  widget_type: 'news' | 'weather' | 'finance' | 'sports' | 'analytics';
+  widget_type: 'news' | 'weather' | 'finance' | 'sports' | 'analytics' | 'major_indices' | 'stock_watchlist' | 'cryptocurrency';
   position: number;
   size: 'small' | 'medium' | 'large';
   configuration: Record<string, any>;

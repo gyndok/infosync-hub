@@ -3,7 +3,9 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { NewsWidget } from '@/components/widgets/NewsWidget';
 import { WeatherWidget } from '@/components/widgets/WeatherWidget';
-import { FinanceWidget } from '@/components/widgets/FinanceWidget';
+import { MajorIndicesWidget } from '@/components/widgets/MajorIndicesWidget';
+import { StockWatchlistWidget } from '@/components/widgets/StockWatchlistWidget';
+import { CryptocurrencyWidget } from '@/components/widgets/CryptocurrencyWidget';
 import { AnalyticsWidget } from '@/components/widgets/AnalyticsWidget';
 import { 
   Newspaper, 
@@ -76,12 +78,20 @@ const Dashboard: React.FC = () => {
 
         {/* Right Column - 1/3 width */}
         <div className="space-y-6">
-          {/* Finance Widget */}
-          <div className="h-[500px]">
-            <FinanceWidget />
+          {/* Finance Widgets */}
+          <div className="h-[400px]">
+            <MajorIndicesWidget />
+          </div>
+          
+          <div className="h-[450px]">
+            <StockWatchlistWidget />
+          </div>
+          
+          <div className="h-[450px]">
+            <CryptocurrencyWidget />
           </div>
 
-          {/* Reminders Card */}
+          {/* Reminders Card - moved below finance widgets */}
           <Card className="dashboard-card">
             <CardHeader className="widget-header">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -152,8 +162,9 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Time Tracker Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Additional Sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Time Tracker */}
         <Card className="dashboard-card bg-gradient-to-br from-primary to-primary-hover text-primary-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -172,7 +183,8 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="dashboard-card md:col-span-2">
+        {/* Recent Activity */}
+        <Card className="dashboard-card lg:col-span-2">
           <CardHeader className="widget-header">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               🎯 Recent Activity
@@ -185,8 +197,8 @@ const Dashboard: React.FC = () => {
                   <TrendingUp className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Stock portfolio updated</p>
-                  <p className="text-xs text-muted-foreground">AAPL and GOOGL positions tracked</p>
+                  <p className="text-sm font-medium text-foreground">Stock watchlist updated</p>
+                  <p className="text-xs text-muted-foreground">AAPL and GOOGL added to tracking</p>
                 </div>
                 <span className="text-xs text-muted-foreground">2 min ago</span>
               </div>
@@ -207,8 +219,8 @@ const Dashboard: React.FC = () => {
                   <Cloud className="w-4 h-4 text-success-foreground" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Weather data synced</p>
-                  <p className="text-xs text-muted-foreground">San Francisco forecast updated</p>
+                  <p className="text-sm font-medium text-foreground">Crypto prices updated</p>
+                  <p className="text-xs text-muted-foreground">Bitcoin and Ethereum synced</p>
                 </div>
                 <span className="text-xs text-muted-foreground">10 min ago</span>
               </div>
