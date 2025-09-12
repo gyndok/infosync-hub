@@ -308,7 +308,7 @@ export const NewsWidget: React.FC = () => {
         )}
 
         {/* Articles List */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent min-h-0 max-h-full">
           {loading && articles.length === 0 ? (
             <div className="flex items-center justify-center py-8">
               <RefreshCw className="h-5 w-5 animate-spin text-primary mr-2" />
