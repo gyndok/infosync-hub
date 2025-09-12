@@ -130,7 +130,7 @@ const SportsSettingsDialog: React.FC<{
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" className="widget-action">
           <Settings className="w-4 h-4" />
         </Button>
       </DialogTrigger>
@@ -296,7 +296,7 @@ export const SportsWidget: React.FC = () => {
             </Badge>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => refetch()}>
+            <Button variant="ghost" size="sm" className="widget-action" onClick={() => refetch()}>
               <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
             </Button>
             <SportsSettingsDialog
