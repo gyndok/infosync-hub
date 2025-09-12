@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useApiProxy } from './useApiProxy';
-import { useToast } from './use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface SportsData {
   idEvent: string;
@@ -21,6 +21,20 @@ interface SportsData {
 interface SportsConfig {
   favoriteTeams: string[];
   preferredLeagues: string[];
+  enableNotifications: boolean;
+}
+
+interface LeagueStanding {
+  idTeam: string;
+  strTeam: string;
+  intRank: string;
+  intPlayed: string;
+  intWin: string;
+  intLoss: string;
+  intGoalsFor?: string;
+  intGoalsAgainst?: string;
+  intGoalDifference?: string;
+  intPoints?: string;
 }
 
 export const useSports = () => {
@@ -30,8 +44,9 @@ export const useSports = () => {
   const queryClient = useQueryClient();
 
   const defaultConfig = {
-    favoriteTeams: ['Arsenal', 'Manchester United', 'Liverpool'],
-    preferredLeagues: ['English Premier League', 'UEFA Champions League']
+    favoriteTeams: ['New York Yankees', 'Los Angeles Lakers', 'Kansas City Chiefs', 'Tampa Bay Lightning'],
+    preferredLeagues: ['MLB', 'NBA', 'NFL', 'NHL'],
+    enableNotifications: true
   };
 
   // Fetch user's sports preferences
@@ -59,27 +74,89 @@ export const useSports = () => {
     enabled: !!user,
   });
 
-  // Fetch live sports data from TheSportsDB
-  const fetchSportsData = async (): Promise<SportsData[]> => {
-    try {
-      // Get recent events from Premier League (ID: 4328)
-      const response = await makeRequest({
-        service: 'thesportsdb',
-        endpoint: '/eventspastleague.php',
-        params: {
-          id: '4328' // Premier League ID
-        }
-      });
+  // US Sports League IDs for TheSportsDB
+  const usLeagueIds = {
+    MLB: '4424',
+    NBA: '4387', 
+    NFL: '4391',
+    NHL: '4380'
+  };
 
-      if (response.success && response.data?.events) {
-        return response.data.events.slice(0, 5); // Get latest 5 events
+  // Fetch live sports data from multiple US leagues
+  const fetchSportsData = async (): Promise<SportsData[]> => {
+    const allEvents: SportsData[] = [];
+    
+    try {
+      // Fetch recent events from all major US sports
+      for (const [league, leagueId] of Object.entries(usLeagueIds)) {
+        const response = await makeRequest({
+          service: 'thesportsdb',
+          endpoint: '/eventspastleague.php',
+          params: {
+            id: leagueId
+          }
+        });
+
+        if (response.success && response.data?.events) {
+          const events = response.data.events.slice(0, 3).map((event: any) => ({
+            ...event,
+            strLeague: league // Add league abbreviation
+          }));
+          allEvents.push(...events);
+        }
       }
+      
+      // Sort by date and return latest 10 events
+      return allEvents
+        .sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime())
+        .slice(0, 10);
     } catch (error) {
       console.error('Error fetching sports data:', error);
     }
     
     return [];
   };
+
+  // Fetch league standings
+  const fetchStandings = async (league: string): Promise<LeagueStanding[]> => {
+    try {
+      const leagueId = usLeagueIds[league as keyof typeof usLeagueIds];
+      if (!leagueId) return [];
+
+      const response = await makeRequest({
+        service: 'thesportsdb',
+        endpoint: '/lookuptable.php',
+        params: {
+          l: leagueId,
+          s: '2024-2025' // Current season
+        }
+      });
+
+      if (response.success && response.data?.table) {
+        return response.data.table.slice(0, 10); // Top 10 teams
+      }
+    } catch (error) {
+      console.error(`Error fetching ${league} standings:`, error);
+    }
+    
+    return [];
+  };
+
+  const standingsQuery = useQuery({
+    queryKey: ['sports-standings', configQuery.data?.preferredLeagues],
+    queryFn: async () => {
+      const standings: Record<string, LeagueStanding[]> = {};
+      const leagues = configQuery.data?.preferredLeagues || defaultConfig.preferredLeagues;
+      
+      for (const league of leagues) {
+        standings[league] = await fetchStandings(league);
+      }
+      
+      return standings;
+    },
+    refetchInterval: 300000, // Refetch every 5 minutes
+    enabled: !!configQuery.data,
+  });
 
   const sportsQuery = useQuery({
     queryKey: ['sports-data'],
@@ -142,15 +219,42 @@ export const useSports = () => {
     updateConfigMutation.mutate(newConfig);
   };
 
+  // Check for live score notifications
+  const checkLiveScores = () => {
+    const favoriteTeams = configQuery.data?.favoriteTeams || defaultConfig.favoriteTeams;
+    const liveGames = sportsQuery.data?.filter(game => 
+      game.strStatus.toLowerCase().includes('live') ||
+      game.strStatus.toLowerCase().includes('in progress')
+    ) || [];
+    
+    const favoriteGamesLive = liveGames.filter(game =>
+      favoriteTeams.some(team => 
+        game.strHomeTeam.includes(team) || game.strAwayTeam.includes(team)
+      )
+    );
+    
+    if (favoriteGamesLive.length > 0 && configQuery.data?.enableNotifications) {
+      favoriteGamesLive.forEach(game => {
+        toast({
+          title: "🏈 Live Game Alert!",
+          description: `${game.strHomeTeam} vs ${game.strAwayTeam} is live!`,
+        });
+      });
+    }
+  };
+
   return {
     sportsData: sportsQuery.data || [],
+    standings: standingsQuery.data || {},
     isLoading: sportsQuery.isLoading,
+    isLoadingStandings: standingsQuery.isLoading,
     error: sportsQuery.error,
     config: configQuery.data || defaultConfig,
     addFavoriteTeam,
     removeFavoriteTeam,
     updateConfig: updateConfigMutation.mutate,
     isUpdatingConfig: updateConfigMutation.isPending,
-    refetch: sportsQuery.refetch
+    refetch: sportsQuery.refetch,
+    checkLiveScores
   };
 };
