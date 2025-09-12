@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -30,7 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  
 
   useEffect(() => {
     // Set up auth state listener
@@ -64,19 +63,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     });
     
-    if (error) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Account created!",
-        description: "You can now sign in to your account.",
-        variant: "default",
-      });
-    }
     
     return { error };
   };
@@ -87,30 +73,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       password,
     });
     
-    if (error) {
-      toast({
-        title: "Sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-        variant: "default",
-      });
-    }
     
     return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully.",
-      variant: "default",
-    });
   };
 
   const value = {
