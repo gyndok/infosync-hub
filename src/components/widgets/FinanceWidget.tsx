@@ -12,6 +12,20 @@ import { CreatePortfolioDialog } from '@/components/finance/CreatePortfolioDialo
 import { AddHoldingDialog } from '@/components/finance/AddHoldingDialog';
 import { AddPriceAlertDialog } from '@/components/finance/AddPriceAlertDialog';
 
+// Safe currency formatter to avoid min/max fraction digit issues
+const formatPrice = (value?: number) => {
+  const n = typeof value === 'number' && isFinite(value) ? value : 0;
+  const big = n > 1000;
+  const min = big ? 0 : 2;
+  const max = big ? 0 : 2;
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: min,
+    maximumFractionDigits: max,
+  }).format(n);
+};
+
 const AssetItem: React.FC<{
   symbol: string;
   name: string;
@@ -37,10 +51,7 @@ const AssetItem: React.FC<{
     <div className="flex items-center gap-3">
       <div className="text-right">
         <div className="text-sm font-medium">
-          ${typeof price === 'number' ? price.toLocaleString(undefined, { 
-            minimumFractionDigits: price > 1000 ? 0 : 2, 
-            maximumFractionDigits: price > 1000 ? 0 : 2 
-          }) : '0.00'}
+          {formatPrice(price)}
         </div>
         <div className={cn(
           "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
