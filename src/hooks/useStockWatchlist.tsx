@@ -36,13 +36,16 @@ export const useStockWatchlist = () => {
         .select('configuration')
         .eq('user_id', user.id)
         .eq('widget_type', 'stock_watchlist')
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1);
       
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error('Error fetching watchlist:', error);
+        return [];
       }
       
-      const config = data?.configuration as { stocks?: WatchlistStock[] } | null;
+      // Get the most recent configuration or return empty array
+      const config = data?.[0]?.configuration as { stocks?: WatchlistStock[] } | null;
       return config?.stocks || [];
     },
     enabled: !!user,

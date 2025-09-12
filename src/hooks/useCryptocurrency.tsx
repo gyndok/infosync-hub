@@ -38,13 +38,15 @@ export const useCryptocurrency = () => {
         .select('configuration')
         .eq('user_id', user.id)
         .eq('widget_type', 'cryptocurrency')
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1);
       
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error('Error fetching crypto config:', error);
+        return { currencies: defaultCrypto };
       }
       
-      const config = data?.configuration as unknown as CryptoConfig | null;
+      const config = data?.[0]?.configuration as unknown as CryptoConfig | null;
       return config || { currencies: defaultCrypto };
     },
     enabled: !!user,
