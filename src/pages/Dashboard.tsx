@@ -51,54 +51,6 @@ const Dashboard: React.FC = () => {
       {/* Draggable Grid Layout */}
       <GridLayout />
 
-      {/* Additional Static Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-8">
-        {/* Recent Activity */}
-        <Card className="dashboard-card">
-          <CardHeader className="widget-header">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              🎯 Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Stock watchlist updated</p>
-                  <p className="text-xs text-muted-foreground">AAPL and GOOGL added to tracking</p>
-                </div>
-                <span className="text-xs text-muted-foreground">2 min ago</span>
-              </div>
-              
-              <div className="flex items-center gap-3 p-2">
-                <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                  <Newspaper className="w-4 h-4 text-accent-foreground" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">News feed refreshed</p>
-                  <p className="text-xs text-muted-foreground">3 new articles from TechNews</p>
-                </div>
-                <span className="text-xs text-muted-foreground">5 min ago</span>
-              </div>
-              
-              <div className="flex items-center gap-3 p-2">
-                <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
-                  <Cloud className="w-4 h-4 text-success-foreground" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Crypto prices updated</p>
-                  <p className="text-xs text-muted-foreground">Bitcoin and Ethereum synced</p>
-                </div>
-                <span className="text-xs text-muted-foreground">10 min ago</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Quick Actions & Reminders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Reminders Card */}
