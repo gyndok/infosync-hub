@@ -14,6 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_error_logs: {
+        Row: {
+          created_at: string
+          endpoint: string
+          error_message: string | null
+          error_type: string
+          id: string
+          request_payload: Json | null
+          response_payload: Json | null
+          service_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          error_message?: string | null
+          error_type: string
+          id?: string
+          request_payload?: Json | null
+          response_payload?: Json | null
+          service_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          error_message?: string | null
+          error_type?: string
+          id?: string
+          request_payload?: Json | null
+          response_payload?: Json | null
+          service_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      api_health_logs: {
+        Row: {
+          checked_at: string
+          endpoint: string
+          error_message: string | null
+          id: string
+          is_healthy: boolean | null
+          response_time_ms: number | null
+          service_name: string
+          status_code: number | null
+        }
+        Insert: {
+          checked_at?: string
+          endpoint: string
+          error_message?: string | null
+          id?: string
+          is_healthy?: boolean | null
+          response_time_ms?: number | null
+          service_name: string
+          status_code?: number | null
+        }
+        Update: {
+          checked_at?: string
+          endpoint?: string
+          error_message?: string | null
+          id?: string
+          is_healthy?: boolean | null
+          response_time_ms?: number | null
+          service_name?: string
+          status_code?: number | null
+        }
+        Relationships: []
+      }
+      api_rate_limits: {
+        Row: {
+          created_at: string
+          id: string
+          requests_count: number | null
+          service_name: string
+          user_id: string | null
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requests_count?: number | null
+          service_name: string
+          user_id?: string | null
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requests_count?: number | null
+          service_name?: string
+          user_id?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
+      api_services: {
+        Row: {
+          base_url: string
+          cache_duration_minutes: number | null
+          created_at: string
+          id: string
+          is_enabled: boolean | null
+          rate_limit_per_minute: number | null
+          service_name: string
+          timeout_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          base_url: string
+          cache_duration_minutes?: number | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          rate_limit_per_minute?: number | null
+          service_name: string
+          timeout_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          base_url?: string
+          cache_duration_minutes?: number | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          rate_limit_per_minute?: number | null
+          service_name?: string
+          timeout_seconds?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -148,7 +280,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
