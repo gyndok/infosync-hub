@@ -112,7 +112,7 @@ export const WeatherWidget: React.FC = () => {
   const [expandedForecast, setExpandedForecast] = useState(false);
   const [activeTab, setActiveTab] = useState('current');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [useFahrenheit, setUseFahrenheit] = useState(false);
+  const [useFahrenheit, setUseFahrenheit] = useState(true);
 
   // Convert temperature between Celsius and Fahrenheit
   const convertTemp = (temp: number, toFahrenheit: boolean) => {
