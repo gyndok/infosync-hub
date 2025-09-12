@@ -6,6 +6,7 @@ import { WeatherWidget } from '@/components/widgets/WeatherWidget';
 import { MajorIndicesWidget } from '@/components/widgets/MajorIndicesWidget';
 import { StockWatchlistWidget } from '@/components/widgets/StockWatchlistWidget';
 import { CryptocurrencyWidget } from '@/components/widgets/CryptocurrencyWidget';
+import { SportsWidget } from '@/components/widgets/SportsWidget';
 import { AnalyticsWidget } from '@/components/widgets/AnalyticsWidget';
 import { 
   Newspaper, 
@@ -57,6 +58,10 @@ const Dashboard: React.FC = () => {
           
           <div className="h-[450px] overflow-hidden">
             <CryptocurrencyWidget />
+          </div>
+          
+          <div className="h-[450px] overflow-hidden">
+            <SportsWidget />
           </div>
 
           {/* Reminders Card - moved below finance widgets */}
