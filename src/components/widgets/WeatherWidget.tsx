@@ -478,8 +478,7 @@ export const WeatherWidget: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="current" className="flex-1 overflow-y-auto">
-              {/* Current Weather */}
+            <TabsContent value="current" className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">{/* Current Weather */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -546,7 +545,7 @@ export const WeatherWidget: React.FC = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="forecast" className="flex-1 overflow-y-auto">
+            <TabsContent value="forecast" className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
               <div className="space-y-2">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium">

@@ -26,66 +26,68 @@ export const FinanceWidget: React.FC = () => {
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        {/* Stocks Section */}
-        <div className="p-4 border-b border-border/50">
-          <h4 className="text-sm font-medium text-foreground mb-3">Stocks</h4>
-          <div className="space-y-3">
-            {stocks.map((stock) => (
-              <div key={stock.symbol} className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">{stock.symbol}</span>
-                    <span className="text-xs text-muted-foreground">{stock.name}</span>
+      <CardContent className="p-0 h-full flex flex-col">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+          {/* Stocks Section */}
+          <div className="p-4 border-b border-border/50">
+            <h4 className="text-sm font-medium text-foreground mb-3">Stocks</h4>
+            <div className="space-y-3">
+              {stocks.map((stock) => (
+                <div key={stock.symbol} className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-foreground">{stock.symbol}</span>
+                      <span className="text-xs text-muted-foreground">{stock.name}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium">${stock.price.toFixed(2)}</span>
+                    <div className={cn(
+                      "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
+                      stock.change > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                    )}>
+                      {stock.change > 0 ? (
+                        <TrendingUp className="w-3 h-3" />
+                      ) : (
+                        <TrendingDown className="w-3 h-3" />
+                      )}
+                      {stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium">${stock.price.toFixed(2)}</span>
-                  <div className={cn(
-                    "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-                    stock.change > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-                  )}>
-                    {stock.change > 0 ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3" />
-                    )}
-                    {stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Crypto Section */}
-        <div className="p-4">
-          <h4 className="text-sm font-medium text-foreground mb-3">Cryptocurrency</h4>
-          <div className="space-y-3">
-            {crypto.map((coin) => (
-              <div key={coin.symbol} className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">{coin.symbol}</span>
-                    <span className="text-xs text-muted-foreground">{coin.name}</span>
+          {/* Crypto Section */}
+          <div className="p-4">
+            <h4 className="text-sm font-medium text-foreground mb-3">Cryptocurrency</h4>
+            <div className="space-y-3">
+              {crypto.map((coin) => (
+                <div key={coin.symbol} className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-foreground">{coin.symbol}</span>
+                      <span className="text-xs text-muted-foreground">{coin.name}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium">${coin.price.toLocaleString()}</span>
+                    <div className={cn(
+                      "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
+                      coin.change > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                    )}>
+                      {coin.change > 0 ? (
+                        <TrendingUp className="w-3 h-3" />
+                      ) : (
+                        <TrendingDown className="w-3 h-3" />
+                      )}
+                      {coin.changePercent > 0 ? '+' : ''}{coin.changePercent.toFixed(2)}%
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium">${coin.price.toLocaleString()}</span>
-                  <div className={cn(
-                    "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-                    coin.change > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-                  )}>
-                    {coin.change > 0 ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3" />
-                    )}
-                    {coin.changePercent > 0 ? '+' : ''}{coin.changePercent.toFixed(2)}%
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </CardContent>
