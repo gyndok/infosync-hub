@@ -77,17 +77,17 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Column - 1/3 width */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Finance Widgets */}
-          <div className="h-[400px]">
+          <div className="h-[400px] overflow-hidden">
             <MajorIndicesWidget />
           </div>
           
-          <div className="h-[450px]">
+          <div className="h-[450px] overflow-hidden">
             <StockWatchlistWidget />
           </div>
           
-          <div className="h-[450px]">
+          <div className="h-[450px] overflow-hidden">
             <CryptocurrencyWidget />
           </div>
 
