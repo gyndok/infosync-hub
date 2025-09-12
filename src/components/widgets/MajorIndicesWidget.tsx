@@ -7,17 +7,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useStockIndices } from '@/hooks/useStockIndices';
 
-// Safe currency formatter
+// Safe number formatter for indices (no currency symbol)
 const formatPrice = (value?: number) => {
   const n = typeof value === 'number' && isFinite(value) ? value : 0;
-  const big = n > 1000;
-  const min = big ? 0 : 2;
-  const max = big ? 0 : 2;
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: min,
-    maximumFractionDigits: max,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+};
+
+// Format points change
+const formatChange = (value?: number) => {
+  const n = typeof value === 'number' && isFinite(value) ? value : 0;
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    signDisplay: 'always'
   }).format(n);
 };
 
@@ -49,7 +54,7 @@ const IndexItem: React.FC<{
           ) : (
             <TrendingDown className="w-3 h-3" />
           )}
-          {changePercent > 0 ? '+' : ''}{changePercent.toFixed(2)}%
+          {formatChange(change)}
         </div>
       </div>
     </div>
