@@ -26,7 +26,9 @@ import {
   Navigation,
   Sunrise,
   Sunset,
-  Gauge
+  Gauge,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 
 interface WeatherData {
@@ -110,6 +112,7 @@ export const WeatherWidget: React.FC = () => {
   const [expandedForecast, setExpandedForecast] = useState(false);
   const [activeTab, setActiveTab] = useState('current');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [useFahrenheit, setUseFahrenheit] = useState(false);
 
   // Get current location
   const getCurrentLocation = useCallback(() => {
@@ -140,7 +143,7 @@ export const WeatherWidget: React.FC = () => {
       setError(null);
       
       let params: any = {
-        units: 'metric'
+        units: useFahrenheit ? 'imperial' : 'metric'
       };
 
       if (lat && lon) {
@@ -220,7 +223,7 @@ export const WeatherWidget: React.FC = () => {
             lat: currentWeather.coord.lat,
             lon: currentWeather.coord.lon,
             exclude: 'minutely,hourly,daily',
-            units: 'metric'
+            units: useFahrenheit ? 'imperial' : 'metric'
           }
         });
         
@@ -245,7 +248,7 @@ export const WeatherWidget: React.FC = () => {
           humidity: currentWeather.main.humidity,
           pressure: currentWeather.main.pressure,
           visibility: Math.round((currentWeather.visibility || 10000) / 1000),
-          wind_speed: Math.round(currentWeather.wind.speed * 3.6), // Convert m/s to km/h
+          wind_speed: Math.round(currentWeather.wind.speed * (useFahrenheit ? 2.237 : 3.6)), // Convert m/s to mph or km/h
           wind_deg: currentWeather.wind.deg,
           weather: {
             main: currentWeather.weather[0].main,
@@ -275,7 +278,7 @@ export const WeatherWidget: React.FC = () => {
     await fetchWeatherData();
   };
 
-  // Initial load
+  // Initial load and refresh when unit changes
   useEffect(() => {
     getCurrentLocation();
     
@@ -289,7 +292,7 @@ export const WeatherWidget: React.FC = () => {
     }, 10 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [getCurrentLocation]);
+  }, [getCurrentLocation, useFahrenheit]); // Re-fetch when unit changes
 
   const formatTime = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleTimeString([], { 
@@ -344,6 +347,21 @@ export const WeatherWidget: React.FC = () => {
                 {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setUseFahrenheit(!useFahrenheit)}
+              className="h-7 px-2 text-xs"
+              title={`Switch to ${useFahrenheit ? 'Celsius' : 'Fahrenheit'}`}
+            >
+              <Thermometer className="h-3 w-3 mr-1" />
+              {useFahrenheit ? '°F' : '°C'}
+              {useFahrenheit ? (
+                <ToggleRight className="h-3 w-3 ml-1" />
+              ) : (
+                <ToggleLeft className="h-3 w-3 ml-1" />
+              )}
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -428,13 +446,13 @@ export const WeatherWidget: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-3xl font-bold">
-                      {weatherData.current.temp}°C
+                      {weatherData.current.temp}°{useFahrenheit ? 'F' : 'C'}
                     </div>
                     <div className="text-sm text-muted-foreground capitalize">
                       {weatherData.current.weather.description}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Feels like {weatherData.current.feels_like}°C
+                      Feels like {weatherData.current.feels_like}°{useFahrenheit ? 'F' : 'C'}
                     </div>
                   </div>
                   <WeatherIcon className="h-12 w-12 text-primary" />
@@ -450,7 +468,9 @@ export const WeatherWidget: React.FC = () => {
                   <div className="space-y-1">
                     <Wind className="h-4 w-4 text-gray-500 mx-auto" />
                     <div className="text-xs text-muted-foreground">Wind</div>
-                    <div className="text-sm font-medium">{weatherData.current.wind_speed} km/h</div>
+                    <div className="text-sm font-medium">
+                      {weatherData.current.wind_speed} {useFahrenheit ? 'mph' : 'km/h'}
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <Eye className="h-4 w-4 text-purple-500 mx-auto" />
@@ -540,7 +560,7 @@ export const WeatherWidget: React.FC = () => {
                           )}
                           <div className="text-right">
                             <div className="text-sm font-medium">
-                              {day.temp.max}° <span className="text-muted-foreground">{day.temp.min}°</span>
+                              {day.temp.max}°{useFahrenheit ? 'F' : 'C'} <span className="text-muted-foreground">{day.temp.min}°{useFahrenheit ? 'F' : 'C'}</span>
                             </div>
                           </div>
                         </div>
