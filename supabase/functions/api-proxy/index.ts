@@ -110,7 +110,7 @@ serve(async (req) => {
     const cacheKey = `${endpoint}:${JSON.stringify(params)}`;
 
     // Normalize widget type for cache to satisfy constraints
-    const normalizedWidgetType = (service === 'alpha_vantage' || service === 'coingecko') ? 'finance' : service;
+    const normalizedWidgetType = (service === 'alpha_vantage' || service === 'coingecko' || service === 'finnhub') ? 'finance' : service;
 
     // Check cache first
     const { data: cachedData } = await supabase
@@ -166,6 +166,9 @@ serve(async (req) => {
         case 'alpha_vantage':
           urlParams.append('apikey', apiKey);
           break;
+        case 'finnhub':
+          urlParams.append('token', apiKey);
+          break;
         case 'sports':
           urlParams.append('apiKey', apiKey);
           break;
@@ -175,7 +178,7 @@ serve(async (req) => {
     // Add custom parameters (avoid duplicating API key placeholders)
     Object.entries(params).forEach(([key, value]) => {
       const k = key.toLowerCase();
-      if (service === 'alpha_vantage' && k === 'apikey') return; // we'll inject the real key
+      if ((service === 'alpha_vantage' && k === 'apikey') || (service === 'finnhub' && k === 'token')) return;
       urlParams.append(key, String(value));
     });
 
