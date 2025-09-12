@@ -52,18 +52,16 @@ export const useLayoutConfig = () => {
 
       try {
         const { data, error } = await supabase
-          .from('user_widgets')
-          .select('configuration')
+          .from('user_preferences')
+          .select('dashboard_layout')
           .eq('user_id', user.id)
-          .eq('widget_type', 'layout')
-          .order('created_at', { ascending: false })
-          .limit(1);
+          .maybeSingle();
 
         if (error) {
           console.error('Error loading layout config:', error);
           setLayoutConfig(defaultLayout);
-        } else if (data && data[0]) {
-          const config = data[0].configuration as unknown as LayoutConfig;
+        } else if (data && (data as any).dashboard_layout) {
+          const config = (data as any).dashboard_layout as unknown as LayoutConfig;
           // Ensure all widgets have required properties
           const validatedConfig = {
             ...config,
@@ -96,16 +94,26 @@ export const useLayoutConfig = () => {
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('user_widgets')
-        .upsert({
-          user_id: user.id,
-          widget_type: 'layout',
-          configuration: newConfig as any
-        });
+      // Ensure a preferences row exists; update if found, otherwise insert
+      const { data: existing, error: fetchErr } = await supabase
+        .from('user_preferences')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error) {
-        throw error;
+      if (fetchErr) throw fetchErr;
+
+      if (existing) {
+        const { error: updateErr } = await supabase
+          .from('user_preferences')
+          .update({ dashboard_layout: newConfig as any })
+          .eq('user_id', user.id);
+        if (updateErr) throw updateErr;
+      } else {
+        const { error: insertErr } = await supabase
+          .from('user_preferences')
+          .insert({ user_id: user.id, dashboard_layout: newConfig as any });
+        if (insertErr) throw insertErr;
       }
 
       setLayoutConfig(newConfig);
@@ -113,10 +121,11 @@ export const useLayoutConfig = () => {
         title: "Layout saved",
         description: "Your dashboard layout has been saved.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error saving layout:', error);
       toast({
         title: "Error saving layout",
-        description: "Failed to save your dashboard layout.",
+        description: error?.message || "Failed to save your dashboard layout.",
         variant: "destructive",
       });
     } finally {
