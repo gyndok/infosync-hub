@@ -17,7 +17,8 @@ export const useStockIndices = () => {
     { symbol: '^IXIC', name: 'NASDAQ' },
     { symbol: '^DJI', name: 'Dow Jones' },
     { symbol: '^RUT', name: 'Russell 2000' },
-    { symbol: '^VIX', name: 'VIX' }
+    { symbol: '^VIX', name: 'VIX' },
+    { symbol: '^FTSE', name: 'FTSE 100' }
   ];
 
   const fetchIndexData = async (): Promise<IndexData[]> => {
@@ -26,23 +27,27 @@ export const useStockIndices = () => {
     for (const index of majorIndices) {
       try {
         const response = await makeRequest({
-          service: 'alpha_vantage',
-          endpoint: '/query',
+          service: 'finnhub',
+          endpoint: '/quote',
           params: {
-            function: 'GLOBAL_QUOTE',
             symbol: index.symbol,
-            apikey: 'API_KEY'
+            token: 'FINNHUB_API_KEY' // Will be replaced by proxy
           }
         });
 
-        if (response.success && response.data['Global Quote']) {
-          const quote = response.data['Global Quote'];
+        if (response.success && response.data && response.data.c) {
+          const quote = response.data;
+          const currentPrice = quote.c; // Current price
+          const previousClose = quote.pc; // Previous close
+          const change = currentPrice - previousClose;
+          const changePercent = previousClose > 0 ? ((change / previousClose) * 100) : 0;
+          
           results.push({
             symbol: index.symbol,
             name: index.name,
-            price: parseFloat(quote['05. price']),
-            change: parseFloat(quote['09. change']),
-            changePercent: parseFloat(quote['10. change percent'].replace('%', ''))
+            price: currentPrice,
+            change: change,
+            changePercent: changePercent
           });
         }
       } catch (error) {
