@@ -103,6 +103,42 @@ const getAlertSeverityColor = (severity: string) => {
   }
 };
 
+// Normalize user-entered city searches to OpenWeather format
+// Examples:
+//  - "Sacramento, ca" -> "Sacramento,CA,US"
+//  - "Toronto, ca" -> "Toronto,CA"
+//  - "Paris" -> "Paris" (unchanged)
+const US_STATE_CODES = new Set([
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC','PR','VI','GU','AS','MP'
+]);
+
+const normalizeLocationQuery = (input: string) => {
+  const raw = (input || '').trim();
+  if (!raw) return raw;
+  const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
+
+  if (parts.length === 2) {
+    const [city, region] = parts;
+    const regionUpper = region.toUpperCase();
+    if (US_STATE_CODES.has(regionUpper)) {
+      // Assume US when a valid state code is provided
+      return `${city},${regionUpper},US`;
+    }
+    // If it's likely a country code
+    if (region.length === 2) {
+      return `${city},${regionUpper}`;
+    }
+    return `${city},${region}`;
+  }
+
+  if (parts.length === 3) {
+    const [city, region, country] = parts;
+    return `${city},${region.toUpperCase()},${country.toUpperCase()}`;
+  }
+
+  return raw;
+};
+
 export const WeatherWidget: React.FC = () => {
   const { makeRequest, loading } = useApiProxy();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
@@ -174,7 +210,8 @@ export const WeatherWidget: React.FC = () => {
         params.lat = lat;
         params.lon = lon;
       } else if (location) {
-        params.q = location;
+        const normalized = normalizeLocationQuery(location);
+        params.q = normalized;
       } else {
         return;
       }
@@ -290,8 +327,11 @@ export const WeatherWidget: React.FC = () => {
       setLastUpdated(new Date());
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch weather data';
-      setError(errorMessage);
+      const rawMessage = err instanceof Error ? err.message : 'Failed to fetch weather data';
+      const friendlyMessage = /404/.test(rawMessage) || /city not found/i.test(rawMessage)
+        ? 'City not found. Try "City, State, Country" (e.g., "Sacramento, CA, US").'
+        : rawMessage;
+      setError(friendlyMessage);
       console.error('Weather fetch error:', err);
     }
   };
