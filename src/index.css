@@ -2,41 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* Information Wall Dashboard Design System */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    /* Core backgrounds and text */
+    --background: 240 10% 96%;
+    --foreground: 222 47% 11%;
+    
+    /* Card system */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    --card-foreground: 222 47% 11%;
+    
+    /* Primary green theme inspired by reference */
+    --primary: 166 76% 37%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 166 76% 32%;
+    
+    /* Secondary green variations */
+    --secondary: 168 84% 78%;
+    --secondary-foreground: 166 76% 20%;
+    
+    /* Accent colors for highlights */
+    --accent: 172 100% 85%;
+    --accent-foreground: 166 76% 25%;
+    
+    /* Neutral grays for professional look */
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 9% 46%;
+    
+    /* Dashboard specific colors */
+    --dashboard-bg: 240 20% 98%;
+    --sidebar-bg: 0 0% 100%;
+    --sidebar-hover: 166 76% 97%;
+    --widget-shadow: 220 15% 85%;
+    
+    /* Status colors */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 45 93% 58%;
+    --warning-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Interactive elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 166 76% 37%;
+    
+    /* Spacing and borders */
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -92,6 +106,15 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* Utility classes for dashboard */
+  .widget-shadow {
+    box-shadow: 0 2px 8px 0 hsl(var(--widget-shadow) / 0.15);
+  }
+  
+  .sidebar-gradient {
+    background: linear-gradient(180deg, hsl(var(--sidebar-bg)) 0%, hsl(var(--dashboard-bg)) 100%);
+  }
 }
 
 @layer base {
@@ -100,6 +123,27 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[hsl(var(--dashboard-bg))] text-foreground font-medium;
+  }
+
+  /* Dashboard specific styles */
+  .dashboard-card {
+    @apply bg-card rounded-lg widget-shadow border border-border/50;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-[hsl(var(--sidebar-hover))] hover:text-primary transition-colors;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .widget-header {
+    @apply flex items-center justify-between p-4 border-b border-border/50;
+  }
+
+  .stat-card {
+    @apply dashboard-card p-6 hover:shadow-lg transition-shadow;
   }
 }
