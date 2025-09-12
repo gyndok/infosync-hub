@@ -60,10 +60,10 @@ const Dashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Top Row - News and Weather */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-[400px]">
+            <div className="h-[500px]">
               <NewsWidget />
             </div>
-            <div className="h-[400px]">
+            <div className="h-[500px]">
               <WeatherWidget />
             </div>
           </div>
@@ -77,7 +77,7 @@ const Dashboard: React.FC = () => {
         {/* Right Column - 1/3 width */}
         <div className="space-y-6">
           {/* Finance Widget */}
-          <div className="h-[400px]">
+          <div className="h-[500px]">
             <FinanceWidget />
           </div>
 
