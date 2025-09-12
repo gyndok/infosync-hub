@@ -219,7 +219,7 @@ export const SportsWidget: React.FC = () => {
     checkLiveScores
   } = useSports();
 
-  const [activeTab, setActiveTab] = useState("scores");
+  const [activeTab, setActiveTab] = useState("favorites");
 
   // Check for live scores periodically
   useEffect(() => {
@@ -233,6 +233,26 @@ export const SportsWidget: React.FC = () => {
       enableNotifications: enabled
     });
   };
+
+  // Filter games involving favorite teams
+  const favoriteTeamGames = sportsData.filter(game => 
+    config.favoriteTeams.some(team => 
+      game.strHomeTeam.toLowerCase().includes(team.toLowerCase()) || 
+      game.strAwayTeam.toLowerCase().includes(team.toLowerCase()) ||
+      game.strHomeTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '') ||
+      game.strAwayTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '')
+    )
+  );
+
+  // Other games (non-favorite teams)
+  const otherGames = sportsData.filter(game => 
+    !config.favoriteTeams.some(team => 
+      game.strHomeTeam.toLowerCase().includes(team.toLowerCase()) || 
+      game.strAwayTeam.toLowerCase().includes(team.toLowerCase()) ||
+      game.strHomeTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '') ||
+      game.strAwayTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '')
+    )
+  ).slice(0, 5); // Limit other games
 
   return (
     <Card className="dashboard-card h-full">
@@ -262,15 +282,66 @@ export const SportsWidget: React.FC = () => {
       </CardHeader>
       <CardContent className="p-0 h-full flex flex-col">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mx-4 mt-2">
-            <TabsTrigger value="scores" className="text-xs">Recent Scores</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
+            <TabsTrigger value="favorites" className="text-xs">My Teams</TabsTrigger>
+            <TabsTrigger value="recent" className="text-xs">Recent</TabsTrigger>
             <TabsTrigger value="standings" className="text-xs">Standings</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="scores" className="mt-0">
+          <TabsContent value="favorites" className="mt-0">
             {isLoading ? (
               <LoadingSkeleton />
-            ) : sportsData.length === 0 ? (
+            ) : favoriteTeamGames.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+                <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground mb-1">No games for your favorite teams</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  {config.favoriteTeams.length === 0 ? 'Add teams in settings' : 'Check back later for updates'}
+                </p>
+                {config.favoriteTeams.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-foreground">Your Teams:</p>
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {config.favoriteTeams.slice(0, 3).map((team) => (
+                        <Badge key={team} variant="outline" className="text-xs">
+                          {team.split(' ').pop()}
+                        </Badge>
+                      ))}
+                      {config.favoriteTeams.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{config.favoriteTeams.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="px-1 pb-4">
+                <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
+                  <p className="text-xs font-medium text-primary">Favorite Teams Games</p>
+                </div>
+                {favoriteTeamGames.map((match, idx) => (
+                  <MatchItem
+                    key={`fav-${match.idEvent}-${idx}`}
+                    homeTeam={match.strHomeTeam}
+                    awayTeam={match.strAwayTeam}
+                    homeScore={match.intHomeScore}
+                    awayScore={match.intAwayScore}
+                    status={match.strStatus}
+                    date={match.dateEvent}
+                    time={match.strTime || 'TBD'}
+                    league={match.strLeague}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="recent" className="mt-0">
+            {isLoading ? (
+              <LoadingSkeleton />
+            ) : otherGames.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No recent matches</p>
@@ -278,9 +349,9 @@ export const SportsWidget: React.FC = () => {
               </div>
             ) : (
               <div className="px-1 pb-4">
-                {sportsData.map((match, idx) => (
+                {otherGames.map((match, idx) => (
                   <MatchItem
-                    key={`${match.idEvent}-${idx}`}
+                    key={`other-${match.idEvent}-${idx}`}
                     homeTeam={match.strHomeTeam}
                     awayTeam={match.strAwayTeam}
                     homeScore={match.intHomeScore}
