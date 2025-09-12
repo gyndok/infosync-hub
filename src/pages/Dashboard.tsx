@@ -23,38 +23,6 @@ import { Button } from '@/components/ui/button';
 const Dashboard: React.FC = () => {
   return (
     <DashboardLayout>
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatsCard
-          title="Total Feeds"
-          value="24"
-          change="Increased from last month"
-          changeType="increase"
-          icon={Activity}
-          variant="primary"
-        />
-        <StatsCard
-          title="Active Widgets"
-          value="12"
-          change="3 new this week"
-          changeType="increase"
-          icon={Zap}
-        />
-        <StatsCard
-          title="Data Sources"
-          value="8"
-          change="2 connected today"
-          changeType="increase"
-          icon={TrendingUp}
-        />
-        <StatsCard
-          title="Live Updates"
-          value="156"
-          change="Real-time sync"
-          changeType="neutral"
-          icon={Bell}
-        />
-      </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
