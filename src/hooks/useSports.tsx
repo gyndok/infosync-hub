@@ -49,11 +49,21 @@ export const useSports = () => {
     enableNotifications: true
   };
 
-  // Fetch user's sports preferences
+  const LOCAL_STORAGE_KEY = 'sports-config';
+
+  // Fetch user's sports preferences (supports anon via localStorage)
   const configQuery = useQuery({
-    queryKey: ['sports-config', user?.id],
+    queryKey: ['sports-config', user?.id ?? 'anon'],
     queryFn: async () => {
-      if (!user) return defaultConfig;
+      if (!user) {
+        try {
+          const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+          const parsed = raw ? (JSON.parse(raw) as SportsConfig) : null;
+          return parsed || defaultConfig;
+        } catch {
+          return defaultConfig;
+        }
+      }
       
       const { data, error } = await supabase
         .from('user_widgets')
@@ -71,7 +81,7 @@ export const useSports = () => {
       const config = data?.[0]?.configuration as unknown as SportsConfig | null;
       return config || defaultConfig;
     },
-    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
   });
 
   // US Sports League IDs for TheSportsDB
@@ -191,7 +201,10 @@ export const useSports = () => {
   // Update sports configuration
   const updateConfigMutation = useMutation({
     mutationFn: async (newConfig: SportsConfig) => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newConfig));
+        return newConfig;
+      }
       
       const { error } = await supabase
         .from('user_widgets')
@@ -205,7 +218,7 @@ export const useSports = () => {
       return newConfig;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sports-config', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['sports-config', user?.id ?? 'anon'] });
       toast({
         title: "Settings updated",
         description: "Sports widget settings have been updated.",
@@ -251,9 +264,10 @@ export const useSports = () => {
     ) || [];
     
     const favoriteGamesLive = liveGames.filter(game =>
-      favoriteTeams.some(team => 
-        game.strHomeTeam.includes(team) || game.strAwayTeam.includes(team)
-      )
+      favoriteTeams.some(team => {
+        const t = team.toLowerCase();
+        return game.strHomeTeam.toLowerCase().includes(t) || game.strAwayTeam.toLowerCase().includes(t);
+      })
     );
     
     if (favoriteGamesLive.length > 0 && configQuery.data?.enableNotifications) {
