@@ -39,11 +39,10 @@ export const useStockIndices = () => {
         if (response.success && response.data?.chart?.result?.length > 0) {
           const result = response.data.chart.result[0];
           const meta = result.meta;
-          const quotes = result.indicators?.quote?.[0];
           
-          if (meta && quotes) {
-            const currentPrice = meta.regularMarketPrice || meta.previousClose;
-            const previousClose = meta.previousClose;
+          if (meta) {
+            const currentPrice = meta.regularMarketPrice;
+            const previousClose = meta.chartPreviousClose;
             const change = currentPrice - previousClose;
             const changePercent = previousClose > 0 ? ((change / previousClose) * 100) : 0;
             
