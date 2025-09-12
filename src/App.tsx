@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import NewsDemo from "./pages/NewsDemo";
 import ApiHealthDashboard from "./components/admin/ApiHealthDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -40,6 +41,14 @@ const App = () => (
                       <ApiHealthDashboard />
                     </div>
                   </div>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/demo/news" 
+              element={
+                <ProtectedRoute>
+                  <NewsDemo />
                 </ProtectedRoute>
               } 
             />
