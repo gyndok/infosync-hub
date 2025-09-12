@@ -110,7 +110,7 @@ serve(async (req) => {
     const cacheKey = `${endpoint}:${JSON.stringify(params)}`;
 
     // Normalize widget type for cache to satisfy constraints
-    const normalizedWidgetType = (service === 'alpha_vantage' || service === 'coingecko' || service === 'finnhub') ? 'finance' : service;
+    const normalizedWidgetType = (service === 'alpha_vantage' || service === 'coingecko' || service === 'finnhub' || service === 'yahoo_finance') ? 'finance' : service;
 
     // Check cache first
     const { data: cachedData } = await supabase
@@ -145,7 +145,7 @@ serve(async (req) => {
     
     const apiKey = Deno.env.get(apiKeyName);
 
-    if (!apiKey && service !== 'crypto') { // CoinGecko API doesn't require key for basic calls
+    if (!apiKey && service !== 'crypto' && service !== 'coingecko' && service !== 'yahoo_finance') { // CoinGecko and Yahoo Finance don't require API keys
       throw new Error(`API key not configured for ${service}`);
     }
 
