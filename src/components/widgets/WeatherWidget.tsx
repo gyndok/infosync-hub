@@ -419,7 +419,7 @@ export const WeatherWidget: React.FC = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col p-4 overflow-hidden">
+      <CardContent className="flex-1 flex flex-col p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent min-h-0">
         {/* Location Search */}
         <div className="flex gap-2 mb-4">
           <div className="relative flex-1">
