@@ -13,12 +13,12 @@ export const useStockIndices = () => {
   const { makeRequest } = useApiProxy();
 
   const majorIndices = [
-    { symbol: 'SPY', name: 'S&P 500 (SPY)' },
-    { symbol: 'QQQ', name: 'NASDAQ (QQQ)' },
-    { symbol: 'DIA', name: 'Dow Jones (DIA)' },
-    { symbol: 'IWM', name: 'Russell 2000 (IWM)' },
-    { symbol: 'VXX', name: 'VIX (VXX)' },
-    { symbol: 'EFA', name: 'EAFE (EFA)' }
+    { symbol: '^GSPC', name: 'S&P 500' },
+    { symbol: '^IXIC', name: 'NASDAQ' },
+    { symbol: '^DJI', name: 'Dow Jones' },
+    { symbol: '^RUT', name: 'Russell 2000' },
+    { symbol: '^VIX', name: 'VIX' },
+    { symbol: '^FTSE', name: 'FTSE 100' }
   ];
 
   const fetchIndexData = async (): Promise<IndexData[]> => {
@@ -27,28 +27,34 @@ export const useStockIndices = () => {
     for (const index of majorIndices) {
       try {
         const response = await makeRequest({
-          service: 'finnhub',
-          endpoint: '/quote',
+          service: 'yahoo_finance',
+          endpoint: '/chart/' + encodeURIComponent(index.symbol),
           params: {
-            symbol: index.symbol,
-            token: 'FINNHUB_API_KEY' // Will be replaced by proxy
+            interval: '1d',
+            range: '1d',
+            includePrePost: false
           }
         });
 
-        if (response.success && response.data && response.data.c) {
-          const quote = response.data;
-          const currentPrice = quote.c; // Current price
-          const previousClose = quote.pc; // Previous close
-          const change = currentPrice - previousClose;
-          const changePercent = previousClose > 0 ? ((change / previousClose) * 100) : 0;
+        if (response.success && response.data?.chart?.result?.length > 0) {
+          const result = response.data.chart.result[0];
+          const meta = result.meta;
+          const quotes = result.indicators?.quote?.[0];
           
-          results.push({
-            symbol: index.symbol,
-            name: index.name,
-            price: currentPrice,
-            change: change,
-            changePercent: changePercent
-          });
+          if (meta && quotes) {
+            const currentPrice = meta.regularMarketPrice || meta.previousClose;
+            const previousClose = meta.previousClose;
+            const change = currentPrice - previousClose;
+            const changePercent = previousClose > 0 ? ((change / previousClose) * 100) : 0;
+            
+            results.push({
+              symbol: index.symbol,
+              name: index.name,
+              price: currentPrice,
+              change: change,
+              changePercent: changePercent
+            });
+          }
         }
       } catch (error) {
         console.error(`Error fetching index data for ${index.symbol}:`, error);
