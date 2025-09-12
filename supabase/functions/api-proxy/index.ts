@@ -133,7 +133,13 @@ serve(async (req) => {
     }
 
     // Get API key for the service (stored in Supabase secrets)
-    const apiKeyName = `${service.toUpperCase()}_API_KEY`;
+    let apiKeyName = `${service.toUpperCase()}_API_KEY`;
+    
+    // Handle specific service API key mappings
+    if (service === 'weather') {
+      apiKeyName = 'OPENWEATHERMAP_API_KEY';
+    }
+    
     const apiKey = Deno.env.get(apiKeyName);
 
     if (!apiKey && service !== 'crypto') { // CoinGecko API doesn't require key for basic calls
