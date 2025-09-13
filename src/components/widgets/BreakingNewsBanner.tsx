@@ -29,7 +29,7 @@ export const BreakingNewsBanner = () => {
         // Try RSS feeds first via edge function (fast, no API rate limits)
         try {
           const { data: rssData } = await supabase.functions.invoke('rss-fetcher', {
-            body: { sources: ['reuters', 'bbc', 'guardian'], limit: 20 }
+            body: { sources: ['ap', 'reuters', 'bbc', 'guardian'], limit: 20 }
           });
 
           if (rssData?.success && rssData.items?.length) {

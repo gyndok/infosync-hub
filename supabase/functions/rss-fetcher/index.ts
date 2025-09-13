@@ -8,6 +8,7 @@ const corsHeaders = {
 
 // Whitelisted RSS feeds (add only trusted sources)
 const FEEDS: Record<string, string> = {
+  ap: 'https://feedx.net/rss/ap.xml',
   reuters: 'https://feeds.reuters.com/reuters/topNews',
   bbc: 'https://feeds.bbci.co.uk/news/rss.xml',
   guardian: 'https://www.theguardian.com/world/rss',
