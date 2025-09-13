@@ -167,7 +167,7 @@ export const BreakingNewsBanner = () => {
           {/* Fade overlay on the left */}
           <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-red-600 to-transparent z-10 pointer-events-none"></div>
           <div className="flex animate-[scroll-left_156s_linear_infinite] whitespace-nowrap hover:pause">
-            {news.concat(news).map((item, index) => (
+            {news.concat(news, news, news).map((item, index) => (
               <div key={`${item.id}-${index}`} className="flex items-center mr-16">
                 <a
                   href={item.url}
