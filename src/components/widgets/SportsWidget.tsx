@@ -21,44 +21,79 @@ const MatchItem: React.FC<{
   time: string;
   league: string;
 }> = ({ homeTeam, awayTeam, homeScore, awayScore, status, date, time, league }) => {
-  const isLive = status === 'Match Finished' || status === 'FT';
+  const isLive = status === 'Match Finished' || status === 'FT' || status.toLowerCase().includes('live');
   const hasScore = homeScore !== undefined && awayScore !== undefined;
+  
+  // Get team abbreviations (first 3 letters or common abbreviations)
+  const getTeamAbbr = (teamName: string) => {
+    const abbrevMap: Record<string, string> = {
+      'houston astros': 'HOU',
+      'houston texans': 'HOU', 
+      'houston rockets': 'HOU',
+      'tampa bay lightning': 'TB',
+      'new york yankees': 'NYY',
+      'boston red sox': 'BOS',
+      'los angeles lakers': 'LAL',
+      'golden state warriors': 'GSW',
+      'dallas cowboys': 'DAL',
+      'new england patriots': 'NE'
+    };
+    
+    const lower = teamName.toLowerCase();
+    return abbrevMap[lower] || teamName.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3);
+  };
 
   return (
-    <div className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs text-muted-foreground">{league}</span>
+    <div className="bg-card border rounded-lg p-3 mb-2 hover:bg-muted/50 transition-colors">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">{league}</Badge>
           {isLive && (
             <Badge variant="secondary" className="bg-success/10 text-success text-xs">
-              {status}
+              LIVE
             </Badge>
           )}
         </div>
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">{homeTeam}</span>
-            {hasScore && (
-              <span className="text-sm font-bold">{homeScore}</span>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">{awayTeam}</span>
-            {hasScore && (
-              <span className="text-sm font-bold">{awayScore}</span>
-            )}
-          </div>
+        <div className="text-xs text-muted-foreground">
+          {date} • {time}
         </div>
       </div>
-      <div className="flex flex-col items-end gap-1 ml-4">
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Calendar className="w-3 h-3" />
-          {date}
+      
+      <div className="space-y-1">
+        {/* Away Team */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center">
+              <span className="text-xs font-bold text-primary">
+                {getTeamAbbr(awayTeam)[0]}
+              </span>
+            </div>
+            <span className="text-sm font-medium">{getTeamAbbr(awayTeam)}</span>
+          </div>
+          <span className="text-lg font-bold">
+            {hasScore ? awayScore : '-'}
+          </span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Clock className="w-3 h-3" />
-          {time}
+        
+        {/* Home Team */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-secondary/10 rounded-full flex items-center justify-center">
+              <span className="text-xs font-bold text-secondary-foreground">
+                {getTeamAbbr(homeTeam)[0]}
+              </span>
+            </div>
+            <span className="text-sm font-medium">{getTeamAbbr(homeTeam)}</span>
+          </div>
+          <span className="text-lg font-bold">
+            {hasScore ? homeScore : '-'}
+          </span>
         </div>
+      </div>
+      
+      {/* Game Status */}
+      <div className="mt-2 pt-2 border-t border-border/50">
+        <span className="text-xs text-muted-foreground">{status}</span>
       </div>
     </div>
   );
