@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Clock, RefreshCw, Settings, Table, Bell } from 'lucide-react';
+import { Trophy, Calendar, Clock, RefreshCw, Settings, Table, Bell, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -220,6 +220,7 @@ export const SportsWidget: React.FC = () => {
   } = useSports();
 
   const [activeTab, setActiveTab] = useState("favorites");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Check for live scores periodically
   useEffect(() => {
@@ -234,54 +235,55 @@ export const SportsWidget: React.FC = () => {
     });
   };
 
-  // Filter games involving favorite teams (better matching)
-  const favoriteTeamGames = sportsData.filter(game => {
+  // Helper function to match teams
+  const matchesTeam = (game: any, searchOrTeam: string) => {
     const homeTeam = game.strHomeTeam.toLowerCase();
     const awayTeam = game.strAwayTeam.toLowerCase();
+    const term = searchOrTeam.toLowerCase();
     
-    console.log('Checking game:', homeTeam, 'vs', awayTeam);
-    
-    return config.favoriteTeams.some(team => {
-      const teamLower = team.toLowerCase();
-      
-      // Check for exact matches, partial matches, and common variations
-      const isMatch = homeTeam.includes(teamLower) || 
-                     awayTeam.includes(teamLower) ||
-                     (teamLower === 'astros' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-                     (teamLower === 'texans' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-                     (teamLower === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston')));
-      
-      if (isMatch) {
-        console.log('Found favorite team match:', team, 'in', homeTeam, 'vs', awayTeam);
-      }
-      
-      return isMatch;
-    });
+    return homeTeam.includes(term) || 
+           awayTeam.includes(term) ||
+           (term === 'astros' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
+           (term === 'texans' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
+           (term === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
+           (term === 'lightning' && (homeTeam.includes('tampa bay') || awayTeam.includes('tampa bay')));
+  };
+
+  // Filter games involving favorite teams (better matching)
+  const favoriteTeamGames = sportsData.filter(game => {
+    return config.favoriteTeams.some(team => matchesTeam(game, team));
   });
 
-  console.log('Favorite team games found:', favoriteTeamGames.length);
+  // Filter games by search term if provided
+  const searchFilteredGames = searchTerm 
+    ? sportsData.filter(game => matchesTeam(game, searchTerm))
+    : [];
 
-  // Separate upcoming and past games for favorites
-  const now = new Date();
-  const upcomingFavoriteGames = favoriteTeamGames.filter(game => 
-    new Date(game.dateEvent) >= now
-  ).sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime());
-  
-  const pastFavoriteGames = favoriteTeamGames.filter(game => 
-    new Date(game.dateEvent) < now
-  ).sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime());
+  // Helper function to process games (upcoming vs past)
+  const processGames = (games: any[]) => {
+    const now = new Date();
+    const upcoming = games.filter(game => 
+      new Date(game.dateEvent) >= now
+    ).sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime());
+    
+    const past = games.filter(game => 
+      new Date(game.dateEvent) < now
+    ).sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime());
 
-  // Combine: upcoming first, then recent past games
+    return { upcoming, past };
+  };
+
+  // Process favorite games
+  const { upcoming: upcomingFavoriteGames, past: pastFavoriteGames } = processGames(favoriteTeamGames);
   const combinedFavoriteGames = [...upcomingFavoriteGames, ...pastFavoriteGames.slice(0, 3)];
+
+  // Process search results
+  const { upcoming: upcomingSearchGames, past: pastSearchGames } = processGames(searchFilteredGames);
+  const combinedSearchGames = [...upcomingSearchGames, ...pastSearchGames.slice(0, 5)];
 
   // Other games (non-favorite teams)
   const otherGames = sportsData.filter(game => 
-    !config.favoriteTeams.some(team => 
-      game.strHomeTeam.toLowerCase().includes(team.toLowerCase()) || 
-      game.strAwayTeam.toLowerCase().includes(team.toLowerCase()) ||
-      game.strHomeTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '') ||
-      game.strAwayTeam.toLowerCase().includes(team.split(' ').pop()?.toLowerCase() || '')
-    )
+    !config.favoriteTeams.some(team => matchesTeam(game, team))
   ).slice(0, 5); // Limit other games
 
   return (
@@ -311,11 +313,24 @@ export const SportsWidget: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0 h-full flex flex-col">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Search Bar */}
+        <div className="px-4 py-2 border-b">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Search teams..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-8 text-sm"
+            />
+          </div>
+        </div>
+
+        <Tabs value={searchTerm ? "search" : activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
-            <TabsTrigger value="favorites" className="text-xs">My Teams</TabsTrigger>
-            <TabsTrigger value="recent" className="text-xs">Recent</TabsTrigger>
-            <TabsTrigger value="standings" className="text-xs">Standings</TabsTrigger>
+            <TabsTrigger value="favorites" className="text-xs" disabled={!!searchTerm}>My Teams</TabsTrigger>
+            <TabsTrigger value="recent" className="text-xs" disabled={!!searchTerm}>Recent</TabsTrigger>
+            <TabsTrigger value="standings" className="text-xs" disabled={!!searchTerm}>Standings</TabsTrigger>
           </TabsList>
           
           <TabsContent value="favorites" className="mt-0">
@@ -419,6 +434,42 @@ export const SportsWidget: React.FC = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Search Results Tab */}
+          <TabsContent value="search" className="mt-0">
+            {isLoading ? (
+              <LoadingSkeleton />
+            ) : searchTerm && combinedSearchGames.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+                <Search className="w-12 h-12 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground mb-1">No teams found</p>
+                <p className="text-xs text-muted-foreground">
+                  Try searching for "{searchTerm}" in a different way
+                </p>
+              </div>
+            ) : searchTerm ? (
+              <div className="px-1 pb-4">
+                <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
+                  <p className="text-xs font-medium text-primary">
+                    Search Results for "{searchTerm}" ({combinedSearchGames.length})
+                  </p>
+                </div>
+                {combinedSearchGames.map((match, idx) => (
+                  <MatchItem
+                    key={`search-${match.idEvent}-${idx}`}
+                    homeTeam={match.strHomeTeam}
+                    awayTeam={match.strAwayTeam}
+                    homeScore={match.intHomeScore}
+                    awayScore={match.intAwayScore}
+                    status={match.strStatus}
+                    date={match.dateEvent}
+                    time={match.strTime || 'TBD'}
+                    league={match.strLeague}
+                  />
+                ))}
+              </div>
+            ) : null}
           </TabsContent>
           
           <TabsContent value="standings" className="mt-0">
