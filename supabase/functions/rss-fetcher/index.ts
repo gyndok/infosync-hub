@@ -59,22 +59,46 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { sources = ['reuters'], limit = 20 } = await req.json().catch(() => ({ sources: ['reuters'], limit: 20 })) as { sources?: string[]; limit?: number };
+    console.log('RSS Fetcher request method:', req.method);
+    
+    let sources = ['ap'];
+    let limit = 20;
+    
+    // Try to parse JSON body if it exists
+    if (req.method === 'POST' && req.body) {
+      try {
+        const body = await req.json();
+        sources = body.sources || ['ap'];
+        limit = body.limit || 20;
+        console.log('Parsed request body:', { sources, limit });
+      } catch (e) {
+        console.log('Failed to parse JSON body, using defaults:', e.message);
+      }
+    }
 
     // Validate sources against whitelist
     const uniqueSources = Array.from(new Set((sources || []).filter((s) => s in FEEDS)));
     if (uniqueSources.length === 0) uniqueSources.push('ap');
+    
+    console.log('Using sources:', uniqueSources);
 
     // Fetch feeds in parallel with per-source error handling
     const results = await Promise.all(
       uniqueSources.map(async (src) => {
         try {
           const url = FEEDS[src];
+          console.log(`Fetching RSS from ${src}: ${url}`);
           const res = await fetch(url, { redirect: 'follow' });
-          if (!res.ok) return [] as ReturnType<typeof parseItems>;
+          if (!res.ok) {
+            console.log(`Failed to fetch ${src}: ${res.status} ${res.statusText}`);
+            return [] as ReturnType<typeof parseItems>;
+          }
           const xml = await res.text();
-          return parseItems(xml, src);
-        } catch (_) {
+          const items = parseItems(xml, src);
+          console.log(`Parsed ${items.length} items from ${src}`);
+          return items;
+        } catch (err) {
+          console.log(`Error fetching ${src}:`, err.message);
           return [] as ReturnType<typeof parseItems>;
         }
       }),
@@ -82,6 +106,8 @@ Deno.serve(async (req) => {
 
     // Flatten, sort by date desc, and limit
     const allItems = results.flat();
+    console.log(`Total items before sorting: ${allItems.length}`);
+    
     allItems.sort((a, b) => {
       const ad = a.pubDate ? new Date(a.pubDate).getTime() : 0;
       const bd = b.pubDate ? new Date(b.pubDate).getTime() : 0;
@@ -89,9 +115,11 @@ Deno.serve(async (req) => {
     });
 
     const items = allItems.slice(0, Math.max(1, Math.min(50, Number(limit) || 20)));
+    console.log(`Returning ${items.length} items`);
 
     return json({ success: true, items, sources: uniqueSources });
   } catch (err) {
+    console.error('RSS Fetcher error:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
     return json({ success: false, error: message }, 500);
   }
