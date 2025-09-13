@@ -22,13 +22,13 @@ export interface LayoutConfig {
 }
 
 const defaultWidgets: WidgetConfig[] = [
-  { id: 'news', type: 'news', x: 0, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
-  { id: 'weather', type: 'weather', x: 1, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
-  { id: 'clock', type: 'clock', x: 0, y: 4, w: 1, h: 2, minH: 2, maxH: 3 },
-  { id: 'indices', type: 'indices', x: 1, y: 4, w: 1, h: 3, minH: 2, maxH: 4 },
-  { id: 'watchlist', type: 'watchlist', x: 0, y: 6, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'crypto', type: 'crypto', x: 1, y: 7, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'sports', type: 'sports', x: 0, y: 9, w: 1, h: 3, minH: 3, maxH: 5 },
+  { id: 'clock', type: 'clock', x: 0, y: 0, w: 2, h: 2, minH: 2, maxH: 3, minW: 2, maxW: 3 },
+  { id: 'news', type: 'news', x: 0, y: 2, w: 1, h: 4, minH: 3, maxH: 6 },
+  { id: 'weather', type: 'weather', x: 1, y: 2, w: 1, h: 4, minH: 3, maxH: 6 },
+  { id: 'indices', type: 'indices', x: 0, y: 6, w: 1, h: 3, minH: 2, maxH: 4 },
+  { id: 'watchlist', type: 'watchlist', x: 1, y: 6, w: 1, h: 3, minH: 3, maxH: 5 },
+  { id: 'crypto', type: 'crypto', x: 0, y: 9, w: 1, h: 3, minH: 3, maxH: 5 },
+  { id: 'sports', type: 'sports', x: 1, y: 9, w: 1, h: 3, minH: 3, maxH: 5 },
 ];
 
 const defaultLayout: LayoutConfig = {
@@ -75,18 +75,28 @@ export const useLayoutConfig = () => {
             }))
           };
 
-          // Ensure clock widget exists for users with older saved layouts
+          // Ensure clock widget exists for users with older saved layouts and spans full width
           let finalConfig = validatedConfig;
-          const hasClock = validatedConfig.widgets.some(w => w.type === 'clock' || w.id === 'clock');
-          if (!hasClock) {
+          const existingClock = validatedConfig.widgets.find(w => w.type === 'clock' || w.id === 'clock');
+          if (!existingClock) {
             const nextY = validatedConfig.widgets.reduce((max, w) => Math.max(max, (w.y || 0) + (w.h || 1)), 0);
             finalConfig = {
               ...validatedConfig,
               widgets: [
-                ...validatedConfig.widgets,
-                { id: 'clock', type: 'clock', x: 0, y: nextY, w: 1, h: 2, minH: 2, maxH: 3 }
+                { id: 'clock', type: 'clock', x: 0, y: 0, w: validatedConfig.columns, h: 2, minH: 2, maxH: 3, minW: 2, maxW: 3 },
+                ...validatedConfig.widgets.map(w => ({ ...w, y: w.y + 2 }))
               ]
-            } as typeof validatedConfig;
+            };
+          } else if (existingClock.w < validatedConfig.columns) {
+            // Update existing clock to span full width if it doesn't already
+            finalConfig = {
+              ...validatedConfig,
+              widgets: validatedConfig.widgets.map(w => 
+                w.id === 'clock' || w.type === 'clock' 
+                  ? { ...w, w: validatedConfig.columns, x: 0, minW: 2, maxW: 3 }
+                  : w
+              )
+            };
           }
 
           setLayoutConfig(finalConfig);
@@ -157,7 +167,7 @@ export const useLayoutConfig = () => {
       widgets: layoutConfig.widgets.map(widget => ({
         ...widget,
         maxW: columns,
-        w: Math.min(widget.w, columns),
+        w: widget.type === 'clock' || widget.id === 'clock' ? columns : Math.min(widget.w, columns),
         x: Math.min(widget.x, columns - 1)
       }))
     };
