@@ -74,7 +74,22 @@ export const useLayoutConfig = () => {
               maxW: widget.maxW || config.columns
             }))
           };
-          setLayoutConfig(validatedConfig);
+
+          // Ensure clock widget exists for users with older saved layouts
+          let finalConfig = validatedConfig;
+          const hasClock = validatedConfig.widgets.some(w => w.type === 'clock' || w.id === 'clock');
+          if (!hasClock) {
+            const nextY = validatedConfig.widgets.reduce((max, w) => Math.max(max, (w.y || 0) + (w.h || 1)), 0);
+            finalConfig = {
+              ...validatedConfig,
+              widgets: [
+                ...validatedConfig.widgets,
+                { id: 'clock', type: 'clock', x: 0, y: nextY, w: 1, h: 2, minH: 2, maxH: 3 }
+              ]
+            } as typeof validatedConfig;
+          }
+
+          setLayoutConfig(finalConfig);
         } else {
           setLayoutConfig(defaultLayout);
         }
@@ -197,6 +212,9 @@ export const useLayoutConfig = () => {
       ...defaultLayout,
       columns: layoutConfig.columns
     };
+    // Update UI immediately regardless of save outcome
+    setLayoutConfig(resetConfig);
+    // Persist in background
     saveLayoutConfig(resetConfig);
   };
   return {
