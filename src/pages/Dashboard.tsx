@@ -3,14 +3,6 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { GridLayout } from '@/components/dashboard/GridLayout';
 import { LayoutSettings } from '@/components/dashboard/LayoutSettings';
 import { useLayoutConfig } from '@/hooks/useLayoutConfig';
-import { 
-  Activity,
-  Users,
-  Calendar,
-  Bell
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Dashboard: React.FC = () => {
@@ -47,47 +39,6 @@ const Dashboard: React.FC = () => {
 
       {/* Draggable Grid Layout */}
       <GridLayout />
-
-      {/* Reminders */}
-      <div className="mt-6">
-        <Card className="dashboard-card max-w-2xl">
-          <CardHeader className="widget-header">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              📅 Reminders
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-              <div>
-                <h4 className="text-sm font-medium text-foreground">Market Analysis Review</h4>
-                <p className="text-xs text-muted-foreground mt-1">Time: 2:00 PM - 4:00 PM</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3 p-3 bg-warning/10 rounded-lg">
-              <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0" />
-              <div>
-                <h4 className="text-sm font-medium text-foreground">Weather Alert Setup</h4>
-                <p className="text-xs text-muted-foreground mt-1">Configure storm warnings</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 bg-success/10 rounded-lg">
-              <div className="w-2 h-2 bg-success rounded-full mt-2 flex-shrink-0" />
-              <div>
-                <h4 className="text-sm font-medium text-foreground">Social Feed Update</h4>
-                <p className="text-xs text-muted-foreground mt-1">Check trending topics</p>
-              </div>
-            </div>
-
-            <Button variant="outline" size="sm" className="w-full mt-4">
-              <Bell className="w-4 h-4 mr-2" />
-              Start Meeting
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </DashboardLayout>
   );
 };
