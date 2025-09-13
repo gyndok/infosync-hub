@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Settings, X, Maximize2, Minimize2 } from 'lucide-react';
+import { Settings, X, Maximize2, Minimize2, GripVertical } from 'lucide-react';
 
 interface WidgetContainerProps {
   children: ReactNode;
@@ -25,7 +25,12 @@ const WidgetContainer = ({
   return (
     <Card className={`h-full flex flex-col ${className}`}>
       <div className="flex items-center justify-between p-3 border-b">
-        <h3 className="font-medium text-sm">{title}</h3>
+        <div className="flex items-center gap-2">
+          <div className="drag-handle cursor-move p-1 hover:bg-muted rounded">
+            <GripVertical className="h-3 w-3 text-muted-foreground" />
+          </div>
+          <h3 className="font-medium text-sm">{title}</h3>
+        </div>
         <div className="flex items-center gap-1">
           {onSettings && (
             <Button variant="ghost" size="sm" onClick={onSettings}>

@@ -100,7 +100,7 @@ export const GridLayout: React.FC = () => {
         onLayoutChange={handleLayoutChange}
         onDragStop={handleDragStop}
         onResizeStop={handleResizeStop}
-        draggableHandle=".widget-header"
+        draggableHandle=".drag-handle"
         draggableCancel=".widget-action, .no-drag, button, input, a"
         resizeHandles={['se']}
       >
