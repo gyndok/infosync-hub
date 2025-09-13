@@ -16,6 +16,8 @@ interface SportsData {
   dateEvent: string;
   strTime: string;
   strThumb?: string;
+  strPeriod?: string; // Inning, Quarter, Period, etc.
+  strClock?: string; // Game clock if available
 }
 
 interface SportsConfig {
@@ -97,6 +99,51 @@ export const useSports = () => {
   const transformEspnEvent = (event: any, league: string): SportsData => {
     const homeTeam = event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'home');
     const awayTeam = event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'away');
+    const status = event.status;
+    
+    // Extract period/inning information based on sport type
+    let strPeriod = '';
+    let strClock = '';
+    
+    if (status?.period && status?.displayClock) {
+      strClock = status.displayClock;
+      
+      // Format period based on sport
+      switch (league) {
+        case 'MLB':
+          if (status.period <= 9) {
+            strPeriod = `${status.period === 1 ? '1st' : status.period === 2 ? '2nd' : status.period === 3 ? '3rd' : `${status.period}th`}`;
+          } else {
+            strPeriod = `${status.period}th`;
+          }
+          break;
+        case 'NBA':
+        case 'NCAAB':
+          if (status.period <= 4) {
+            strPeriod = `${status.period === 1 ? '1st' : status.period === 2 ? '2nd' : status.period === 3 ? '3rd' : '4th'} Qtr`;
+          } else {
+            strPeriod = `OT${status.period > 5 ? ` ${status.period - 4}` : ''}`;
+          }
+          break;
+        case 'NFL':
+        case 'NCAAF':
+          if (status.period <= 4) {
+            strPeriod = `${status.period === 1 ? '1st' : status.period === 2 ? '2nd' : status.period === 3 ? '3rd' : '4th'} Qtr`;
+          } else {
+            strPeriod = 'OT';
+          }
+          break;
+        case 'NHL':
+          if (status.period <= 3) {
+            strPeriod = `${status.period === 1 ? '1st' : status.period === 2 ? '2nd' : '3rd'} Period`;
+          } else {
+            strPeriod = 'OT';
+          }
+          break;
+        default:
+          strPeriod = `Period ${status.period}`;
+      }
+    }
     
     return {
       idEvent: event.id,
@@ -113,7 +160,9 @@ export const useSports = () => {
         minute: '2-digit',
         hour12: false 
       }) : 'TBD',
-      strThumb: event.competitions?.[0]?.competitors?.[0]?.team?.logo
+      strThumb: event.competitions?.[0]?.competitors?.[0]?.team?.logo,
+      strPeriod,
+      strClock
     };
   };
 

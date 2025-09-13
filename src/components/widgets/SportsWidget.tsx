@@ -20,7 +20,9 @@ const MatchItem: React.FC<{
   date: string;
   time: string;
   league: string;
-}> = ({ homeTeam, awayTeam, homeScore, awayScore, status, date, time, league }) => {
+  period?: string;
+  clock?: string;
+}> = ({ homeTeam, awayTeam, homeScore, awayScore, status, date, time, league, period, clock }) => {
   const isLive = status === 'Match Finished' || status === 'FT' || status.toLowerCase().includes('live');
   const hasScore = homeScore !== undefined && awayScore !== undefined;
   
@@ -214,7 +216,15 @@ const MatchItem: React.FC<{
       
       {/* Game Status */}
       <div className="mt-2 pt-2 border-t border-border/50">
-        <span className="text-xs text-muted-foreground">{status}</span>
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-muted-foreground">{status}</span>
+          {period && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{period}</span>
+              {clock && <span>• {clock}</span>}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -536,6 +546,8 @@ export const SportsWidget: React.FC = () => {
                           date={match.dateEvent}
                           time={match.strTime || 'TBD'}
                           league={match.strLeague}
+                          period={match.strPeriod}
+                          clock={match.strClock}
                         />
                       ))}
                     </>
@@ -557,6 +569,8 @@ export const SportsWidget: React.FC = () => {
                           date={match.dateEvent}
                           time={match.strTime || 'TBD'}
                           league={match.strLeague}
+                          period={match.strPeriod}
+                          clock={match.strClock}
                         />
                       ))}
                     </>
@@ -589,6 +603,8 @@ export const SportsWidget: React.FC = () => {
                       date={match.dateEvent}
                       time={match.strTime || 'TBD'}
                       league={match.strLeague}
+                      period={match.strPeriod}
+                      clock={match.strClock}
                     />
                   ))}
                 </div>
@@ -627,6 +643,8 @@ export const SportsWidget: React.FC = () => {
                       date={match.dateEvent}
                       time={match.strTime || 'TBD'}
                       league={match.strLeague}
+                      period={match.strPeriod}
+                      clock={match.strClock}
                     />
                   ))}
                 </div>
