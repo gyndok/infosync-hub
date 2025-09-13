@@ -141,6 +141,8 @@ serve(async (req) => {
     // Handle specific service API key mappings
     if (service === 'weather') {
       apiKeyName = 'OPENWEATHERMAP_API_KEY';
+    } else if (service === 'nyt') {
+      apiKeyName = 'NYT_API_KEY';
     }
     
     const apiKey = Deno.env.get(apiKeyName);
@@ -170,6 +172,9 @@ serve(async (req) => {
           urlParams.append('token', apiKey);
           break;
         case 'guardian':
+          urlParams.append('api-key', apiKey);
+          break;
+        case 'nyt':
           urlParams.append('api-key', apiKey);
           break;
       }

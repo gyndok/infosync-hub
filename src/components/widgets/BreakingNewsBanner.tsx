@@ -25,29 +25,36 @@ export const BreakingNewsBanner = () => {
         setLoading(true);
         setError(null);
 
-        // Try Guardian API first (most reliable free API)
-        const guardianResponse = await makeRequest({
-          service: 'guardian',
-          endpoint: '/search',
+        // Try NYT Top Stories API first (reliable and curated)
+        const nytResponse = await makeRequest({
+          service: 'nyt',
+          endpoint: '/topstories/v2/home.json',
           params: {
-            'api-key': 'GUARDIAN_API_KEY',
-            'show-fields': 'headline,webUrl,webPublicationDate',
-            'order-by': 'newest',
-            'page-size': 10,
-            q: 'breaking OR urgent OR alert OR developing'
+            'api-key': 'NYT_API_KEY'
           }
         });
 
-        if (guardianResponse.success && guardianResponse.data.response.results) {
-          const guardianNews: BreakingNewsItem[] = guardianResponse.data.response.results.map((article: any, index: number) => ({
-            id: `guardian-${article.id}`,
-            headline: article.fields?.headline || article.webTitle,
-            url: article.webUrl,
-            source: 'The Guardian',
-            publishedAt: article.webPublicationDate,
-            isBreaking: true
-          }));
-          setNews(guardianNews);
+        if (nytResponse.success && nytResponse.data.results) {
+          // Filter for breaking/urgent news from NYT
+          const breakingNews: BreakingNewsItem[] = nytResponse.data.results
+            .filter((article: any) => 
+              article.title.toLowerCase().includes('breaking') ||
+              article.title.toLowerCase().includes('urgent') ||
+              article.title.toLowerCase().includes('developing') ||
+              article.section === 'World' || 
+              article.section === 'U.S.'
+            )
+            .slice(0, 10)
+            .map((article: any, index: number) => ({
+              id: `nyt-${index}`,
+              headline: article.title,
+              url: article.url,
+              source: 'The New York Times',
+              publishedAt: article.published_date,
+              isBreaking: true
+            }));
+          
+          setNews(breakingNews);
         } else {
           // Fallback to NewsAPI for breaking news
           const newsApiResponse = await makeRequest({
