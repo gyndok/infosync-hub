@@ -54,7 +54,7 @@ export const useLayoutConfig = () => {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('dashboard_layout')
+          .select('dashboard_layout, clock_settings')
           .eq('user_id', user.id)
           .maybeSingle();
 

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCustomCities } from '@/hooks/useCustomCities';
 import { useAuth } from '@/hooks/useAuth';
+import { useClockConfig } from '@/hooks/useClockConfig';
 
 interface TimeZoneConfig {
   id: string;
@@ -237,14 +238,9 @@ const COMMON_TIMEZONES = [
 export const ClockWidget = () => {
   const { user } = useAuth();
   const { customCities, addCustomCity, removeCustomCity } = useCustomCities();
+  const { clockSettings, saveClockConfig, isLoading: isClockLoading } = useClockConfig();
   const [now, setNow] = useState(new Date());
-  const [selectedTimezones, setSelectedTimezones] = useState<TimeZoneConfig[]>([
-    AVAILABLE_TIMEZONES[0], // Local time
-    AVAILABLE_TIMEZONES[1], // New York
-    AVAILABLE_TIMEZONES[2], // London
-    AVAILABLE_TIMEZONES[3], // Tokyo
-    AVAILABLE_TIMEZONES[4], // Sydney
-  ]);
+  const [selectedTimezones, setSelectedTimezones] = useState<TimeZoneConfig[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newCityInput, setNewCityInput] = useState('');
   const [newTimezoneInput, setNewTimezoneInput] = useState('');
@@ -253,6 +249,19 @@ export const ClockWidget = () => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  // Load saved clock settings
+  useEffect(() => {
+    if (!isClockLoading && clockSettings) {
+      const loadedTimezones = clockSettings.selectedTimezones.map(saved => ({
+        id: saved.id,
+        city: saved.city,
+        timezone: saved.timezone,
+        ...(saved.isCustom && { isCustom: saved.isCustom, customId: saved.customId })
+      }));
+      setSelectedTimezones(loadedTimezones);
+    }
+  }, [clockSettings, isClockLoading]);
 
   // Combine predefined timezones with custom cities
   const allAvailableTimezones = [
@@ -266,6 +275,24 @@ export const ClockWidget = () => {
     }))
   ];
 
+  // Save selected timezones to user preferences
+  const saveSelectedTimezones = async (timezones: TimeZoneConfig[]) => {
+    if (!user) return;
+    
+    const savedTimezones = timezones.map(tz => ({
+      id: tz.id,
+      city: tz.city,
+      timezone: tz.timezone,
+      ...(((tz as any).isCustom) && { 
+        isCustom: (tz as any).isCustom, 
+        customId: (tz as any).customId 
+      })
+    }));
+
+    await saveClockConfig({
+      selectedTimezones: savedTimezones
+    });
+  };
   // Sort timezones geographically with local time in the center
   const sortTimezonesGeographically = (timezones: TimeZoneConfig[]) => {
     const localTz = timezones.find(tz => tz.id === 'local');
@@ -325,12 +352,13 @@ export const ClockWidget = () => {
     return result.filter(Boolean); // Remove any undefined slots
   };
 
-  const addTimezone = (timezoneId: string) => {
+  const addTimezone = async (timezoneId: string) => {
     const timezone = allAvailableTimezones.find(tz => tz.id === timezoneId);
     if (timezone && !selectedTimezones.find(tz => tz.id === timezoneId)) {
       const newTimezones = [...selectedTimezones, timezone];
       const sortedTimezones = sortTimezonesGeographically(newTimezones);
       setSelectedTimezones(sortedTimezones);
+      await saveSelectedTimezones(sortedTimezones);
     }
   };
 
@@ -340,6 +368,7 @@ export const ClockWidget = () => {
       const newTimezones = selectedTimezones.filter(tz => tz.id !== timezoneId);
       const sortedTimezones = sortTimezonesGeographically(newTimezones);
       setSelectedTimezones(sortedTimezones);
+      await saveSelectedTimezones(sortedTimezones);
       
       // If it's a custom city, also delete from database
       const timezone = allAvailableTimezones.find(tz => tz.id === timezoneId);
@@ -357,17 +386,21 @@ export const ClockWidget = () => {
       setNewCityInput('');
       setNewTimezoneInput('');
       
-      // Re-sort timezones after adding custom city
-      setTimeout(() => {
-        setSelectedTimezones(current => sortTimezonesGeographically(current));
+      // Re-sort timezones after adding custom city and save
+      setTimeout(async () => {
+        const sortedTimezones = sortTimezonesGeographically(selectedTimezones);
+        setSelectedTimezones(sortedTimezones);
+        await saveSelectedTimezones(sortedTimezones);
       }, 100);
     }
   };
 
-  // Re-sort when custom cities are loaded
+  // Re-sort and save when custom cities are loaded
   useEffect(() => {
-    if (customCities.length > 0) {
-      setSelectedTimezones(current => sortTimezonesGeographically(current));
+    if (customCities.length > 0 && selectedTimezones.length > 0) {
+      const sortedTimezones = sortTimezonesGeographically(selectedTimezones);
+      setSelectedTimezones(sortedTimezones);
+      // Don't auto-save here to avoid infinite loops during loading
     }
   }, [customCities]);
 
