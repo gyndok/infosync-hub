@@ -146,6 +146,405 @@ export type Database = {
         }
         Relationships: []
       }
+      houston_business_news: {
+        Row: {
+          company_name: string | null
+          content: string | null
+          created_at: string
+          external_id: string | null
+          headline: string
+          id: string
+          image_url: string | null
+          industry: string | null
+          news_type: string | null
+          published_date: string | null
+          source_name: string | null
+          source_url: string | null
+          summary: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          content?: string | null
+          created_at?: string
+          external_id?: string | null
+          headline: string
+          id?: string
+          image_url?: string | null
+          industry?: string | null
+          news_type?: string | null
+          published_date?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          content?: string | null
+          created_at?: string
+          external_id?: string | null
+          headline?: string
+          id?: string
+          image_url?: string | null
+          industry?: string | null
+          news_type?: string | null
+          published_date?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      houston_construction: {
+        Row: {
+          affected_roads: string[] | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          external_id: string | null
+          id: string
+          impact_level: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          project_name: string
+          source: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affected_roads?: string[] | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          external_id?: string | null
+          id?: string
+          impact_level?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          project_name: string
+          source?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affected_roads?: string[] | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          external_id?: string | null
+          id?: string
+          impact_level?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          project_name?: string
+          source?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      houston_events: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          event_date: string
+          event_time: string | null
+          external_id: string | null
+          id: string
+          image_url: string | null
+          price_max: number | null
+          price_min: number | null
+          source: string
+          ticket_url: string | null
+          title: string
+          updated_at: string
+          venue_address: string | null
+          venue_name: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          external_id?: string | null
+          id?: string
+          image_url?: string | null
+          price_max?: number | null
+          price_min?: number | null
+          source?: string
+          ticket_url?: string | null
+          title: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_name?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          external_id?: string | null
+          id?: string
+          image_url?: string | null
+          price_max?: number | null
+          price_min?: number | null
+          source?: string
+          ticket_url?: string | null
+          title?: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_name?: string | null
+        }
+        Relationships: []
+      }
+      houston_metro_updates: {
+        Row: {
+          affected_routes: string[] | null
+          alert_type: string
+          created_at: string
+          description: string | null
+          end_time: string | null
+          external_id: string | null
+          id: string
+          severity: string
+          source: string
+          start_time: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_routes?: string[] | null
+          alert_type: string
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          external_id?: string | null
+          id?: string
+          severity?: string
+          source?: string
+          start_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_routes?: string[] | null
+          alert_type?: string
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          external_id?: string | null
+          id?: string
+          severity?: string
+          source?: string
+          start_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      houston_real_estate: {
+        Row: {
+          address: string
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string
+          external_id: string | null
+          id: string
+          image_url: string | null
+          latitude: number | null
+          listing_date: string | null
+          listing_type: string
+          listing_url: string | null
+          longitude: number | null
+          neighborhood: string | null
+          price: number
+          property_type: string | null
+          source: string
+          sqft: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          listing_date?: string | null
+          listing_type: string
+          listing_url?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
+          price: number
+          property_type?: string | null
+          source?: string
+          sqft?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          listing_date?: string | null
+          listing_type?: string
+          listing_url?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
+          price?: number
+          property_type?: string | null
+          source?: string
+          sqft?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      houston_restaurants: {
+        Row: {
+          address: string | null
+          created_at: string
+          cuisine_type: string | null
+          description: string | null
+          external_id: string | null
+          hours: Json | null
+          id: string
+          image_url: string | null
+          is_new_opening: boolean | null
+          latitude: number | null
+          longitude: number | null
+          name: string
+          opening_date: string | null
+          phone: string | null
+          price_range: number | null
+          rating: number | null
+          review_count: number | null
+          source: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          cuisine_type?: string | null
+          description?: string | null
+          external_id?: string | null
+          hours?: Json | null
+          id?: string
+          image_url?: string | null
+          is_new_opening?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          opening_date?: string | null
+          phone?: string | null
+          price_range?: number | null
+          rating?: number | null
+          review_count?: number | null
+          source?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          cuisine_type?: string | null
+          description?: string | null
+          external_id?: string | null
+          hours?: Json | null
+          id?: string
+          image_url?: string | null
+          is_new_opening?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          opening_date?: string | null
+          phone?: string | null
+          price_range?: number | null
+          rating?: number | null
+          review_count?: number | null
+          source?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      houston_traffic: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_time: string | null
+          external_id: string | null
+          highway_road: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          severity: string
+          source: string
+          start_time: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          external_id?: string | null
+          highway_road?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          severity: string
+          source?: string
+          start_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          external_id?: string | null
+          highway_road?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          severity?: string
+          source?: string
+          start_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_holdings: {
         Row: {
           asset_type: string
