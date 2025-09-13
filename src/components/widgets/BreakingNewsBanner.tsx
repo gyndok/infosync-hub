@@ -3,6 +3,7 @@ import { useApiProxy } from '@/hooks/useApiProxy';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BreakingNewsItem {
   id: string;
@@ -25,7 +26,32 @@ export const BreakingNewsBanner = () => {
         setLoading(true);
         setError(null);
 
-        // Try NYT Top Stories API first (reliable and curated)
+        // Try RSS feeds first via edge function (fast, no API rate limits)
+        try {
+          const { data: rssData } = await supabase.functions.invoke('rss-fetcher', {
+            body: { sources: ['reuters', 'bbc', 'guardian'], limit: 20 }
+          });
+
+          if (rssData?.success && rssData.items?.length) {
+            const breakingNews: BreakingNewsItem[] = rssData.items
+              .slice(0, 10)
+              .map((item: any, index: number) => ({
+                id: `rss-${index}`,
+                headline: item.title,
+                url: item.link,
+                source: (item.source || 'RSS').toString().toUpperCase(),
+                publishedAt: item.pubDate || item.published || new Date().toISOString(),
+                isBreaking: true,
+              }));
+
+            setNews(breakingNews);
+            return; // Done if RSS succeeded
+          }
+        } catch (_) {
+          // Ignore and continue to API proxy fallbacks
+        }
+
+        // Try NYT Top Stories API next (reliable and curated)
         const nytResponse = await makeRequest({
           service: 'nyt',
           endpoint: '/topstories/v2/home.json',

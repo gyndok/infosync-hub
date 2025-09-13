@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.manage-secrets]
 verify_jwt = false
+
+[functions.rss-fetcher]
+verify_jwt = false
