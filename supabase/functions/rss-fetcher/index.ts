@@ -63,16 +63,20 @@ Deno.serve(async (req) => {
 
     // Validate sources against whitelist
     const uniqueSources = Array.from(new Set((sources || []).filter((s) => s in FEEDS)));
-    if (uniqueSources.length === 0) uniqueSources.push('reuters');
+    if (uniqueSources.length === 0) uniqueSources.push('ap');
 
-    // Fetch feeds in parallel
+    // Fetch feeds in parallel with per-source error handling
     const results = await Promise.all(
       uniqueSources.map(async (src) => {
-        const url = FEEDS[src];
-        const res = await fetch(url, { redirect: 'follow' });
-        if (!res.ok) throw new Error(`Failed to fetch ${src}: ${res.status}`);
-        const xml = await res.text();
-        return parseItems(xml, src);
+        try {
+          const url = FEEDS[src];
+          const res = await fetch(url, { redirect: 'follow' });
+          if (!res.ok) return [] as ReturnType<typeof parseItems>;
+          const xml = await res.text();
+          return parseItems(xml, src);
+        } catch (_) {
+          return [] as ReturnType<typeof parseItems>;
+        }
       }),
     );
 
