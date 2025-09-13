@@ -207,4 +207,15 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+
+  /* Breaking news ticker */
+  @keyframes scroll-left {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Optional: utility to pause CSS animations */
+  .pause {
+    animation-play-state: paused;
+  }
 }
