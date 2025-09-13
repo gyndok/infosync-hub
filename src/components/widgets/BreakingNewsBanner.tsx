@@ -117,7 +117,7 @@ export const BreakingNewsBanner = () => {
     const interval = setInterval(fetchBreakingNews, 120000); // Refresh every 2 minutes to avoid rate limits
 
     return () => clearInterval(interval);
-  }, [makeRequest]);
+  }, []);
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
