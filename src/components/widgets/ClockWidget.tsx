@@ -24,17 +24,27 @@ interface AnalogClockProps {
 }
 
 const AnalogClock = ({ timezone, city, time }: AnalogClockProps) => {
-  const localTime = new Date(time.toLocaleString('en-US', { timeZone: timezone }));
-  const hours = localTime.getHours() % 12;
-  const minutes = localTime.getMinutes();
-  const seconds = localTime.getSeconds();
+  // Get the time components directly from the formatted time in the target timezone
+  const timeString = time.toLocaleTimeString('en-US', { 
+    timeZone: timezone, 
+    hour12: false, 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  });
+  
+  const [hourStr, minuteStr, secondStr] = timeString.split(':');
+  const hours = parseInt(hourStr, 10) % 12;
+  const minutes = parseInt(minuteStr, 10);
+  const seconds = parseInt(secondStr, 10);
 
   const hourAngle = (hours * 30) + (minutes * 0.5);
   const minuteAngle = minutes * 6;
   const secondAngle = seconds * 6;
 
   const formatTime = () => {
-    return localTime.toLocaleTimeString('en-US', {
+    return time.toLocaleTimeString('en-US', {
+      timeZone: timezone,
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
