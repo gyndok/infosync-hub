@@ -127,6 +127,96 @@ const AVAILABLE_TIMEZONES: TimeZoneConfig[] = [
   { id: 'sao_paulo', city: 'São Paulo', timezone: 'America/Sao_Paulo' },
 ];
 
+// Approximate longitude mapping for geographic ordering
+const TIMEZONE_LONGITUDES: Record<string, number> = {
+  // Americas (West)
+  'America/Los_Angeles': -118,
+  'America/Denver': -105,
+  'America/Phoenix': -112,
+  'America/Chicago': -87,
+  'America/New_York': -74,
+  'America/Toronto': -79,
+  'America/Mexico_City': -99,
+  'America/Bogota': -74,
+  'America/Caracas': -67,
+  'America/Sao_Paulo': -47,
+  'America/Argentina/Buenos_Aires': -58,
+  
+  // Europe/Africa
+  'Europe/London': 0,
+  'Europe/Paris': 2,
+  'Europe/Berlin': 13,
+  'Europe/Rome': 12,
+  'Europe/Madrid': -4,
+  'Europe/Amsterdam': 5,
+  'Europe/Brussels': 4,
+  'Europe/Vienna': 16,
+  'Europe/Prague': 14,
+  'Europe/Warsaw': 21,
+  'Europe/Budapest': 19,
+  'Europe/Athens': 24,
+  'Europe/Stockholm': 18,
+  'Europe/Helsinki': 25,
+  'Europe/Oslo': 11,
+  'Europe/Copenhagen': 12,
+  'Europe/Dublin': -6,
+  'Europe/Kiev': 30,
+  'Europe/Moscow': 38,
+  'Europe/Istanbul': 29,
+  'Africa/Cairo': 31,
+  'Africa/Johannesburg': 28,
+  'Africa/Lagos': 3,
+  
+  // Asia
+  'Asia/Dubai': 55,
+  'Asia/Tehran': 51,
+  'Asia/Baghdad': 44,
+  'Asia/Riyadh': 47,
+  'Asia/Karachi': 67,
+  'Asia/Kolkata': 77,
+  'Asia/Dhaka': 90,
+  'Asia/Bangkok': 100,
+  'Asia/Jakarta': 107,
+  'Asia/Singapore': 104,
+  'Asia/Manila': 121,
+  'Asia/Hong_Kong': 114,
+  'Asia/Shanghai': 121,
+  'Asia/Seoul': 127,
+  'Asia/Tokyo': 140,
+  
+  // Australia/Pacific
+  'Australia/Perth': 116,
+  'Australia/Adelaide': 139,
+  'Australia/Melbourne': 145,
+  'Australia/Sydney': 151,
+  'Australia/Brisbane': 153,
+  'Pacific/Auckland': 175,
+  'Pacific/Fiji': 178,
+  'Pacific/Honolulu': -158,
+};
+
+// Get approximate longitude for a timezone
+const getTimezoneLongitude = (timezone: string): number => {
+  // Check direct mapping first
+  if (TIMEZONE_LONGITUDES[timezone]) {
+    return TIMEZONE_LONGITUDES[timezone];
+  }
+  
+  // Fallback: estimate based on timezone offset
+  try {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const targetTime = new Date(utc + (0)); // UTC time
+    const localTime = new Date(targetTime.toLocaleString('en-US', { timeZone: timezone }));
+    const offsetHours = (localTime.getTime() - targetTime.getTime()) / (1000 * 60 * 60);
+    
+    // Rough approximation: 15 degrees longitude per hour
+    return offsetHours * 15;
+  } catch {
+    return 0; // Default to Greenwich
+  }
+};
+
 // Common timezones for custom city selection
 const COMMON_TIMEZONES = [
   'Africa/Cairo', 'Africa/Johannesburg', 'Africa/Lagos',
@@ -176,17 +266,80 @@ export const ClockWidget = () => {
     }))
   ];
 
+  // Sort timezones geographically with local time in the center
+  const sortTimezonesGeographically = (timezones: TimeZoneConfig[]) => {
+    const localTz = timezones.find(tz => tz.id === 'local');
+    const otherTimezones = timezones.filter(tz => tz.id !== 'local');
+    
+    if (!localTz) {
+      // No local timezone, just sort by longitude
+      return otherTimezones.sort((a, b) => 
+        getTimezoneLongitude(a.timezone) - getTimezoneLongitude(b.timezone)
+      );
+    }
+    
+    const localLongitude = getTimezoneLongitude(localTz.timezone);
+    
+    // Separate timezones into west and east of local
+    const westTimezones = otherTimezones
+      .filter(tz => getTimezoneLongitude(tz.timezone) < localLongitude)
+      .sort((a, b) => getTimezoneLongitude(b.timezone) - getTimezoneLongitude(a.timezone)); // Descending for west
+    
+    const eastTimezones = otherTimezones
+      .filter(tz => getTimezoneLongitude(tz.timezone) >= localLongitude)
+      .sort((a, b) => getTimezoneLongitude(a.timezone) - getTimezoneLongitude(b.timezone)); // Ascending for east
+    
+    // Arrange with local in the middle
+    const totalLength = timezones.length;
+    const localIndex = Math.floor(totalLength / 2);
+    
+    const result: TimeZoneConfig[] = new Array(totalLength);
+    result[localIndex] = localTz;
+    
+    // Fill west side (left of local)
+    let westIndex = localIndex - 1;
+    for (const tz of westTimezones) {
+      if (westIndex >= 0) {
+        result[westIndex] = tz;
+        westIndex--;
+      }
+    }
+    
+    // Fill east side (right of local)  
+    let eastIndex = localIndex + 1;
+    for (const tz of eastTimezones) {
+      if (eastIndex < totalLength) {
+        result[eastIndex] = tz;
+        eastIndex++;
+      }
+    }
+    
+    // Fill any remaining slots
+    const remaining = [...westTimezones, ...eastTimezones].filter(tz => !result.includes(tz));
+    for (let i = 0; i < result.length; i++) {
+      if (!result[i] && remaining.length > 0) {
+        result[i] = remaining.shift()!;
+      }
+    }
+    
+    return result.filter(Boolean); // Remove any undefined slots
+  };
+
   const addTimezone = (timezoneId: string) => {
     const timezone = allAvailableTimezones.find(tz => tz.id === timezoneId);
     if (timezone && !selectedTimezones.find(tz => tz.id === timezoneId)) {
-      setSelectedTimezones([...selectedTimezones, timezone]);
+      const newTimezones = [...selectedTimezones, timezone];
+      const sortedTimezones = sortTimezonesGeographically(newTimezones);
+      setSelectedTimezones(sortedTimezones);
     }
   };
 
   const removeTimezone = async (timezoneId: string) => {
     if (selectedTimezones.length > 1) {
       // Remove from selected timezones
-      setSelectedTimezones(selectedTimezones.filter(tz => tz.id !== timezoneId));
+      const newTimezones = selectedTimezones.filter(tz => tz.id !== timezoneId);
+      const sortedTimezones = sortTimezonesGeographically(newTimezones);
+      setSelectedTimezones(sortedTimezones);
       
       // If it's a custom city, also delete from database
       const timezone = allAvailableTimezones.find(tz => tz.id === timezoneId);
@@ -203,8 +356,20 @@ export const ClockWidget = () => {
     if (success) {
       setNewCityInput('');
       setNewTimezoneInput('');
+      
+      // Re-sort timezones after adding custom city
+      setTimeout(() => {
+        setSelectedTimezones(current => sortTimezonesGeographically(current));
+      }, 100);
     }
   };
+
+  // Re-sort when custom cities are loaded
+  useEffect(() => {
+    if (customCities.length > 0) {
+      setSelectedTimezones(current => sortTimezonesGeographically(current));
+    }
+  }, [customCities]);
 
   return (
     <WidgetContainer 
@@ -216,7 +381,7 @@ export const ClockWidget = () => {
         {/* Main clock display */}
         <div className="flex-1 flex justify-center items-center">
           <div className="flex gap-8 flex-wrap justify-center">
-            {selectedTimezones.map((tz) => (
+            {sortTimezonesGeographically(selectedTimezones).map((tz) => (
               <div key={tz.id} className="group relative">
                 <AnalogClock 
                   timezone={tz.timezone}
