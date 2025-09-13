@@ -84,55 +84,62 @@ export const useSports = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // US Sports League IDs for TheSportsDB
-  const usLeagueIds = {
-    MLB: '4424',
-    NBA: '4387', 
-    NFL: '4391',
-    NHL: '4380',
-    NCAAF: '4417' // NCAA Football
+  // ESPN API endpoints for US sports
+  const espnEndpoints = {
+    MLB: '/apis/site/v2/sports/baseball/mlb/scoreboard',
+    NBA: '/apis/site/v2/sports/basketball/nba/scoreboard', 
+    NFL: '/apis/site/v2/sports/football/nfl/scoreboard',
+    NHL: '/apis/site/v2/sports/hockey/nhl/scoreboard',
+    NCAAF: '/apis/site/v2/sports/football/college-football/scoreboard'
   };
 
-  // Fetch live sports data from multiple US leagues
+  // Transform ESPN data to our format
+  const transformEspnEvent = (event: any, league: string): SportsData => {
+    const homeTeam = event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'home');
+    const awayTeam = event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'away');
+    
+    return {
+      idEvent: event.id,
+      strEvent: `${awayTeam?.team?.displayName || 'Away'} vs ${homeTeam?.team?.displayName || 'Home'}`,
+      strHomeTeam: homeTeam?.team?.displayName || 'Home',
+      strAwayTeam: awayTeam?.team?.displayName || 'Away',
+      intHomeScore: homeTeam?.score?.toString(),
+      intAwayScore: awayTeam?.score?.toString(),
+      strStatus: event.status?.type?.description || event.status?.type?.name || 'Scheduled',
+      strLeague: league,
+      dateEvent: event.date?.split('T')[0] || new Date().toISOString().split('T')[0],
+      strTime: event.date ? new Date(event.date).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }) : 'TBD',
+      strThumb: event.competitions?.[0]?.competitors?.[0]?.team?.logo
+    };
+  };
+
+  // Fetch live sports data from ESPN
   const fetchSportsData = async (): Promise<SportsData[]> => {
     const allEvents: SportsData[] = [];
     
     try {
-      // Fetch recent events from all major US sports
-      for (const [league, leagueId] of Object.entries(usLeagueIds)) {
-        const response = await makeRequest({
-          service: 'thesportsdb',
-          endpoint: '/eventspastleague.php',
-          params: {
-            id: leagueId
+      // Fetch data from ESPN for all major US sports
+      for (const [league, endpoint] of Object.entries(espnEndpoints)) {
+        try {
+          const response = await makeRequest({
+            service: 'espn',
+            endpoint: endpoint,
+            params: {}
+          });
+
+          if (response.success && response.data?.events) {
+            const events = response.data.events.slice(0, 15).map((event: any) => 
+              transformEspnEvent(event, league)
+            );
+            allEvents.push(...events);
           }
-        });
-
-        if (response.success && response.data?.events) {
-          const events = response.data.events.slice(0, 5).map((event: any) => ({
-            ...event,
-            strLeague: league // Add league abbreviation
-          }));
-          allEvents.push(...events);
-        }
-      }
-
-      // Also fetch upcoming events for each league
-      for (const [league, leagueId] of Object.entries(usLeagueIds)) {
-        const upcomingResponse = await makeRequest({
-          service: 'thesportsdb',
-          endpoint: '/eventsnextleague.php',
-          params: {
-            id: leagueId
-          }
-        });
-
-        if (upcomingResponse.success && upcomingResponse.data?.events) {
-          const upcomingEvents = upcomingResponse.data.events.slice(0, 10).map((event: any) => ({
-            ...event,
-            strLeague: league // Add league abbreviation
-          }));
-          allEvents.push(...upcomingEvents);
+        } catch (error) {
+          console.error(`Error fetching ${league} data:`, error);
+          // Continue with other leagues even if one fails
         }
       }
       
@@ -150,23 +157,47 @@ export const useSports = () => {
     return [];
   };
 
-  // Fetch league standings
+  // Fetch league standings from ESPN
   const fetchStandings = async (league: string): Promise<LeagueStanding[]> => {
     try {
-      const leagueId = usLeagueIds[league as keyof typeof usLeagueIds];
-      if (!leagueId) return [];
+      // ESPN standings endpoints
+      const standingsEndpoints: Record<string, string> = {
+        MLB: '/apis/v2/sports/baseball/mlb/standings',
+        NBA: '/apis/v2/sports/basketball/nba/standings',
+        NFL: '/apis/v2/sports/football/nfl/standings',
+        NHL: '/apis/v2/sports/hockey/nhl/standings'
+      };
+
+      const endpoint = standingsEndpoints[league];
+      if (!endpoint) return [];
 
       const response = await makeRequest({
-        service: 'thesportsdb',
-        endpoint: '/lookuptable.php',
-        params: {
-          l: leagueId,
-          s: '2024-2025' // Current season
-        }
+        service: 'espn',
+        endpoint: endpoint,
+        params: {}
       });
 
-      if (response.success && response.data?.table) {
-        return response.data.table.slice(0, 10); // Top 10 teams
+      if (response.success && response.data?.children) {
+        const standings: LeagueStanding[] = [];
+        
+        // ESPN returns divisions/conferences, extract teams
+        response.data.children.forEach((division: any) => {
+          if (division.standings?.entries) {
+            division.standings.entries.slice(0, 8).forEach((entry: any, index: number) => {
+              standings.push({
+                idTeam: entry.team?.id || '',
+                strTeam: entry.team?.displayName || entry.team?.name || '',
+                intRank: (standings.length + 1).toString(),
+                intPlayed: entry.stats?.find((s: any) => s.name === 'gamesPlayed')?.value || '0',
+                intWin: entry.stats?.find((s: any) => s.name === 'wins')?.value || '0',
+                intLoss: entry.stats?.find((s: any) => s.name === 'losses')?.value || '0',
+                intPoints: entry.stats?.find((s: any) => s.name === 'points')?.value
+              });
+            });
+          }
+        });
+        
+        return standings.slice(0, 10);
       }
     } catch (error) {
       console.error(`Error fetching ${league} standings:`, error);
