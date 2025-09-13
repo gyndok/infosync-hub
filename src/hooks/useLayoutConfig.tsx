@@ -227,6 +227,38 @@ export const useLayoutConfig = () => {
     // Persist in background
     saveLayoutConfig(resetConfig);
   };
+  // Add widget to layout
+  const addWidget = (widgetType: string) => {
+    // Check if widget already exists
+    if (layoutConfig.widgets.some(w => w.id === widgetType || w.type === widgetType)) {
+      return false; // Don't add duplicates
+    }
+
+    // Find next available position
+    const nextY = layoutConfig.widgets.reduce((max, w) => Math.max(max, (w.y || 0) + (w.h || 1)), 0);
+    
+    const newWidget = {
+      id: widgetType,
+      type: widgetType,
+      x: 0,
+      y: nextY,
+      w: widgetType === 'clock' ? layoutConfig.columns : 1,
+      h: 4,
+      minH: 3,
+      maxH: 6,
+      minW: widgetType === 'clock' ? 2 : 1,
+      maxW: layoutConfig.columns,
+    };
+
+    const newConfig = {
+      ...layoutConfig,
+      widgets: [...layoutConfig.widgets, newWidget]
+    };
+
+    saveLayoutConfig(newConfig);
+    return true;
+  };
+
   return {
     layoutConfig,
     isLoading,
@@ -235,6 +267,7 @@ export const useLayoutConfig = () => {
     updateWidgetLayout,
     saveLayoutFromLayouts,
     saveCurrentLayout,
-    resetLayout
+    resetLayout,
+    addWidget
   };
 };

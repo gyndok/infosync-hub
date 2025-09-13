@@ -9,6 +9,11 @@ import { StockWatchlistWidget } from '@/components/widgets/StockWatchlistWidget'
 import { CryptocurrencyWidget } from '@/components/widgets/CryptocurrencyWidget';
 import { SportsWidget } from '@/components/widgets/SportsWidget';
 import { ClockWidget } from '@/components/widgets/ClockWidget';
+import { KHOUSportsWidget } from '@/components/widgets/KHOUSportsWidget';
+import { KHOUAstrosWidget } from '@/components/widgets/KHOUAstrosWidget';
+import { KHOURocketsWidget } from '@/components/widgets/KHOURocketsWidget';
+import { KHOUTexansWidget } from '@/components/widgets/KHOUTexansWidget';
+import { KHOULocalWidget } from '@/components/widgets/KHOULocalWidget';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -20,6 +25,11 @@ const widgetComponents = {
   crypto: CryptocurrencyWidget,
   sports: SportsWidget,
   clock: ClockWidget,
+  khou_sports: KHOUSportsWidget,
+  khou_astros: KHOUAstrosWidget,
+  khou_rockets: KHOURocketsWidget,
+  khou_texans: KHOUTexansWidget,
+  khou_local: KHOULocalWidget,
 } as const;
 
 export const GridLayout: React.FC = () => {

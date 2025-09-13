@@ -12,6 +12,11 @@ const FEEDS: Record<string, string> = {
   reuters: 'https://feeds.reuters.com/reuters/topNews',
   bbc: 'https://feeds.bbci.co.uk/news/rss.xml',
   guardian: 'https://www.theguardian.com/world/rss',
+  khou_sports: 'https://www.khou.com/feeds/syndication/rss/sports',
+  khou_astros: 'https://www.khou.com/feeds/syndication/rss/astros',
+  khou_rockets: 'https://www.khou.com/feeds/syndication/rss/rockets',
+  khou_texans: 'https://www.khou.com/feeds/syndication/rss/texans',
+  khou_local: 'https://www.khou.com/feeds/syndication/rss/local',
 };
 
 function stripCDATA(text: string | null): string {
