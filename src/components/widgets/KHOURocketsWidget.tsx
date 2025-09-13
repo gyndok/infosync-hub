@@ -11,7 +11,11 @@ interface NewsItem {
   source: string;
 }
 
-export const KHOURocketsWidget = () => {
+interface KHOURocketsWidgetProps {
+  onRemove?: () => void;
+}
+
+export const KHOURocketsWidget = ({ onRemove }: KHOURocketsWidgetProps = {}) => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +62,7 @@ export const KHOURocketsWidget = () => {
 
   if (loading) {
     return (
-      <WidgetContainer title="Houston Rockets" className="h-full">
+      <WidgetContainer title="Houston Rockets" className="h-full" onRemove={onRemove}>
         <div className="flex items-center justify-center h-full">
           <div className="animate-pulse text-muted-foreground">Loading Rockets news...</div>
         </div>
@@ -68,7 +72,7 @@ export const KHOURocketsWidget = () => {
 
   if (error) {
     return (
-      <WidgetContainer title="Houston Rockets" className="h-full">
+      <WidgetContainer title="Houston Rockets" className="h-full" onRemove={onRemove}>
         <div className="flex items-center justify-center h-full text-center p-4">
           <div className="text-muted-foreground text-sm">{error}</div>
         </div>
@@ -77,7 +81,7 @@ export const KHOURocketsWidget = () => {
   }
 
   return (
-    <WidgetContainer title="Houston Rockets" className="h-full">
+    <WidgetContainer title="Houston Rockets" className="h-full" onRemove={onRemove}>
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {news.length === 0 ? (

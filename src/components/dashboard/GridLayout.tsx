@@ -33,7 +33,7 @@ const widgetComponents = {
 } as const;
 
 export const GridLayout: React.FC = () => {
-  const { layoutConfig, updateWidgetLayout, saveLayoutFromLayouts } = useLayoutConfig();
+  const { layoutConfig, updateWidgetLayout, saveLayoutFromLayouts, removeWidget } = useLayoutConfig();
 
   const layouts = useMemo(() => {
     const baseLayouts = layoutConfig.widgets.map(widget => ({
@@ -120,7 +120,7 @@ export const GridLayout: React.FC = () => {
           return (
             <div key={widget.id}>
               <DraggableWidget>
-                <WidgetComponent />
+                <WidgetComponent onRemove={() => removeWidget(widget.id)} />
               </DraggableWidget>
             </div>
           );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Settings, RefreshCw, Bitcoin } from 'lucide-react';
+import { TrendingUp, TrendingDown, Settings, RefreshCw, Bitcoin, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -167,7 +167,11 @@ const LoadingSkeleton: React.FC = () => (
   </div>
 );
 
-export const CryptocurrencyWidget: React.FC = () => {
+interface CryptocurrencyWidgetProps {
+  onRemove?: () => void;
+}
+
+export const CryptocurrencyWidget: React.FC<CryptocurrencyWidgetProps> = ({ onRemove }) => {
   const { crypto, isLoading, config, updateConfig, isUpdatingConfig } = useCryptocurrency();
 
   return (
@@ -189,6 +193,11 @@ export const CryptocurrencyWidget: React.FC = () => {
             <Button variant="ghost" size="sm" onClick={() => window.location.reload()}>
               <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
             </Button>
+            {onRemove && (
+              <Button variant="ghost" size="sm" onClick={onRemove}>
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </CardTitle>
       </CardHeader>

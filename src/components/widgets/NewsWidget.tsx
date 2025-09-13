@@ -16,7 +16,8 @@ import {
   Clock, 
   RefreshCw,
   AlertCircle,
-  Settings
+  Settings,
+  X
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -66,7 +67,11 @@ const NEWS_CATEGORIES = [
   { value: 'technology', label: 'Technology' },
 ];
 
-export const NewsWidget: React.FC = () => {
+interface NewsWidgetProps {
+  onRemove?: () => void;
+}
+
+export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
   const { makeRequest, loading } = useApiProxy();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>([]);
@@ -218,6 +223,11 @@ export const NewsWidget: React.FC = () => {
                 <RefreshCw className="h-4 w-4" />
               )}
             </Button>
+            {onRemove && (
+              <Button variant="ghost" size="sm" onClick={onRemove}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>

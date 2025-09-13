@@ -235,7 +235,11 @@ const COMMON_TIMEZONES = [
   'Pacific/Auckland', 'Pacific/Fiji', 'Pacific/Honolulu',
 ];
 
-export const ClockWidget = () => {
+interface ClockWidgetProps {
+  onRemove?: () => void;
+}
+
+export const ClockWidget = ({ onRemove }: ClockWidgetProps = {}) => {
   const { user } = useAuth();
   const { customCities, addCustomCity, removeCustomCity } = useCustomCities();
   const { clockSettings, saveClockConfig, isLoading: isClockLoading } = useClockConfig();
@@ -409,6 +413,7 @@ export const ClockWidget = () => {
       title="WORLD CLOCKS" 
       className="h-full"
       onSettings={() => setIsSettingsOpen(true)}
+      onRemove={onRemove}
     >
       <div className="h-full flex flex-col p-6 bg-card">
         {/* Main clock display */}

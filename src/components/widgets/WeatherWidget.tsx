@@ -28,7 +28,8 @@ import {
   Sunset,
   Gauge,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  X
 } from 'lucide-react';
 
 interface WeatherData {
@@ -139,7 +140,11 @@ const normalizeLocationQuery = (input: string) => {
   return raw;
 };
 
-export const WeatherWidget: React.FC = () => {
+interface WeatherWidgetProps {
+  onRemove?: () => void;
+}
+
+export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   const { makeRequest, loading } = useApiProxy();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [location, setLocation] = useState('');
@@ -455,6 +460,11 @@ export const WeatherWidget: React.FC = () => {
                 <RefreshCw className="h-4 w-4" />
               )}
             </Button>
+            {onRemove && (
+              <Button variant="ghost" size="sm" onClick={onRemove}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>

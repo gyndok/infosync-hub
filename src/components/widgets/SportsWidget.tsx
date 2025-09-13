@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Clock, RefreshCw, Settings, Table, Bell, Search } from 'lucide-react';
+import { Trophy, Calendar, Clock, RefreshCw, Settings, Table, Bell, Search, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -370,7 +370,11 @@ const LoadingSkeleton: React.FC = () => (
   </div>
 );
 
-export const SportsWidget: React.FC = () => {
+interface SportsWidgetProps {
+  onRemove?: () => void;
+}
+
+export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
   const {
     sportsData,
     standings,
@@ -475,6 +479,11 @@ export const SportsWidget: React.FC = () => {
               onToggleNotifications={handleToggleNotifications}
               isUpdating={isUpdatingConfig}
             />
+            {onRemove && (
+              <Button variant="ghost" size="sm" onClick={onRemove}>
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </CardTitle>
       </CardHeader>

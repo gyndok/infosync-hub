@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -78,7 +78,11 @@ const LoadingSkeleton: React.FC = () => (
   </div>
 );
 
-export const MajorIndicesWidget: React.FC = () => {
+interface MajorIndicesWidgetProps {
+  onRemove?: () => void;
+}
+
+export const MajorIndicesWidget: React.FC<MajorIndicesWidgetProps> = ({ onRemove }) => {
   const { indices, isLoading, refetch } = useStockIndices();
 
   return (
@@ -91,9 +95,16 @@ export const MajorIndicesWidget: React.FC = () => {
               Live
             </Badge>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => refetch()}>
-            <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" onClick={() => refetch()}>
+              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+            </Button>
+            {onRemove && (
+              <Button variant="ghost" size="sm" onClick={onRemove}>
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0 h-full flex flex-col">

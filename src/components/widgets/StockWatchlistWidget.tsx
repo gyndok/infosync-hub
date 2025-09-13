@@ -151,7 +151,11 @@ const LoadingSkeleton: React.FC = () => (
   </div>
 );
 
-export const StockWatchlistWidget: React.FC = () => {
+interface StockWatchlistWidgetProps {
+  onRemove?: () => void;
+}
+
+export const StockWatchlistWidget: React.FC<StockWatchlistWidgetProps> = ({ onRemove }) => {
   const {
     watchlist,
     prices,
@@ -176,10 +180,17 @@ export const StockWatchlistWidget: React.FC = () => {
               Live
             </Badge>
           </div>
-          <AddStockDialog 
-            onAdd={(symbol, name) => addToWatchlist({ symbol, name })} 
-            isAdding={isAddingStock} 
-          />
+          <div className="flex items-center gap-1">
+            <AddStockDialog 
+              onAdd={(symbol, name) => addToWatchlist({ symbol, name })} 
+              isAdding={isAddingStock} 
+            />
+            {onRemove && (
+              <Button variant="ghost" size="sm" onClick={onRemove}>
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0 h-full flex flex-col">

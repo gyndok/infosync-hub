@@ -259,6 +259,15 @@ export const useLayoutConfig = () => {
     return true;
   };
 
+  // Remove widget from layout
+  const removeWidget = (widgetId: string) => {
+    const newConfig = {
+      ...layoutConfig,
+      widgets: layoutConfig.widgets.filter(w => w.id !== widgetId)
+    };
+    saveLayoutConfig(newConfig);
+  };
+
   return {
     layoutConfig,
     isLoading,
@@ -268,6 +277,7 @@ export const useLayoutConfig = () => {
     saveLayoutFromLayouts,
     saveCurrentLayout,
     resetLayout,
-    addWidget
+    addWidget,
+    removeWidget
   };
 };
