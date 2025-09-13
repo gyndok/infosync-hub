@@ -22,6 +22,7 @@ const AVAILABLE_WIDGETS = [
   { id: 'khou_rockets', name: 'Houston Rockets', description: 'Rockets basketball news' },
   { id: 'khou_texans', name: 'Houston Texans', description: 'Texans football news' },
   { id: 'khou_local', name: 'Houston Local News', description: 'Local Houston news' },
+  { id: 'houston_traffic', name: 'Houston Traffic', description: 'Real-time traffic and metro alerts' },
 ];
 
 export const LayoutSettings: React.FC = () => {
