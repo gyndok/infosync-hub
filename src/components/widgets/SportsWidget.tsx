@@ -333,147 +333,153 @@ export const SportsWidget: React.FC = () => {
             <TabsTrigger value="standings" className="text-xs" disabled={!!searchTerm}>Standings</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="favorites" className="mt-0">
-            {isLoading ? (
-              <LoadingSkeleton />
-            ) : combinedFavoriteGames.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center px-4">
-                <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground mb-1">No games for your favorite teams</p>
-                <p className="text-xs text-muted-foreground mb-3">
-                  {config.favoriteTeams.length === 0 ? 'Add teams in settings' : 'Check back later for updates'}
-                </p>
-                {config.favoriteTeams.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-foreground">Your Teams:</p>
-                    <div className="flex flex-wrap gap-1 justify-center">
-                      {config.favoriteTeams.slice(0, 3).map((team) => (
-                        <Badge key={team} variant="outline" className="text-xs">
-                          {team.split(' ').pop()}
-                        </Badge>
+          <TabsContent value="favorites" className="mt-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : combinedFavoriteGames.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+                  <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground mb-1">No games for your favorite teams</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {config.favoriteTeams.length === 0 ? 'Add teams in settings' : 'Check back later for updates'}
+                  </p>
+                  {config.favoriteTeams.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">Your Teams:</p>
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {config.favoriteTeams.slice(0, 3).map((team) => (
+                          <Badge key={team} variant="outline" className="text-xs">
+                            {team.split(' ').pop()}
+                          </Badge>
+                        ))}
+                        {config.favoriteTeams.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{config.favoriteTeams.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="px-1 pb-4">
+                  {upcomingFavoriteGames.length > 0 && (
+                    <>
+                      <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
+                        <p className="text-xs font-medium text-primary">Upcoming Games</p>
+                      </div>
+                      {upcomingFavoriteGames.map((match, idx) => (
+                        <MatchItem
+                          key={`upcoming-${match.idEvent}-${idx}`}
+                          homeTeam={match.strHomeTeam}
+                          awayTeam={match.strAwayTeam}
+                          homeScore={match.intHomeScore}
+                          awayScore={match.intAwayScore}
+                          status={match.strStatus}
+                          date={match.dateEvent}
+                          time={match.strTime || 'TBD'}
+                          league={match.strLeague}
+                        />
                       ))}
-                      {config.favoriteTeams.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{config.favoriteTeams.length - 3} more
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="px-1 pb-4">
-                {upcomingFavoriteGames.length > 0 && (
-                  <>
-                    <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
-                      <p className="text-xs font-medium text-primary">Upcoming Games</p>
-                    </div>
-                    {upcomingFavoriteGames.map((match, idx) => (
-                      <MatchItem
-                        key={`upcoming-${match.idEvent}-${idx}`}
-                        homeTeam={match.strHomeTeam}
-                        awayTeam={match.strAwayTeam}
-                        homeScore={match.intHomeScore}
-                        awayScore={match.intAwayScore}
-                        status={match.strStatus}
-                        date={match.dateEvent}
-                        time={match.strTime || 'TBD'}
-                        league={match.strLeague}
-                      />
-                    ))}
-                  </>
-                )}
-                
-                {pastFavoriteGames.length > 0 && (
-                  <>
-                    <div className="px-3 py-2 bg-muted/30 border-l-2 border-muted mb-3 mt-4">
-                      <p className="text-xs font-medium text-muted-foreground">Recent Results</p>
-                    </div>
-                    {pastFavoriteGames.slice(0, 3).map((match, idx) => (
-                      <MatchItem
-                        key={`past-${match.idEvent}-${idx}`}
-                        homeTeam={match.strHomeTeam}
-                        awayTeam={match.strAwayTeam}
-                        homeScore={match.intHomeScore}
-                        awayScore={match.intAwayScore}
-                        status={match.strStatus}
-                        date={match.dateEvent}
-                        time={match.strTime || 'TBD'}
-                        league={match.strLeague}
-                      />
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
+                    </>
+                  )}
+                  
+                  {pastFavoriteGames.length > 0 && (
+                    <>
+                      <div className="px-3 py-2 bg-muted/30 border-l-2 border-muted mb-3 mt-4">
+                        <p className="text-xs font-medium text-muted-foreground">Recent Results</p>
+                      </div>
+                      {pastFavoriteGames.slice(0, 3).map((match, idx) => (
+                        <MatchItem
+                          key={`past-${match.idEvent}-${idx}`}
+                          homeTeam={match.strHomeTeam}
+                          awayTeam={match.strAwayTeam}
+                          homeScore={match.intHomeScore}
+                          awayScore={match.intAwayScore}
+                          status={match.strStatus}
+                          date={match.dateEvent}
+                          time={match.strTime || 'TBD'}
+                          league={match.strLeague}
+                        />
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
-          <TabsContent value="recent" className="mt-0">
-            {isLoading ? (
-              <LoadingSkeleton />
-            ) : otherGames.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No recent matches</p>
-                <p className="text-xs text-muted-foreground">Check back later for updates</p>
-              </div>
-            ) : (
-              <div className="px-1 pb-4">
-                {otherGames.map((match, idx) => (
-                  <MatchItem
-                    key={`other-${match.idEvent}-${idx}`}
-                    homeTeam={match.strHomeTeam}
-                    awayTeam={match.strAwayTeam}
-                    homeScore={match.intHomeScore}
-                    awayScore={match.intAwayScore}
-                    status={match.strStatus}
-                    date={match.dateEvent}
-                    time={match.strTime || 'TBD'}
-                    league={match.strLeague}
-                  />
-                ))}
-              </div>
-            )}
+          <TabsContent value="recent" className="mt-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : otherGames.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">No recent matches</p>
+                  <p className="text-xs text-muted-foreground">Check back later for updates</p>
+                </div>
+              ) : (
+                <div className="px-1 pb-4">
+                  {otherGames.map((match, idx) => (
+                    <MatchItem
+                      key={`other-${match.idEvent}-${idx}`}
+                      homeTeam={match.strHomeTeam}
+                      awayTeam={match.strAwayTeam}
+                      homeScore={match.intHomeScore}
+                      awayScore={match.intAwayScore}
+                      status={match.strStatus}
+                      date={match.dateEvent}
+                      time={match.strTime || 'TBD'}
+                      league={match.strLeague}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           {/* Search Results Tab */}
-          <TabsContent value="search" className="mt-0">
-            {isLoading ? (
-              <LoadingSkeleton />
-            ) : searchTerm && combinedSearchGames.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center px-4">
-                <Search className="w-12 h-12 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground mb-1">No teams found</p>
-                <p className="text-xs text-muted-foreground">
-                  Try searching for "{searchTerm}" in a different way
-                </p>
-              </div>
-            ) : searchTerm ? (
-              <div className="px-1 pb-4">
-                <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
-                  <p className="text-xs font-medium text-primary">
-                    Search Results for "{searchTerm}" ({combinedSearchGames.length})
+          <TabsContent value="search" className="mt-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : searchTerm && combinedSearchGames.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+                  <Search className="w-12 h-12 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground mb-1">No teams found</p>
+                  <p className="text-xs text-muted-foreground">
+                    Try searching for "{searchTerm}" in a different way
                   </p>
                 </div>
-                {combinedSearchGames.map((match, idx) => (
-                  <MatchItem
-                    key={`search-${match.idEvent}-${idx}`}
-                    homeTeam={match.strHomeTeam}
-                    awayTeam={match.strAwayTeam}
-                    homeScore={match.intHomeScore}
-                    awayScore={match.intAwayScore}
-                    status={match.strStatus}
-                    date={match.dateEvent}
-                    time={match.strTime || 'TBD'}
-                    league={match.strLeague}
-                  />
-                ))}
-              </div>
-            ) : null}
+              ) : searchTerm ? (
+                <div className="px-1 pb-4">
+                  <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
+                    <p className="text-xs font-medium text-primary">
+                      Search Results for "{searchTerm}" ({combinedSearchGames.length})
+                    </p>
+                  </div>
+                  {combinedSearchGames.map((match, idx) => (
+                    <MatchItem
+                      key={`search-${match.idEvent}-${idx}`}
+                      homeTeam={match.strHomeTeam}
+                      awayTeam={match.strAwayTeam}
+                      homeScore={match.intHomeScore}
+                      awayScore={match.intAwayScore}
+                      status={match.strStatus}
+                      date={match.dateEvent}
+                      time={match.strTime || 'TBD'}
+                      league={match.strLeague}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </TabsContent>
           
-          <TabsContent value="standings" className="mt-0">
-            <div className="p-4 space-y-4">
+          <TabsContent value="standings" className="mt-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto p-4 space-y-4">
               {['MLB', 'NBA', 'NFL', 'NHL', 'NCAAF'].map((league) => (
                 <div key={league} className="space-y-2">
                   <div className="flex items-center gap-2">
