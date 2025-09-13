@@ -166,66 +166,78 @@ const MatchItem: React.FC<{
     return abbrevMap[lower] || teamName.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3);
   };
 
+  // Generate mock baseball stats for demonstration
+  const generateBaseballStats = () => {
+    const balls = Math.floor(Math.random() * 4);
+    const strikes = Math.floor(Math.random() * 3);
+    const atBat = Math.floor(Math.random() * 50) + 1;
+    return { balls, strikes, atBat };
+  };
+
+  const { balls, strikes, atBat } = generateBaseballStats();
+  const isBaseball = league.toLowerCase().includes('mlb') || league.toLowerCase().includes('baseball');
+
   return (
-    <div className="bg-card border rounded-lg p-3 mb-2 hover:bg-muted/50 transition-colors">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">{league}</Badge>
-          {isLive && (
-            <Badge variant="secondary" className="bg-success/10 text-success text-xs">
-              LIVE
-            </Badge>
-          )}
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {date} • {time}
-        </div>
-      </div>
-      
-      <div className="space-y-1">
+    <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 hover:bg-card/70 transition-all duration-200 shadow-lg hover:shadow-xl">
+      {/* Team matchups */}
+      <div className="space-y-3 mb-4">
         {/* Away Team */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
               <span className="text-xs font-bold text-primary">
-                {getTeamAbbr(awayTeam)[0]}
+                {getTeamAbbr(awayTeam).slice(0, 2)}
               </span>
             </div>
-            <span className="text-sm font-medium">{getTeamAbbr(awayTeam)}</span>
+            <span className="text-lg font-semibold text-foreground">{getTeamAbbr(awayTeam)}</span>
           </div>
-          <span className="text-lg font-bold">
-            {hasScore ? awayScore : '-'}
+          <span className="text-3xl font-bold text-foreground">
+            {hasScore ? awayScore : '0'}
           </span>
         </div>
         
         {/* Home Team */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-secondary/10 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center border border-secondary/20">
               <span className="text-xs font-bold text-secondary-foreground">
-                {getTeamAbbr(homeTeam)[0]}
+                {getTeamAbbr(homeTeam).slice(0, 2)}
               </span>
             </div>
-            <span className="text-sm font-medium">{getTeamAbbr(homeTeam)}</span>
+            <span className="text-lg font-semibold text-foreground">{getTeamAbbr(homeTeam)}</span>
           </div>
-          <span className="text-lg font-bold">
-            {hasScore ? homeScore : '-'}
+          <span className="text-3xl font-bold text-foreground">
+            {hasScore ? homeScore : '0'}
           </span>
         </div>
       </div>
       
       {/* Game Status */}
-      <div className="mt-2 pt-2 border-t border-border/50">
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground">{status}</span>
-          {period && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{period}</span>
-              {clock && <span>• {clock}</span>}
-            </div>
-          )}
-        </div>
+      <div className="text-center mb-3">
+        <span className="text-sm font-medium text-muted-foreground">
+          {period || status || 'Scheduled'}
+        </span>
       </div>
+      
+      {/* Baseball-specific stats */}
+      {isBaseball && (
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>B-S: {balls}-{strikes}</span>
+            <span>AB: #{atBat}</span>
+          </div>
+          <div className="w-4 h-4 rotate-45 border border-muted-foreground/30 bg-muted/20"></div>
+        </div>
+      )}
+      
+      {/* Time info for upcoming games */}
+      {!hasScore && (
+        <div className="text-center mt-2">
+          <span className="text-xs text-muted-foreground">
+            {time}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
