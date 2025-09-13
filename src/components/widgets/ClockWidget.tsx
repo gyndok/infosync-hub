@@ -24,25 +24,44 @@ interface AnalogClockProps {
 }
 
 const AnalogClock = ({ timezone, city, time }: AnalogClockProps) => {
-  // Get the time components directly from the formatted time in the target timezone
-  const timeString = time.toLocaleTimeString('en-US', { 
-    timeZone: timezone, 
-    hour12: false, 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit' 
-  });
+  // For local time, use the actual local time directly
+  const isLocalTime = city === 'Local Time' || timezone === Intl.DateTimeFormat().resolvedOptions().timeZone;
   
-  const [hourStr, minuteStr, secondStr] = timeString.split(':');
-  const hours = parseInt(hourStr, 10) % 12;
-  const minutes = parseInt(minuteStr, 10);
-  const seconds = parseInt(secondStr, 10);
+  let hours, minutes, seconds;
+  
+  if (isLocalTime) {
+    // Use the actual local time components
+    hours = time.getHours() % 12;
+    minutes = time.getMinutes();
+    seconds = time.getSeconds();
+  } else {
+    // For other timezones, use the formatted time parsing
+    const timeString = time.toLocaleTimeString('en-US', { 
+      timeZone: timezone, 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
+    });
+    
+    const [hourStr, minuteStr, secondStr] = timeString.split(':');
+    hours = parseInt(hourStr, 10) % 12;
+    minutes = parseInt(minuteStr, 10);
+    seconds = parseInt(secondStr, 10);
+  }
 
   const hourAngle = (hours * 30) + (minutes * 0.5);
   const minuteAngle = minutes * 6;
   const secondAngle = seconds * 6;
 
   const formatTime = () => {
+    if (isLocalTime) {
+      return time.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    }
     return time.toLocaleTimeString('en-US', {
       timeZone: timezone,
       hour: '2-digit',
