@@ -169,8 +169,8 @@ serve(async (req) => {
         case 'finnhub':
           urlParams.append('token', apiKey);
           break;
-        case 'sports':
-          urlParams.append('apiKey', apiKey);
+        case 'guardian':
+          urlParams.append('api-key', apiKey);
           break;
       }
     }

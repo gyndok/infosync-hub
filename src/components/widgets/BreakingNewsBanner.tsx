@@ -1,0 +1,156 @@
+import { useState, useEffect } from 'react';
+import { useApiProxy } from '@/hooks/useApiProxy';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { ExternalLink, AlertCircle } from 'lucide-react';
+
+interface BreakingNewsItem {
+  id: string;
+  headline: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  isBreaking: boolean;
+}
+
+export const BreakingNewsBanner = () => {
+  const [news, setNews] = useState<BreakingNewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { makeRequest } = useApiProxy();
+
+  useEffect(() => {
+    const fetchBreakingNews = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Try Guardian API first (most reliable free API)
+        const guardianResponse = await makeRequest({
+          service: 'guardian',
+          endpoint: '/search',
+          params: {
+            'api-key': 'GUARDIAN_API_KEY',
+            'show-fields': 'headline,webUrl,webPublicationDate',
+            'order-by': 'newest',
+            'page-size': 10,
+            q: 'breaking OR urgent OR alert OR developing'
+          }
+        });
+
+        if (guardianResponse.success && guardianResponse.data.response.results) {
+          const guardianNews: BreakingNewsItem[] = guardianResponse.data.response.results.map((article: any, index: number) => ({
+            id: `guardian-${article.id}`,
+            headline: article.fields?.headline || article.webTitle,
+            url: article.webUrl,
+            source: 'The Guardian',
+            publishedAt: article.webPublicationDate,
+            isBreaking: true
+          }));
+          setNews(guardianNews);
+        } else {
+          // Fallback to NewsAPI for breaking news
+          const newsApiResponse = await makeRequest({
+            service: 'newsapi',
+            endpoint: '/everything',
+            params: {
+              q: 'breaking news OR urgent',
+              sortBy: 'publishedAt',
+              pageSize: 10,
+              language: 'en'
+            }
+          });
+
+          if (newsApiResponse.success && newsApiResponse.data.articles) {
+            const breakingNews: BreakingNewsItem[] = newsApiResponse.data.articles.map((article: any, index: number) => ({
+              id: `news-${index}`,
+              headline: article.title,
+              url: article.url,
+              source: article.source.name,
+              publishedAt: article.publishedAt,
+              isBreaking: article.title.toLowerCase().includes('breaking') || 
+                         article.title.toLowerCase().includes('urgent')
+            })).filter(item => item.isBreaking);
+            
+            setNews(breakingNews);
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch breaking news');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBreakingNews();
+    const interval = setInterval(fetchBreakingNews, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [makeRequest]);
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const publishedDate = new Date(dateString);
+    const diffInMinutes = Math.floor((now.getTime() - publishedDate.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  if (error) {
+    return (
+      <Alert className="mb-4 border-destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Breaking news unavailable: {error}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-red-600 text-white py-2 overflow-hidden">
+        <div className="flex items-center">
+          <Badge variant="secondary" className="bg-white text-red-600 font-bold mr-4 ml-4">
+            BREAKING
+          </Badge>
+          <div className="animate-pulse">Loading breaking news...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (news.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="bg-red-600 text-white py-2 overflow-hidden relative">
+      <div className="flex items-center">
+        <Badge variant="secondary" className="bg-white text-red-600 font-bold mr-4 ml-4 shrink-0">
+          BREAKING
+        </Badge>
+        <div className="flex animate-[scroll-left_30s_linear_infinite] whitespace-nowrap">
+          {news.concat(news).map((item, index) => (
+            <div key={`${item.id}-${index}`} className="flex items-center mr-16">
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline flex items-center group"
+              >
+                <span className="font-medium">{item.headline}</span>
+                <ExternalLink className="w-3 h-3 ml-2 opacity-70 group-hover:opacity-100" />
+              </a>
+              <span className="text-red-200 text-sm ml-3">
+                {item.source} • {formatTimeAgo(item.publishedAt)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
