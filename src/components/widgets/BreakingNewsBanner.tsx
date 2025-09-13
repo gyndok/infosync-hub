@@ -28,11 +28,15 @@ export const BreakingNewsBanner = () => {
 
         // Try RSS feeds first via edge function (fast, no API rate limits)
         try {
+          console.log('🔄 Fetching breaking news from RSS...');
           const { data: rssData } = await supabase.functions.invoke('rss-fetcher', {
             body: { sources: ['ap'], limit: 20 }
           });
 
+          console.log('📰 RSS Data received:', rssData);
+
           if (rssData?.success && rssData.items?.length) {
+            console.log(`✅ Found ${rssData.items.length} RSS items`);
             const breakingNews: BreakingNewsItem[] = rssData.items
               .slice(0, 10)
               .map((item: any, index: number) => ({
@@ -44,11 +48,15 @@ export const BreakingNewsBanner = () => {
                 isBreaking: true,
               }));
 
+            console.log('🎯 Setting breaking news:', breakingNews);
             setNews(breakingNews);
             return; // Done if RSS succeeded
+          } else {
+            console.log('⚠️ RSS data invalid or empty');
           }
-        } catch (_) {
-          // Ignore and continue to API proxy fallbacks
+        } catch (rssError) {
+          console.error('❌ RSS fetch error:', rssError);
+          // Continue to API proxy fallbacks
         }
 
         // Try NYT Top Stories API next (reliable and curated)
