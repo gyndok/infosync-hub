@@ -163,7 +163,7 @@ export const BreakingNewsBanner = () => {
         <Badge variant="secondary" className="bg-white text-red-600 font-bold mr-4 ml-4 shrink-0">
           BREAKING
         </Badge>
-        <div className="flex animate-[scroll-left_30s_linear_infinite] whitespace-nowrap">
+        <div className="flex animate-[scroll-left_60s_linear_infinite] whitespace-nowrap hover:pause">
           {news.concat(news).map((item, index) => (
             <div key={`${item.id}-${index}`} className="flex items-center mr-16">
               <a
