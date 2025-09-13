@@ -29,9 +29,7 @@ export const BreakingNewsBanner = () => {
         const nytResponse = await makeRequest({
           service: 'nyt',
           endpoint: '/topstories/v2/home.json',
-          params: {
-            'api-key': 'NYT_API_KEY'
-          }
+          params: {}
         });
 
         if (nytResponse.success && nytResponse.data.results) {
@@ -90,7 +88,7 @@ export const BreakingNewsBanner = () => {
     };
 
     fetchBreakingNews();
-    const interval = setInterval(fetchBreakingNews, 30000); // Refresh every 30 seconds
+    const interval = setInterval(fetchBreakingNews, 120000); // Refresh every 2 minutes to avoid rate limits
 
     return () => clearInterval(interval);
   }, [makeRequest]);
