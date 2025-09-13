@@ -4,13 +4,10 @@ import { GridLayout } from '@/components/dashboard/GridLayout';
 import { LayoutSettings } from '@/components/dashboard/LayoutSettings';
 import { useLayoutConfig } from '@/hooks/useLayoutConfig';
 import { 
-  TrendingUp, 
   Activity,
   Users,
   Calendar,
-  Bell,
-  Newspaper,
-  Cloud
+  Bell
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,10 +48,9 @@ const Dashboard: React.FC = () => {
       {/* Draggable Grid Layout */}
       <GridLayout />
 
-      {/* Quick Actions & Reminders */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Reminders Card */}
-        <Card className="dashboard-card">
+      {/* Reminders */}
+      <div className="mt-6">
+        <Card className="dashboard-card max-w-2xl">
           <CardHeader className="widget-header">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               📅 Reminders
@@ -88,36 +84,6 @@ const Dashboard: React.FC = () => {
             <Button variant="outline" size="sm" className="w-full mt-4">
               <Bell className="w-4 h-4 mr-2" />
               Start Meeting
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card className="dashboard-card">
-          <CardHeader className="widget-header">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              ⚡ Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 space-y-3">
-            <Button variant="outline" size="sm" className="w-full justify-start">
-              <Newspaper className="w-4 h-4 mr-2" />
-              Add News Source
-            </Button>
-            
-            <Button variant="outline" size="sm" className="w-full justify-start">
-              <Cloud className="w-4 h-4 mr-2" />
-              Weather Settings
-            </Button>
-            
-            <Button variant="outline" size="sm" className="w-full justify-start">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Portfolio Tracker
-            </Button>
-            
-            <Button variant="outline" size="sm" className="w-full justify-start">
-              <Users className="w-4 h-4 mr-2" />
-              Team Dashboard
             </Button>
           </CardContent>
         </Card>
