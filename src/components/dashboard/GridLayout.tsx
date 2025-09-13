@@ -14,8 +14,8 @@ import { KHOUAstrosWidget } from '@/components/widgets/KHOUAstrosWidget';
 import { KHOURocketsWidget } from '@/components/widgets/KHOURocketsWidget';
 import { KHOUTexansWidget } from '@/components/widgets/KHOUTexansWidget';
 import { KHOULocalWidget } from '@/components/widgets/KHOULocalWidget';
-import { HoustonTrafficWidget } from '@/components/widgets/HoustonTrafficWidget';
 import { TexasLonghornsWidget } from '@/components/widgets/TexasLonghornsWidget';
+import { HoustonTrafficWidget } from '@/components/widgets/HoustonTrafficWidget';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
