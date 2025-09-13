@@ -8,6 +8,7 @@ import { MajorIndicesWidget } from '@/components/widgets/MajorIndicesWidget';
 import { StockWatchlistWidget } from '@/components/widgets/StockWatchlistWidget';
 import { CryptocurrencyWidget } from '@/components/widgets/CryptocurrencyWidget';
 import { SportsWidget } from '@/components/widgets/SportsWidget';
+import { ClockWidget } from '@/components/widgets/ClockWidget';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -18,6 +19,7 @@ const widgetComponents = {
   watchlist: StockWatchlistWidget,
   crypto: CryptocurrencyWidget,
   sports: SportsWidget,
+  clock: ClockWidget,
 } as const;
 
 export const GridLayout: React.FC = () => {

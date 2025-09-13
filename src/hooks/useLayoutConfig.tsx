@@ -24,10 +24,11 @@ export interface LayoutConfig {
 const defaultWidgets: WidgetConfig[] = [
   { id: 'news', type: 'news', x: 0, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
   { id: 'weather', type: 'weather', x: 1, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
-  { id: 'indices', type: 'indices', x: 0, y: 4, w: 1, h: 3, minH: 2, maxH: 4 },
-  { id: 'watchlist', type: 'watchlist', x: 1, y: 4, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'crypto', type: 'crypto', x: 0, y: 7, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'sports', type: 'sports', x: 1, y: 7, w: 1, h: 3, minH: 3, maxH: 5 },
+  { id: 'clock', type: 'clock', x: 0, y: 4, w: 1, h: 2, minH: 2, maxH: 3 },
+  { id: 'indices', type: 'indices', x: 1, y: 4, w: 1, h: 3, minH: 2, maxH: 4 },
+  { id: 'watchlist', type: 'watchlist', x: 0, y: 6, w: 1, h: 3, minH: 3, maxH: 5 },
+  { id: 'crypto', type: 'crypto', x: 1, y: 7, w: 1, h: 3, minH: 3, maxH: 5 },
+  { id: 'sports', type: 'sports', x: 0, y: 9, w: 1, h: 3, minH: 3, maxH: 5 },
 ];
 
 const defaultLayout: LayoutConfig = {
