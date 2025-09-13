@@ -160,26 +160,30 @@ export const BreakingNewsBanner = () => {
   return (
     <div className="bg-red-600 text-white py-2 overflow-hidden relative">
       <div className="flex items-center">
-        <Badge variant="secondary" className="bg-white text-red-600 font-bold mr-4 ml-4 shrink-0">
+        <Badge variant="secondary" className="bg-white text-red-600 font-bold mr-4 ml-4 shrink-0 relative z-10">
           BREAKING
         </Badge>
-        <div className="flex animate-[scroll-left_156s_linear_infinite] whitespace-nowrap hover:pause">
-          {news.concat(news).map((item, index) => (
-            <div key={`${item.id}-${index}`} className="flex items-center mr-16">
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline flex items-center group"
-              >
-                <span className="font-medium">{item.headline}</span>
-                <ExternalLink className="w-3 h-3 ml-2 opacity-70 group-hover:opacity-100" />
-              </a>
-              <span className="text-red-200 text-sm ml-3">
-                {item.source} • {formatTimeAgo(item.publishedAt)}
-              </span>
-            </div>
-          ))}
+        <div className="flex-1 relative">
+          {/* Fade overlay on the left */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-red-600 to-transparent z-10 pointer-events-none"></div>
+          <div className="flex animate-[scroll-left_156s_linear_infinite] whitespace-nowrap hover:pause">
+            {news.concat(news).map((item, index) => (
+              <div key={`${item.id}-${index}`} className="flex items-center mr-16">
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline flex items-center group"
+                >
+                  <span className="font-medium">{item.headline}</span>
+                  <ExternalLink className="w-3 h-3 ml-2 opacity-70 group-hover:opacity-100" />
+                </a>
+                <span className="text-red-200 text-sm ml-3">
+                  {item.source} • {formatTimeAgo(item.publishedAt)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
