@@ -328,6 +328,7 @@ export type Database = {
       user_preferences: {
         Row: {
           auto_refresh_interval: number | null
+          clock_settings: Json | null
           created_at: string
           dashboard_layout: Json | null
           id: string
@@ -339,6 +340,7 @@ export type Database = {
         }
         Insert: {
           auto_refresh_interval?: number | null
+          clock_settings?: Json | null
           created_at?: string
           dashboard_layout?: Json | null
           id?: string
@@ -350,6 +352,7 @@ export type Database = {
         }
         Update: {
           auto_refresh_interval?: number | null
+          clock_settings?: Json | null
           created_at?: string
           dashboard_layout?: Json | null
           id?: string

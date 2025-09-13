@@ -21,6 +21,7 @@ interface UserPreferences {
   notifications_enabled: boolean;
   auto_refresh_interval: number;
   timezone: string;
+  clock_settings?: any; // Optional field for clock settings
   created_at: string;
   updated_at: string;
 }

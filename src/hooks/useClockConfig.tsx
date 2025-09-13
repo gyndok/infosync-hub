@@ -74,31 +74,17 @@ export const useClockConfig = () => {
 
     setIsSaving(true);
     try {
-      // Ensure a preferences row exists; update if found, otherwise insert
-      const { data: existing, error: fetchErr } = await supabase
+      // Use upsert approach with proper type handling
+      const { error } = await supabase
         .from('user_preferences')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .upsert({
+          user_id: user.id,
+          clock_settings: newSettings,
+        } as any, {
+          onConflict: 'user_id'
+        });
 
-      if (fetchErr) throw fetchErr;
-
-      if (existing) {
-        const { error: updateErr } = await supabase
-          .from('user_preferences')
-          .update({ clock_settings: newSettings as any })
-          .eq('user_id', user.id);
-        if (updateErr) throw updateErr;
-      } else {
-        const { error: insertErr } = await supabase
-          .from('user_preferences')
-          .insert({ 
-            user_id: user.id, 
-            clock_settings: newSettings as any,
-            dashboard_layout: { columns: 2, widgets: [] } as any
-          });
-        if (insertErr) throw insertErr;
-      }
+      if (error) throw error;
 
       setClockSettings(newSettings);
       console.log('Clock settings saved successfully');
