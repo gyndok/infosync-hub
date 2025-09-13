@@ -17,6 +17,7 @@ const FEEDS: Record<string, string> = {
   khou_rockets: 'https://www.khou.com/feeds/syndication/rss/rockets',
   khou_texans: 'https://www.khou.com/feeds/syndication/rss/texans',
   khou_local: 'https://www.khou.com/feeds/syndication/rss/local',
+  texas_longhorns: 'https://texaslonghorns.com/rss?path=football',
 };
 
 function stripCDATA(text: string | null): string {

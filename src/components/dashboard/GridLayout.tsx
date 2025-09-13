@@ -15,6 +15,7 @@ import { KHOURocketsWidget } from '@/components/widgets/KHOURocketsWidget';
 import { KHOUTexansWidget } from '@/components/widgets/KHOUTexansWidget';
 import { KHOULocalWidget } from '@/components/widgets/KHOULocalWidget';
 import { HoustonTrafficWidget } from '@/components/widgets/HoustonTrafficWidget';
+import { TexasLonghornsWidget } from '@/components/widgets/TexasLonghornsWidget';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -32,6 +33,7 @@ const widgetComponents = {
   khou_texans: KHOUTexansWidget,
   khou_local: KHOULocalWidget,
   houston_traffic: HoustonTrafficWidget,
+  texas_longhorns: TexasLonghornsWidget,
 } as const;
 
 export const GridLayout: React.FC = () => {
