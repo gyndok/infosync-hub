@@ -268,6 +268,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_custom_cities: {
+        Row: {
+          city_name: string
+          created_at: string
+          id: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city_name: string
+          created_at?: string
+          id?: string
+          timezone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city_name?: string
+          created_at?: string
+          id?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_portfolios: {
         Row: {
           created_at: string
