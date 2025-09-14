@@ -57,11 +57,16 @@ export const GamesView: React.FC<GamesViewProps> = ({ selectedLeague }) => {
       return aTime.getTime() - bTime.getTime();
     })[0];
 
-  // Get today's games
+  // Get recent and today's games (last 7 days + today)
   const today = new Date();
-  const todayGames = leagueGames.filter(game => {
+  const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+  
+  console.log(`Date Debug - Today: ${today.toDateString()}, Seven days ago: ${sevenDaysAgo.toDateString()}`);
+  console.log(`Date Debug - NFL Game date: ${leagueGames[0]?.dateEvent}, Parsed: ${new Date(leagueGames[0]?.dateEvent).toDateString()}`);
+  
+  const recentGames = leagueGames.filter(game => {
     const gameDate = new Date(game.dateEvent);
-    return gameDate.toDateString() === today.toDateString();
+    return gameDate >= sevenDaysAgo && gameDate <= today;
   }).slice(0, 12);
 
   // Get upcoming games
@@ -69,6 +74,8 @@ export const GamesView: React.FC<GamesViewProps> = ({ selectedLeague }) => {
     const gameDate = new Date(game.dateEvent);
     return gameDate > today;
   }).slice(0, 6);
+  
+  console.log(`Date Debug - Recent games count: ${recentGames.length}, Upcoming games count: ${upcomingGames.length}`);
 
   if (isLoading) {
     return (
@@ -110,11 +117,14 @@ export const GamesView: React.FC<GamesViewProps> = ({ selectedLeague }) => {
         </div>
       )}
 
-      {/* Today's Games */}
-      {todayGames.length > 0 && (
+      {/* Recent Games */}
+      {recentGames.length > 0 && (
         <div className="p-4">
+          <h2 className="text-gray-400 text-sm font-medium mb-3 uppercase tracking-wide">
+            Recent Games
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {todayGames.map((game) => (
+            {recentGames.map((game) => (
               <GameCard key={game.idEvent} game={game} />
             ))}
           </div>
@@ -136,7 +146,7 @@ export const GamesView: React.FC<GamesViewProps> = ({ selectedLeague }) => {
       )}
 
       {/* Empty State */}
-      {!isLoading && todayGames.length === 0 && upcomingGames.length === 0 && !shouldShowFollowing && (
+      {!isLoading && recentGames.length === 0 && upcomingGames.length === 0 && !shouldShowFollowing && (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
             <div className="text-gray-500 text-6xl mb-4">🏆</div>
