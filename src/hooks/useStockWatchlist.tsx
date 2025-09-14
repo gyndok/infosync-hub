@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useApiProxy } from './useApiProxy';
 import { useToast } from './use-toast';
+import { logError } from '@/lib/logError';
 
 interface WatchlistStock {
   id: string;
@@ -40,7 +41,7 @@ export const useStockWatchlist = () => {
         .limit(1);
       
       if (error) {
-        console.error('Error fetching watchlist:', error);
+        logError('Error fetching watchlist:', error);
         return [];
       }
       
@@ -81,7 +82,7 @@ export const useStockWatchlist = () => {
           });
         }
       } catch (error) {
-        console.error(`Error fetching price for ${symbol}:`, error);
+        logError(`Error fetching price for ${symbol}:`, error);
       }
     }
     

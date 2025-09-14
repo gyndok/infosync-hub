@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { logError } from '@/lib/logError';
 
 export interface CustomCity {
   id: string;
@@ -32,22 +33,12 @@ export const useCustomCities = () => {
           .order('created_at', { ascending: true });
 
         if (error) {
-          console.error('Error loading custom cities:', error);
-          toast({
-            title: "Error loading custom cities",
-            description: error.message,
-            variant: "destructive",
-          });
+          logError('Error loading custom cities:', error);
         } else {
           setCustomCities(data || []);
         }
       } catch (error: any) {
-        console.error('Error loading custom cities:', error);
-        toast({
-          title: "Error loading custom cities",
-          description: error.message,
-          variant: "destructive",
-        });
+        logError('Error loading custom cities:', error);
       } finally {
         setIsLoading(false);
       }
@@ -102,12 +93,7 @@ export const useCustomCities = () => {
       });
       return true;
     } catch (error: any) {
-      console.error('Error adding custom city:', error);
-      toast({
-        title: "Error adding city",
-        description: error.message,
-        variant: "destructive",
-      });
+      logError('Error adding city:', error);
       return false;
     }
   };
@@ -139,12 +125,7 @@ export const useCustomCities = () => {
       });
       return true;
     } catch (error: any) {
-      console.error('Error removing custom city:', error);
-      toast({
-        title: "Error removing city",
-        description: error.message,
-        variant: "destructive",
-      });
+      logError('Error removing city:', error);
       return false;
     }
   };

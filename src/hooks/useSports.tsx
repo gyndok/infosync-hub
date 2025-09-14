@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useApiProxy } from './useApiProxy';
 import { useToast } from '@/hooks/use-toast';
+import { logError } from '@/lib/logError';
 
 interface SportsData {
   idEvent: string;
@@ -76,7 +77,7 @@ export const useSports = () => {
         .limit(1);
       
       if (error) {
-        console.error('Error fetching sports config:', error);
+        logError('Error fetching sports config:', error);
         return defaultConfig;
       }
       
@@ -187,7 +188,7 @@ export const useSports = () => {
             allEvents.push(...events);
           }
         } catch (error) {
-          console.error(`Error fetching ${league} data:`, error);
+          logError(`Error fetching ${league} data:`, error);
           // Continue with other leagues even if one fails
         }
       }
@@ -200,7 +201,7 @@ export const useSports = () => {
         .sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime())
         .slice(0, 20);
     } catch (error) {
-      console.error('Error fetching sports data:', error);
+      logError('Error fetching sports data:', error);
     }
     
     return [];
@@ -249,7 +250,7 @@ export const useSports = () => {
         return standings.slice(0, 10);
       }
     } catch (error) {
-      console.error(`Error fetching ${league} standings:`, error);
+      logError(`Error fetching ${league} standings:`, error);
     }
     
     return [];
