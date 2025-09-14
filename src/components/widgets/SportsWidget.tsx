@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, RefreshCw, Settings, X, Star } from 'lucide-react';
+import { Trophy, RefreshCw, Settings, X, Star, Users, Target, TrendingUp, Newspaper, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -338,6 +338,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
     checkLiveScores
   } = useSports();
 
+  const [activeView, setActiveView] = useState("following");
   const [activeTab, setActiveTab] = useState("today");
 
   // Check for live scores periodically
@@ -387,6 +388,18 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
+  // Get live/active games for favorites
+  const liveOrActiveFavoriteGames = favoriteTeamGames.filter(game => {
+    const status = game.strStatus?.toLowerCase() || '';
+    return status.includes('live') || status.includes('active') || status.includes('in progress') || 
+           (game.intHomeScore && game.intAwayScore && !status.includes('final'));
+  });
+
+  // Get next upcoming favorite game
+  const nextFavoriteGame = favoriteTeamGames
+    .filter(game => new Date(game.dateEvent) > now)
+    .sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime())[0];
+
   // Favorite team games organized by time period
   const favoriteYesterdayGames = favoriteTeamGames.filter(game => {
     const gameDate = new Date(game.dateEvent);
@@ -421,15 +434,36 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
 
   // Determine what to show for each tab
   const getGamesForTab = (tab: string) => {
-    switch (tab) {
-      case "yesterday":
-        return favoriteYesterdayGames.length > 0 ? favoriteYesterdayGames : yesterdayGames;
-      case "today":
-        return favoriteTodayGames.length > 0 ? favoriteTodayGames : todayGames;
-      case "upcoming":
-        return favoriteUpcomingGames.length > 0 ? favoriteUpcomingGames : upcomingGames;
-      default:
-        return [];
+    if (activeView === "following") {
+      // For following view, prioritize live games, then upcoming
+      if (liveOrActiveFavoriteGames.length > 0) {
+        return liveOrActiveFavoriteGames;
+      } else if (nextFavoriteGame) {
+        return [nextFavoriteGame];
+      } else {
+        switch (tab) {
+          case "yesterday":
+            return favoriteYesterdayGames;
+          case "today":
+            return favoriteTodayGames;
+          case "upcoming":
+            return favoriteUpcomingGames;
+          default:
+            return [];
+        }
+      }
+    } else {
+      // For games view, show all games
+      switch (tab) {
+        case "yesterday":
+          return favoriteYesterdayGames.length > 0 ? favoriteYesterdayGames : yesterdayGames;
+        case "today":
+          return favoriteTodayGames.length > 0 ? favoriteTodayGames : todayGames;
+        case "upcoming":
+          return favoriteUpcomingGames.length > 0 ? favoriteUpcomingGames : upcomingGames;
+        default:
+          return [];
+      }
     }
   };
 
@@ -460,6 +494,173 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
     </div>
   );
 
+  // Render different views based on activeView
+  const renderContent = () => {
+    switch (activeView) {
+      case "following":
+        return (
+          <div className="space-y-3">
+            {liveOrActiveFavoriteGames.length > 0 ? (
+              <>
+                <div className="text-center py-2">
+                  <Badge variant="secondary" className="bg-red-600 text-white text-xs">
+                    LIVE GAMES
+                  </Badge>
+                </div>
+                {liveOrActiveFavoriteGames.map((game, index) => {
+                  const isFavorite = config.favoriteTeams.some(team => matchesTeam(game, team));
+                  return (
+                    <MatchItem
+                      key={game.idEvent || index}
+                      homeTeam={game.strHomeTeam}
+                      awayTeam={game.strAwayTeam}
+                      homeScore={game.intHomeScore}
+                      awayScore={game.intAwayScore}
+                      status={game.strStatus}
+                      date={game.dateEvent}
+                      time={game.strTime}
+                      league={game.strLeague}
+                      period={game.strStatus}
+                      clock={game.strTime}
+                      homeRecord={generateMockRecord()}
+                      awayRecord={generateMockRecord()}
+                      isFavorite={isFavorite}
+                    />
+                  );
+                })}
+              </>
+            ) : nextFavoriteGame ? (
+              <>
+                <div className="text-center py-2">
+                  <Badge variant="secondary" className="bg-blue-600 text-white text-xs">
+                    NEXT GAME
+                  </Badge>
+                </div>
+                <MatchItem
+                  key={nextFavoriteGame.idEvent}
+                  homeTeam={nextFavoriteGame.strHomeTeam}
+                  awayTeam={nextFavoriteGame.strAwayTeam}
+                  homeScore={nextFavoriteGame.intHomeScore}
+                  awayScore={nextFavoriteGame.intAwayScore}
+                  status={nextFavoriteGame.strStatus}
+                  date={nextFavoriteGame.dateEvent}
+                  time={nextFavoriteGame.strTime}
+                  league={nextFavoriteGame.strLeague}
+                  period={nextFavoriteGame.strStatus}
+                  clock={nextFavoriteGame.strTime}
+                  homeRecord={generateMockRecord()}
+                  awayRecord={generateMockRecord()}
+                  isFavorite={true}
+                />
+                <div className="text-center py-4">
+                  <p className="text-gray-400 text-sm">
+                    Next game: {new Date(nextFavoriteGame.dateEvent).toLocaleDateString()} at {nextFavoriteGame.strTime}
+                  </p>
+                </div>
+              </>
+            ) : config.favoriteTeams.length === 0 ? (
+              <div className="text-center py-8">
+                <Star className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 mb-2">No favorite teams added</p>
+                <p className="text-gray-500 text-sm">
+                  Add favorite teams in settings to see live games and upcoming matches
+                </p>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400 mb-2">No live games for your favorite teams</p>
+                <p className="text-gray-500 text-sm">
+                  Check the Games tab for all available matches
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case "games":
+        return (
+          <div className="space-y-3">
+            {currentGames.length > 0 ? (
+              currentGames.slice(0, 6).map((game, index) => {
+                const isFavorite = config.favoriteTeams.some(team => matchesTeam(game, team));
+                return (
+                  <MatchItem
+                    key={game.idEvent || index}
+                    homeTeam={game.strHomeTeam}
+                    awayTeam={game.strAwayTeam}
+                    homeScore={game.intHomeScore}
+                    awayScore={game.intAwayScore}
+                    status={game.strStatus}
+                    date={game.dateEvent}
+                    time={game.strTime}
+                    league={game.strLeague}
+                    period={game.strStatus}
+                    clock={game.strTime}
+                    homeRecord={generateMockRecord()}
+                    awayRecord={generateMockRecord()}
+                    isFavorite={isFavorite}
+                  />
+                );
+              })
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400">
+                  {activeTab === "yesterday" && "No games yesterday"}
+                  {activeTab === "today" && "No games today"}
+                  {activeTab === "upcoming" && "No upcoming games"}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case "teams":
+        return (
+          <div className="space-y-3">
+            <div className="text-center py-4">
+              <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 mb-2">Favorite Teams</p>
+              {config.favoriteTeams.length > 0 ? (
+                <div className="space-y-2">
+                  {config.favoriteTeams.map((team, index) => (
+                    <div key={index} className="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center border border-slate-500">
+                          <span className="text-white font-bold text-xs">{team.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3)}</span>
+                        </div>
+                        <span className="text-white font-medium">{team}</span>
+                      </div>
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">
+                  Add teams in settings to track their games
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      
+      case "standings":
+        return (
+          <div className="space-y-3">
+            <div className="text-center py-8">
+              <TrendingUp className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 mb-2">Standings</p>
+              <p className="text-gray-500 text-sm">
+                League standings coming soon
+              </p>
+            </div>
+          </div>
+        );
+      
+      default:
+        return renderContent();
+    }
+  };
+
   return (
     <div className="h-full bg-gray-900 rounded-xl overflow-hidden flex flex-col">
       {/* Header */}
@@ -468,9 +669,11 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-white" />
             <span className="text-white font-semibold">Sports</span>
-            <Badge variant="secondary" className="bg-green-600 text-white text-xs">
-              Live
-            </Badge>
+            {liveOrActiveFavoriteGames.length > 0 && (
+              <Badge variant="secondary" className="bg-green-600 text-white text-xs">
+                Live
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-white hover:bg-gray-800">
@@ -493,28 +696,57 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Navigation Tabs */}
       <div className="px-4 pt-4">
-        <div className="flex space-x-6 border-b border-gray-700/50">
+        <div className="flex space-x-1 bg-gray-800/50 rounded-lg p-1 mb-4">
           {[
-            { key: "yesterday", label: "Yesterday" },
-            { key: "today", label: "Today" },
-            { key: "upcoming", label: "Upcoming" }
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "pb-3 px-1 text-sm font-medium border-b-2 transition-colors",
-                activeTab === tab.key
-                  ? "text-white border-white"
-                  : "text-gray-400 border-transparent hover:text-gray-300"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+            { key: "following", label: "Following", icon: Star },
+            { key: "games", label: "Games", icon: Grid3X3 },
+            { key: "teams", label: "Teams", icon: Users },
+            { key: "standings", label: "Standings", icon: TrendingUp }
+          ].map((nav) => {
+            const IconComponent = nav.icon;
+            return (
+              <button
+                key={nav.key}
+                onClick={() => setActiveView(nav.key)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-md text-xs font-medium transition-colors",
+                  activeView === nav.key
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:text-gray-300"
+                )}
+              >
+                <IconComponent className="w-3 h-3" />
+                {nav.label}
+              </button>
+            );
+          })}
         </div>
+
+        {/* Time Period Tabs (only show for games view) */}
+        {activeView === "games" && (
+          <div className="flex space-x-6 border-b border-gray-700/50">
+            {[
+              { key: "yesterday", label: "Yesterday" },
+              { key: "today", label: "Today" },
+              { key: "upcoming", label: "Upcoming" }
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  "pb-3 px-1 text-sm font-medium border-b-2 transition-colors",
+                  activeTab === tab.key
+                    ? "text-white border-white"
+                    : "text-gray-400 border-transparent hover:text-gray-300"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -522,53 +754,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
-          <div className="space-y-3">
-            {currentGames.length > 0 ? (
-              <>
-                {currentGames.slice(0, 6).map((game, index) => {
-                  const isFavorite = config.favoriteTeams.some(team => matchesTeam(game, team));
-                  return (
-                    <MatchItem
-                      key={game.idEvent || index}
-                      homeTeam={game.strHomeTeam}
-                      awayTeam={game.strAwayTeam}
-                      homeScore={game.intHomeScore}
-                      awayScore={game.intAwayScore}
-                      status={game.strStatus}
-                      date={game.dateEvent}
-                      time={game.strTime}
-                      league={game.strLeague}
-                      period={game.strStatus}
-                      clock={game.strTime}
-                      homeRecord={generateMockRecord()}
-                      awayRecord={generateMockRecord()}
-                      isFavorite={isFavorite}
-                    />
-                  );
-                })}
-                {hasFavoriteGames && favoriteTeamGames.length > currentGames.length && (
-                  <div className="text-center py-2">
-                    <p className="text-gray-400 text-sm">
-                      Showing favorite team games • {favoriteTeamGames.length} total games available
-                    </p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-400">
-                  {activeTab === "yesterday" && "No games yesterday"}
-                  {activeTab === "today" && "No games today"}
-                  {activeTab === "upcoming" && "No upcoming games"}
-                </p>
-                {config.favoriteTeams.length === 0 && (
-                  <p className="text-gray-500 text-sm mt-2">
-                    Add favorite teams in settings to see personalized scores
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+          renderContent()
         )}
       </div>
     </div>
