@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Clock, RefreshCw, Settings, Table, Bell, Search, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Trophy, RefreshCw, Settings, X, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useSports } from '@/hooks/useSports';
 
@@ -22,8 +20,11 @@ const MatchItem: React.FC<{
   league: string;
   period?: string;
   clock?: string;
-}> = ({ homeTeam, awayTeam, homeScore, awayScore, status, date, time, league, period, clock }) => {
-  const isLive = status === 'Match Finished' || status === 'FT' || status.toLowerCase().includes('live');
+  homeRecord?: string;
+  awayRecord?: string;
+  isFavorite?: boolean;
+}> = ({ homeTeam, awayTeam, homeScore, awayScore, status, date, time, league, period, clock, homeRecord, awayRecord, isFavorite }) => {
+  const isLive = status === 'Match Finished' || status === 'FT' || status.toLowerCase().includes('live') || status.toLowerCase().includes('final');
   const hasScore = homeScore !== undefined && awayScore !== undefined;
   
   // Get team abbreviations (standard 3-letter sports codes)
@@ -166,122 +167,76 @@ const MatchItem: React.FC<{
     return abbrevMap[lower] || teamName.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3);
   };
 
-  // Generate mock baseball stats for demonstration
-  const generateBaseballStats = () => {
-    const balls = Math.floor(Math.random() * 4);
-    const strikes = Math.floor(Math.random() * 3);
-    const atBat = Math.floor(Math.random() * 50) + 1;
-    return { balls, strikes, atBat };
+  // Team logo placeholders with colors
+  const getTeamLogo = (teamName: string) => {
+    const abbr = getTeamAbbr(teamName);
+    return (
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center border-2 border-slate-500">
+        <span className="text-white font-bold text-sm">{abbr}</span>
+      </div>
+    );
   };
 
-  const { balls, strikes, atBat } = generateBaseballStats();
-  const isBaseball = league.toLowerCase().includes('mlb') || league.toLowerCase().includes('baseball');
-
   return (
-    <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 hover:bg-card/70 transition-all duration-200 shadow-lg hover:shadow-xl">
-      {/* Team matchups */}
-      <div className="space-y-3 mb-4">
-        {/* Away Team */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
-              <span className="text-xs font-bold text-primary">
-                {getTeamAbbr(awayTeam).slice(0, 2)}
-              </span>
-            </div>
-            <span className="text-lg font-semibold text-foreground">{getTeamAbbr(awayTeam)}</span>
-          </div>
-          <span className="text-3xl font-bold text-foreground">
-            {hasScore ? awayScore : '0'}
-          </span>
+    <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 relative">
+      {/* Favorite star indicator */}
+      {isFavorite && (
+        <div className="absolute top-3 left-3 z-10">
+          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
         </div>
-        
-        {/* Home Team */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center border border-secondary/20">
-              <span className="text-xs font-bold text-secondary-foreground">
-                {getTeamAbbr(homeTeam).slice(0, 2)}
-              </span>
-            </div>
-            <span className="text-lg font-semibold text-foreground">{getTeamAbbr(homeTeam)}</span>
-          </div>
-          <span className="text-3xl font-bold text-foreground">
-            {hasScore ? homeScore : '0'}
-          </span>
-        </div>
-      </div>
+      )}
       
-      {/* Game Status */}
-      <div className="text-center mb-3">
-        <span className="text-sm font-medium text-muted-foreground">
-          {period || status || 'Scheduled'}
+      {/* League badge */}
+      <div className="text-center py-2 border-b border-gray-700/50">
+        <span className="text-xs font-medium text-gray-300 uppercase tracking-wider">
+          {league || 'Sports'}
         </span>
       </div>
       
-      {/* Baseball-specific stats */}
-      {isBaseball && (
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
-            <span>B-S: {balls}-{strikes}</span>
-            <span>AB: #{atBat}</span>
+      {/* Main game content */}
+      <div className="flex items-center justify-between p-4">
+        {/* Away team */}
+        <div className="flex flex-col items-center space-y-2 flex-1">
+          {getTeamLogo(awayTeam)}
+          <div className="text-center">
+            <div className="text-white font-medium text-sm">{getTeamAbbr(awayTeam)}</div>
+            {awayRecord && (
+              <div className="text-gray-400 text-xs">{awayRecord}</div>
+            )}
           </div>
-          <div className="w-4 h-4 rotate-45 border border-muted-foreground/30 bg-muted/20"></div>
         </div>
-      )}
-      
-      {/* Time info for upcoming games */}
-      {!hasScore && (
-        <div className="text-center mt-2">
-          <span className="text-xs text-muted-foreground">
-            {time}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const StandingsTable: React.FC<{
-  league: string;
-  standings: any[];
-  isLoading: boolean;
-}> = ({ league, standings, isLoading }) => {
-  if (isLoading) {
-    return (
-      <div className="space-y-2">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex justify-between">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-8" />
+        
+        {/* Score/Status section */}
+        <div className="flex flex-col items-center space-y-1 px-4">
+          <div className="flex items-center space-x-4">
+            <span className="text-3xl font-bold text-white">
+              {hasScore ? awayScore : '0'}
+            </span>
+            <span className="text-3xl font-bold text-white">
+              {hasScore ? homeScore : '0'}
+            </span>
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (!standings || standings.length === 0) {
-    return (
-      <div className="text-center py-4">
-        <p className="text-sm text-muted-foreground">No standings available</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-1">
-      <div className="text-xs font-medium text-muted-foreground mb-2 flex justify-between">
-        <span>Team</span>
-        <span>Rank</span>
-      </div>
-      {standings.slice(0, 8).map((team, index) => (
-        <div key={team.idTeam || index} className="flex justify-between items-center py-1 text-sm hover:bg-muted/50 rounded px-2">
-          <span className="truncate">{team.strTeam}</span>
-          <Badge variant="outline" className="text-xs">
-            #{team.intRank || index + 1}
-          </Badge>
+          <div className="text-center">
+            <div className="text-xs font-medium text-gray-300">
+              {hasScore ? (period || status || 'Final') : time}
+            </div>
+            {clock && (
+              <div className="text-xs text-gray-400">{clock}</div>
+            )}
+          </div>
         </div>
-      ))}
+        
+        {/* Home team */}
+        <div className="flex flex-col items-center space-y-2 flex-1">
+          {getTeamLogo(homeTeam)}
+          <div className="text-center">
+            <div className="text-white font-medium text-sm">{getTeamAbbr(homeTeam)}</div>
+            {homeRecord && (
+              <div className="text-gray-400 text-xs">{homeRecord}</div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -308,7 +263,7 @@ const SportsSettingsDialog: React.FC<{
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="widget-action">
+        <Button variant="ghost" size="sm" className="text-white hover:bg-gray-800">
           <Settings className="w-4 h-4" />
         </Button>
       </DialogTrigger>
@@ -364,24 +319,6 @@ const SportsSettingsDialog: React.FC<{
   );
 };
 
-const LoadingSkeleton: React.FC = () => (
-  <div className="space-y-3 p-4">
-    {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="flex items-center justify-between">
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-4 w-28" />
-        </div>
-        <div className="space-y-1">
-          <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-3 w-12" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
 interface SportsWidgetProps {
   onRemove?: () => void;
 }
@@ -389,9 +326,7 @@ interface SportsWidgetProps {
 export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
   const {
     sportsData,
-    standings,
     isLoading,
-    isLoadingStandings,
     config,
     addFavoriteTeam,
     removeFavoriteTeam,
@@ -401,8 +336,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
     checkLiveScores
   } = useSports();
 
-  const [activeTab, setActiveTab] = useState("favorites");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("today");
 
   // Check for live scores periodically
   useEffect(() => {
@@ -417,7 +351,15 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
     });
   };
 
-  // Helper function to match teams
+  // Generate mock records for teams
+  const generateMockRecord = () => {
+    const wins = Math.floor(Math.random() * 15) + 5;
+    const losses = Math.floor(Math.random() * 10) + 2;
+    const ties = Math.random() > 0.7 ? Math.floor(Math.random() * 3) : 0;
+    return ties > 0 ? `${wins}-${losses}-${ties}` : `${wins}-${losses}`;
+  };
+
+  // Helper function to match teams with favorites
   const matchesTeam = (game: any, searchOrTeam: string) => {
     const homeTeam = game.strHomeTeam.toLowerCase();
     const awayTeam = game.strAwayTeam.toLowerCase();
@@ -427,60 +369,69 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
            awayTeam.includes(term) ||
            (term === 'astros' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
            (term === 'texans' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-           (term === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-           (term === 'lightning' && (homeTeam.includes('tampa bay') || awayTeam.includes('tampa bay')));
+           (term === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston')));
   };
 
-  // Filter games involving favorite teams (better matching)
-  const favoriteTeamGames = sportsData.filter(game => {
-    return config.favoriteTeams.some(team => matchesTeam(game, team));
-  });
+  // Process games by time period
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Filter games by search term if provided
-  const searchFilteredGames = searchTerm 
-    ? sportsData.filter(game => matchesTeam(game, searchTerm))
-    : [];
+  const yesterdayGames = sportsData.filter(game => {
+    const gameDate = new Date(game.dateEvent);
+    return gameDate.toDateString() === yesterday.toDateString();
+  }).slice(0, 6);
 
-  // Helper function to process games (upcoming vs past)
-  const processGames = (games: any[]) => {
-    const now = new Date();
-    const upcoming = games.filter(game => 
-      new Date(game.dateEvent) >= now
-    ).sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime());
-    
-    const past = games.filter(game => 
-      new Date(game.dateEvent) < now
-    ).sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime());
+  const todayGames = sportsData.filter(game => {
+    const gameDate = new Date(game.dateEvent);
+    return gameDate.toDateString() === now.toDateString();
+  }).slice(0, 6);
 
-    return { upcoming, past };
-  };
+  const upcomingGames = sportsData.filter(game => {
+    const gameDate = new Date(game.dateEvent);
+    return gameDate > now;
+  }).slice(0, 6);
 
-  // Process favorite games
-  const { upcoming: upcomingFavoriteGames, past: pastFavoriteGames } = processGames(favoriteTeamGames);
-  const combinedFavoriteGames = [...upcomingFavoriteGames, ...pastFavoriteGames.slice(0, 3)];
-
-  // Process search results
-  const { upcoming: upcomingSearchGames, past: pastSearchGames } = processGames(searchFilteredGames);
-  const combinedSearchGames = [...upcomingSearchGames, ...pastSearchGames.slice(0, 5)];
-
-  // Other games (non-favorite teams)
-  const otherGames = sportsData.filter(game => 
-    !config.favoriteTeams.some(team => matchesTeam(game, team))
-  ).slice(0, 5); // Limit other games
+  const LoadingSkeleton = () => (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-gray-800/50 rounded-xl p-4 animate-pulse">
+          <div className="h-4 bg-gray-700 rounded w-16 mx-auto mb-4"></div>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+              <div className="h-3 bg-gray-700 rounded w-8"></div>
+            </div>
+            <div className="flex space-x-4">
+              <div className="h-8 bg-gray-700 rounded w-8"></div>
+              <div className="h-8 bg-gray-700 rounded w-8"></div>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+              <div className="h-3 bg-gray-700 rounded w-8"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <Card className="dashboard-card h-full">
-      <CardHeader className="widget-header pb-2">
-        <CardTitle className="flex items-center justify-between text-lg font-semibold">
+    <div className="h-full bg-gray-900 rounded-xl overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700/50">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Trophy className="w-5 h-5" />
-            Sports
-            <Badge variant="secondary" className="bg-success/10 text-success">
+            <Trophy className="w-5 h-5 text-white" />
+            <span className="text-white font-semibold">Sports</span>
+            <Badge variant="secondary" className="bg-green-600 text-white text-xs">
               Live
             </Badge>
           </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="widget-action" onClick={() => refetch()}>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-white hover:bg-gray-800">
               <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
             </Button>
             <SportsSettingsDialog
@@ -492,208 +443,125 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
               isUpdating={isUpdatingConfig}
             />
             {onRemove && (
-              <Button variant="ghost" size="sm" onClick={onRemove}>
+              <Button variant="ghost" size="sm" onClick={onRemove} className="text-white hover:bg-gray-800">
                 <X className="w-4 h-4" />
               </Button>
             )}
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0 h-full flex flex-col">
-        {/* Search Bar */}
-        <div className="px-4 py-2 border-b">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search teams..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-8 text-sm"
-            />
-          </div>
         </div>
+      </div>
 
-        <Tabs value={searchTerm ? "search" : activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
-            <TabsTrigger value="favorites" className="text-xs" disabled={!!searchTerm}>My Teams</TabsTrigger>
-            <TabsTrigger value="recent" className="text-xs" disabled={!!searchTerm}>Recent</TabsTrigger>
-            <TabsTrigger value="standings" className="text-xs" disabled={!!searchTerm}>Standings</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="favorites" className="mt-0 flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto">
-              {isLoading ? (
-                <LoadingSkeleton />
-              ) : combinedFavoriteGames.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center px-4">
-                  <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground mb-1">No games for your favorite teams</p>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    {config.favoriteTeams.length === 0 ? 'Add teams in settings' : 'Check back later for updates'}
-                  </p>
-                  {config.favoriteTeams.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">Your Teams:</p>
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {config.favoriteTeams.slice(0, 3).map((team) => (
-                          <Badge key={team} variant="outline" className="text-xs">
-                            {team.split(' ').pop()}
-                          </Badge>
-                        ))}
-                        {config.favoriteTeams.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{config.favoriteTeams.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="px-1 pb-4">
-                  {upcomingFavoriteGames.length > 0 && (
-                    <>
-                      <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
-                        <p className="text-xs font-medium text-primary">Upcoming Games</p>
-                      </div>
-                      {upcomingFavoriteGames.map((match, idx) => (
-                        <MatchItem
-                          key={`upcoming-${match.idEvent}-${idx}`}
-                          homeTeam={match.strHomeTeam}
-                          awayTeam={match.strAwayTeam}
-                          homeScore={match.intHomeScore}
-                          awayScore={match.intAwayScore}
-                          status={match.strStatus}
-                          date={match.dateEvent}
-                          time={match.strTime || 'TBD'}
-                          league={match.strLeague}
-                          period={match.strPeriod}
-                          clock={match.strClock}
-                        />
-                      ))}
-                    </>
-                  )}
-                  
-                  {pastFavoriteGames.length > 0 && (
-                    <>
-                      <div className="px-3 py-2 bg-muted/30 border-l-2 border-muted mb-3 mt-4">
-                        <p className="text-xs font-medium text-muted-foreground">Recent Results</p>
-                      </div>
-                      {pastFavoriteGames.slice(0, 3).map((match, idx) => (
-                        <MatchItem
-                          key={`past-${match.idEvent}-${idx}`}
-                          homeTeam={match.strHomeTeam}
-                          awayTeam={match.strAwayTeam}
-                          homeScore={match.intHomeScore}
-                          awayScore={match.intAwayScore}
-                          status={match.strStatus}
-                          date={match.dateEvent}
-                          time={match.strTime || 'TBD'}
-                          league={match.strLeague}
-                          period={match.strPeriod}
-                          clock={match.strClock}
-                        />
-                      ))}
-                    </>
-                  )}
-                </div>
+      {/* Tabs */}
+      <div className="px-4 pt-4">
+        <div className="flex space-x-6 border-b border-gray-700/50">
+          {[
+            { key: "yesterday", label: "Yesterday" },
+            { key: "today", label: "Today" },
+            { key: "upcoming", label: "Upcoming" }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                "pb-3 px-1 text-sm font-medium border-b-2 transition-colors",
+                activeTab === tab.key
+                  ? "text-white border-white"
+                  : "text-gray-400 border-transparent hover:text-gray-300"
               )}
-            </div>
-          </TabsContent>
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-          <TabsContent value="recent" className="mt-0 flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto">
-              {isLoading ? (
-                <LoadingSkeleton />
-              ) : otherGames.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Trophy className="w-12 h-12 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">No recent matches</p>
-                  <p className="text-xs text-muted-foreground">Check back later for updates</p>
-                </div>
-              ) : (
-                <div className="px-1 pb-4">
-                  {otherGames.map((match, idx) => (
+      {/* Content */}
+      <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className="space-y-3">
+            {activeTab === "yesterday" && (
+              <>
+                {yesterdayGames.length > 0 ? (
+                  yesterdayGames.map((game, index) => (
                     <MatchItem
-                      key={`other-${match.idEvent}-${idx}`}
-                      homeTeam={match.strHomeTeam}
-                      awayTeam={match.strAwayTeam}
-                      homeScore={match.intHomeScore}
-                      awayScore={match.intAwayScore}
-                      status={match.strStatus}
-                      date={match.dateEvent}
-                      time={match.strTime || 'TBD'}
-                      league={match.strLeague}
-                      period={match.strPeriod}
-                      clock={match.strClock}
+                      key={game.idEvent || index}
+                      homeTeam={game.strHomeTeam}
+                      awayTeam={game.strAwayTeam}
+                      homeScore={game.intHomeScore}
+                      awayScore={game.intAwayScore}
+                      status={game.strStatus}
+                      date={game.dateEvent}
+                      time={game.strTime}
+                      league={game.strLeague}
+                      period={game.strStatus}
+                      clock={game.strTime}
+                      isFavorite={config.favoriteTeams.some(team => matchesTeam(game, team))}
                     />
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No games yesterday</p>
+                  </div>
+                )}
+              </>
+            )}
 
-          {/* Search Results Tab */}
-          <TabsContent value="search" className="mt-0 flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto">
-              {isLoading ? (
-                <LoadingSkeleton />
-              ) : searchTerm && combinedSearchGames.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center px-4">
-                  <Search className="w-12 h-12 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground mb-1">No teams found</p>
-                  <p className="text-xs text-muted-foreground">
-                    Try searching for "{searchTerm}" in a different way
-                  </p>
-                </div>
-              ) : searchTerm ? (
-                <div className="px-1 pb-4">
-                  <div className="px-3 py-2 bg-primary/5 border-l-2 border-primary mb-3">
-                    <p className="text-xs font-medium text-primary">
-                      Search Results for "{searchTerm}" ({combinedSearchGames.length})
-                    </p>
-                  </div>
-                  {combinedSearchGames.map((match, idx) => (
+            {activeTab === "today" && (
+              <>
+                {todayGames.length > 0 ? (
+                  todayGames.map((game, index) => (
                     <MatchItem
-                      key={`search-${match.idEvent}-${idx}`}
-                      homeTeam={match.strHomeTeam}
-                      awayTeam={match.strAwayTeam}
-                      homeScore={match.intHomeScore}
-                      awayScore={match.intAwayScore}
-                      status={match.strStatus}
-                      date={match.dateEvent}
-                      time={match.strTime || 'TBD'}
-                      league={match.strLeague}
-                      period={match.strPeriod}
-                      clock={match.strClock}
+                      key={game.idEvent || index}
+                      homeTeam={game.strHomeTeam}
+                      awayTeam={game.strAwayTeam}
+                      homeScore={game.intHomeScore}
+                      awayScore={game.intAwayScore}
+                      status={game.strStatus}
+                      date={game.dateEvent}
+                      time={game.strTime}
+                      league={game.strLeague}
+                      period={game.strStatus}
+                      clock={game.strTime}
+                      isFavorite={config.favoriteTeams.some(team => matchesTeam(game, team))}
                     />
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="standings" className="mt-0 flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto p-4 space-y-4">
-              {['MLB', 'NBA', 'NFL', 'NHL', 'NCAAF'].map((league) => (
-                <div key={league} className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-semibold">{league}</h4>
-                    {config.enableNotifications && (
-                      <Bell className="w-3 h-3 text-success" />
-                    )}
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No games today</p>
                   </div>
-                  <StandingsTable
-                    league={league}
-                    standings={standings[league] || []}
-                    isLoading={isLoadingStandings}
-                  />
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+                )}
+              </>
+            )}
+
+            {activeTab === "upcoming" && (
+              <>
+                {upcomingGames.length > 0 ? (
+                  upcomingGames.map((game, index) => (
+                    <MatchItem
+                      key={game.idEvent || index}
+                      homeTeam={game.strHomeTeam}
+                      awayTeam={game.strAwayTeam}
+                      status={game.strStatus}
+                      date={game.dateEvent}
+                      time={game.strTime}
+                      league={game.strLeague}
+                      homeRecord={generateMockRecord()}
+                      awayRecord={generateMockRecord()}
+                      isFavorite={config.favoriteTeams.some(team => matchesTeam(game, team))}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No upcoming games</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
