@@ -13,11 +13,21 @@ export const GamesView: React.FC<GamesViewProps> = ({ selectedLeague }) => {
   // Filter games by selected league
   const leagueGames = sportsData.filter(game => game.strLeague === selectedLeague);
   
-  // Debug logging for filtering issues
-  console.log(`GamesView Debug - Selected League: ${selectedLeague}`);
-  console.log(`GamesView Debug - Total sports data: ${sportsData.length}`);
-  console.log(`GamesView Debug - League games: ${leagueGames.length}`);
-  console.log(`GamesView Debug - Sample games:`, sportsData.slice(0, 3).map(g => ({ league: g.strLeague, teams: `${g.strAwayTeam} vs ${g.strHomeTeam}`, date: g.dateEvent })));
+  // Detailed debugging for NFL games specifically
+  if (selectedLeague === 'NFL') {
+    console.log(`NFL Debug - Total sports data: ${sportsData.length}`);
+    console.log(`NFL Debug - All NFL games:`, sportsData.filter(g => g.strLeague === 'NFL').map(g => ({ 
+      teams: `${g.strAwayTeam} vs ${g.strHomeTeam}`, 
+      date: g.dateEvent,
+      status: g.strStatus,
+      id: g.idEvent
+    })));
+    console.log(`NFL Debug - League games filtered: ${leagueGames.length}`);
+    
+    // Check if there are games with different date formats
+    const allNFLGames = sportsData.filter(g => g.strLeague === 'NFL');
+    console.log(`NFL Debug - Sample raw NFL game:`, allNFLGames[0]);
+  }
   
   // Helper function to match teams with favorites
   const matchesTeam = (game: any, searchOrTeam: string) => {
