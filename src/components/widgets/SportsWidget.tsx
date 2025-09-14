@@ -9,6 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { useSports } from '@/hooks/useSports';
 
+// Sports Widget - Dark themed design matching modern sports apps
+
 const MatchItem: React.FC<{
   homeTeam: string;
   awayTeam: string;
