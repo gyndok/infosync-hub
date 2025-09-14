@@ -41,6 +41,7 @@ export const useHoustonTraffic = () => {
   const [isLoadingMetro, setIsLoadingMetro] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const debug = import.meta.env.DEV;
 
   // Fetch traffic incidents from database
   const fetchTrafficIncidents = async () => {
@@ -90,7 +91,7 @@ export const useHoustonTraffic = () => {
   const refreshData = async () => {
     try {
       setError(null);
-      console.log('Refreshing Houston traffic data...');
+      if (debug) console.log('Refreshing Houston traffic data...');
 
       const { data, error } = await supabase.functions.invoke('houston-traffic', {
         body: { action: 'fetch' }
@@ -98,7 +99,7 @@ export const useHoustonTraffic = () => {
 
       if (error) throw error;
 
-      console.log('Traffic data refresh response:', data);
+      if (debug) console.log('Traffic data refresh response:', data);
       
       // After successful refresh, fetch updated data from database
       await Promise.all([

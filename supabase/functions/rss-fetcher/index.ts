@@ -20,6 +20,8 @@ const FEEDS: Record<string, string> = {
   texas_longhorns: 'https://texaslonghorns.com/rss?path=football',
 };
 
+const DEBUG = Deno.env.get('DEBUG') === 'true';
+
 function stripCDATA(text: string | null): string {
   if (!text) return '';
   return text.replace(/^\s*<!\[CDATA\[/, '').replace(/]]>\s*$/, '').trim();
@@ -65,7 +67,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('RSS Fetcher request method:', req.method);
+    if (DEBUG) console.log('RSS Fetcher request method:', req.method);
     
     let sources = ['ap'];
     let limit = 20;
@@ -76,9 +78,9 @@ Deno.serve(async (req) => {
         const body = await req.json();
         sources = body.sources || ['ap'];
         limit = body.limit || 20;
-        console.log('Parsed request body:', { sources, limit });
+        if (DEBUG) console.log('Parsed request body:', { sources, limit });
       } catch (e) {
-        console.log('Failed to parse JSON body, using defaults:', e.message);
+        if (DEBUG) console.log('Failed to parse JSON body, using defaults:', e.message);
       }
     }
 
@@ -86,25 +88,25 @@ Deno.serve(async (req) => {
     const uniqueSources = Array.from(new Set((sources || []).filter((s) => s in FEEDS)));
     if (uniqueSources.length === 0) uniqueSources.push('ap');
     
-    console.log('Using sources:', uniqueSources);
+    if (DEBUG) console.log('Using sources:', uniqueSources);
 
     // Fetch feeds in parallel with per-source error handling
     const results = await Promise.all(
       uniqueSources.map(async (src) => {
         try {
           const url = FEEDS[src];
-          console.log(`Fetching RSS from ${src}: ${url}`);
+          if (DEBUG) console.log(`Fetching RSS from ${src}: ${url}`);
           const res = await fetch(url, { redirect: 'follow' });
           if (!res.ok) {
-            console.log(`Failed to fetch ${src}: ${res.status} ${res.statusText}`);
+            if (DEBUG) console.log(`Failed to fetch ${src}: ${res.status} ${res.statusText}`);
             return [] as ReturnType<typeof parseItems>;
           }
           const xml = await res.text();
           const items = parseItems(xml, src);
-          console.log(`Parsed ${items.length} items from ${src}`);
+          if (DEBUG) console.log(`Parsed ${items.length} items from ${src}`);
           return items;
         } catch (err) {
-          console.log(`Error fetching ${src}:`, err.message);
+          if (DEBUG) console.log(`Error fetching ${src}:`, err.message);
           return [] as ReturnType<typeof parseItems>;
         }
       }),
@@ -112,7 +114,7 @@ Deno.serve(async (req) => {
 
     // Flatten, sort by date desc, and limit
     const allItems = results.flat();
-    console.log(`Total items before sorting: ${allItems.length}`);
+    if (DEBUG) console.log(`Total items before sorting: ${allItems.length}`);
     
     allItems.sort((a, b) => {
       const ad = a.pubDate ? new Date(a.pubDate).getTime() : 0;
@@ -121,7 +123,7 @@ Deno.serve(async (req) => {
     });
 
     const items = allItems.slice(0, Math.max(1, Math.min(50, Number(limit) || 20)));
-    console.log(`Returning ${items.length} items`);
+    if (DEBUG) console.log(`Returning ${items.length} items`);
 
     return json({ success: true, items, sources: uniqueSources });
   } catch (err) {

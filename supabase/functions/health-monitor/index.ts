@@ -13,6 +13,8 @@ interface ApiServiceConfig {
   timeout_seconds: number;
 }
 
+const DEBUG = Deno.env.get('DEBUG') === 'true';
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -29,7 +31,7 @@ serve(async (req) => {
     const action = url.searchParams.get('action') || 'check-all';
     const service = url.searchParams.get('service');
 
-    console.log(`Health monitor action: ${action}`);
+    if (DEBUG) console.log(`Health monitor action: ${action}`);
 
     if (action === 'check-all') {
       // Get all enabled services

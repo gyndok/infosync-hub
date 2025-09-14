@@ -31,6 +31,7 @@ export const useClockConfig = () => {
   const [clockSettings, setClockSettings] = useState<ClockSettings>(defaultClockSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const debug = import.meta.env.DEV;
 
   // Load clock configuration
   useEffect(() => {
@@ -87,7 +88,7 @@ export const useClockConfig = () => {
       if (error) throw error;
 
       setClockSettings(newSettings);
-      console.log('Clock settings saved successfully');
+      if (debug) console.log('Clock settings saved successfully');
     } catch (error: any) {
       console.error('Error saving clock settings:', error);
       toast({

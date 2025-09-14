@@ -15,8 +15,9 @@ interface LonghornsData {
 }
 
 export const useTexasLonghorns = () => {
+  const debug = import.meta.env.DEV;
   const fetchLonghornsNews = async (): Promise<LonghornsData> => {
-    console.log('🏈 Fetching Texas Longhorns football news...');
+    if (debug) console.log('🏈 Fetching Texas Longhorns football news...');
     
     try {
       const { data, error } = await supabase.functions.invoke('rss-fetcher', {
@@ -28,7 +29,7 @@ export const useTexasLonghorns = () => {
 
       if (error) throw error;
 
-      console.log('🏈 Longhorns data received:', data);
+      if (debug) console.log('🏈 Longhorns data received:', data);
       return data;
     } catch (error) {
       console.error('Error fetching Longhorns news:', error);
