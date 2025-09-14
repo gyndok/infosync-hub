@@ -13,6 +13,12 @@ export const GamesView: React.FC<GamesViewProps> = ({ selectedLeague }) => {
   // Filter games by selected league
   const leagueGames = sportsData.filter(game => game.strLeague === selectedLeague);
   
+  // Debug logging for filtering issues
+  console.log(`GamesView Debug - Selected League: ${selectedLeague}`);
+  console.log(`GamesView Debug - Total sports data: ${sportsData.length}`);
+  console.log(`GamesView Debug - League games: ${leagueGames.length}`);
+  console.log(`GamesView Debug - Sample games:`, sportsData.slice(0, 3).map(g => ({ league: g.strLeague, teams: `${g.strAwayTeam} vs ${g.strHomeTeam}`, date: g.dateEvent })));
+  
   // Helper function to match teams with favorites
   const matchesTeam = (game: any, searchOrTeam: string) => {
     const homeTeam = game.strHomeTeam?.toLowerCase() || '';
