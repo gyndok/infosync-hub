@@ -174,11 +174,42 @@ export const useSports = () => {
     // Extract pitcher information for MLB
     let homePitcher = null;
     let awayPitcher = null;
-    if (league === 'MLB' && competition.situation) {
-      homePitcher = competition.situation.pitcher?.athlete?.displayName || 
-                   competition.situation.pitcher?.displayName ||
-                   homeTeam.probables?.[0]?.athlete?.displayName;
-      awayPitcher = awayTeam.probables?.[0]?.athlete?.displayName;
+    if (league === 'MLB') {
+      // Try multiple paths for pitcher data
+      homePitcher = competition.situation?.pitcher?.athlete?.displayName || 
+                   competition.situation?.pitcher?.displayName ||
+                   homeTeam.probables?.[0]?.athlete?.displayName ||
+                   homeTeam.probables?.[0]?.displayName ||
+                   competition.competitors?.find((c: any) => c.homeAway === 'home')?.probables?.[0]?.athlete?.displayName;
+      
+      awayPitcher = awayTeam.probables?.[0]?.athlete?.displayName ||
+                   awayTeam.probables?.[0]?.displayName ||
+                   competition.competitors?.find((c: any) => c.homeAway === 'away')?.probables?.[0]?.athlete?.displayName;
+      
+       // Debug logging for pitcher data
+       if (!homePitcher || !awayPitcher) {
+         console.log(`Missing pitcher data for ${event.id}:`, {
+           homePitcher,
+           awayPitcher,
+           homeTeamProbables: homeTeam.probables,
+           awayTeamProbables: awayTeam.probables,
+           competitionSituation: competition.situation,
+           competitionNotes: competition.notes,
+           eventName: event.name
+         });
+         
+         // Try to extract from notes if available
+         if (competition.notes && competition.notes.length > 0) {
+           const pitcherNote = competition.notes.find((note: any) => 
+             note.headline?.toLowerCase().includes('probable') || 
+             note.headline?.toLowerCase().includes('pitcher') ||
+             note.headline?.toLowerCase().includes('starting')
+           );
+           if (pitcherNote) {
+             console.log('Found pitcher note:', pitcherNote);
+           }
+         }
+       }
     }
     
     // Extract betting odds if available
