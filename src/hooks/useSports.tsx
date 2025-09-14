@@ -394,6 +394,19 @@ export const useSports = () => {
                 .map((event: any) => transformEspnEvent(event, league))
                 .filter((event): event is SportsData => event !== null && !!event?.strHomeTeam && !!event?.strAwayTeam);
               
+              // Debug NFL transformations specifically
+              if (league === 'NFL') {
+                console.log(`NFL Debug - Raw events processed: ${events.length}`);
+                console.log(`NFL Debug - Transformed events: ${transformedEvents.length}`);
+                console.log(`NFL Debug - Sample transformed event:`, transformedEvents[0]);
+                
+                // Check what's being filtered out
+                const allTransformed = events.slice(0, 15).map((event: any) => transformEspnEvent(event, league));
+                const nullEvents = allTransformed.filter(e => e === null).length;
+                const missingTeamEvents = allTransformed.filter(e => e !== null && (!e?.strHomeTeam || !e?.strAwayTeam)).length;
+                console.log(`NFL Debug - Null events: ${nullEvents}, Missing team data: ${missingTeamEvents}`);
+              }
+              
               console.log(`${league} processed events:`, transformedEvents.length);
               allEvents.push(...transformedEvents);
             }
