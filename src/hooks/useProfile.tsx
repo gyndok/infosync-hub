@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 
 interface Profile {
   id: string;
@@ -13,7 +13,7 @@ interface Profile {
 interface UserPreferences {
   id: string;
   user_id: string;
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   dashboard_layout: {
     widgets: any[];
     columns: number;
@@ -31,16 +31,16 @@ export const useProfile = () => {
   const queryClient = useQueryClient();
 
   const profileQuery = useQuery({
-    queryKey: ['profile', user?.id],
+    queryKey: ["profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      
+
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
         .single();
-      
+
       if (error) throw error;
       return data as Profile;
     },
@@ -48,16 +48,16 @@ export const useProfile = () => {
   });
 
   const preferencesQuery = useQuery({
-    queryKey: ['preferences', user?.id],
+    queryKey: ["preferences", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      
+
       const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', user.id)
+        .from("user_preferences")
+        .select("*")
+        .eq("user_id", user.id)
         .single();
-      
+
       if (error) throw error;
       return data as UserPreferences;
     },
@@ -65,40 +65,44 @@ export const useProfile = () => {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (updates: Partial<Pick<Profile, 'display_name'>>) => {
-      if (!user) throw new Error('User not authenticated');
-      
+    mutationFn: async (updates: Partial<Pick<Profile, "display_name">>) => {
+      if (!user) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update(updates)
-        .eq('user_id', user.id)
+        .eq("user_id", user.id)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
     },
   });
 
   const updatePreferencesMutation = useMutation({
-    mutationFn: async (updates: Partial<Omit<UserPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
-      if (!user) throw new Error('User not authenticated');
-      
+    mutationFn: async (
+      updates: Partial<
+        Omit<UserPreferences, "id" | "user_id" | "created_at" | "updated_at">
+      >,
+    ) => {
+      if (!user) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
-        .from('user_preferences')
+        .from("user_preferences")
         .update(updates)
-        .eq('user_id', user.id)
+        .eq("user_id", user.id)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['preferences', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["preferences", user?.id] });
     },
   });
 
@@ -109,6 +113,7 @@ export const useProfile = () => {
     error: profileQuery.error || preferencesQuery.error,
     updateProfile: updateProfileMutation.mutate,
     updatePreferences: updatePreferencesMutation.mutate,
-    isUpdating: updateProfileMutation.isPending || updatePreferencesMutation.isPending,
+    isUpdating:
+      updateProfileMutation.isPending || updatePreferencesMutation.isPending,
   };
 };

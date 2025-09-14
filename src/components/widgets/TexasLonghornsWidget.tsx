@@ -1,11 +1,11 @@
-import React from 'react';
-import { RefreshCw, ExternalLink, Clock } from 'lucide-react';
-import WidgetContainer from './WidgetContainer';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useTexasLonghorns } from '@/hooks/useTexasLonghorns';
-import { formatDistanceToNow } from 'date-fns';
+import React from "react";
+import { RefreshCw, ExternalLink, Clock } from "lucide-react";
+import WidgetContainer from "./WidgetContainer";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTexasLonghorns } from "@/hooks/useTexasLonghorns";
+import { formatDistanceToNow } from "date-fns";
 
 interface TexasLonghornsWidgetProps {
   onRemove?: () => void;
@@ -23,20 +23,22 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-const NewsItem: React.FC<{ 
-  title: string; 
-  link: string; 
-  pubDate?: string; 
+const NewsItem: React.FC<{
+  title: string;
+  link: string;
+  pubDate?: string;
 }> = ({ title, link, pubDate }) => {
-  const timeAgo = pubDate ? formatDistanceToNow(new Date(pubDate), { addSuffix: true }) : null;
+  const timeAgo = pubDate
+    ? formatDistanceToNow(new Date(pubDate), { addSuffix: true })
+    : null;
 
   return (
     <div className="border-b border-muted/20 last:border-b-0 pb-3 last:pb-0">
       <div className="space-y-2">
         <h4 className="text-sm font-medium leading-tight hover:text-primary cursor-pointer">
-          <a 
-            href={link} 
-            target="_blank" 
+          <a
+            href={link}
+            target="_blank"
             rel="noopener noreferrer"
             className="flex items-start gap-2 group"
           >
@@ -55,7 +57,9 @@ const NewsItem: React.FC<{
   );
 };
 
-export const TexasLonghornsWidget: React.FC<TexasLonghornsWidgetProps> = ({ onRemove }) => {
+export const TexasLonghornsWidget: React.FC<TexasLonghornsWidgetProps> = ({
+  onRemove,
+}) => {
   const { data, isLoading, error, refetch, isRefetching } = useTexasLonghorns();
 
   const handleRefresh = () => {
@@ -63,7 +67,7 @@ export const TexasLonghornsWidget: React.FC<TexasLonghornsWidgetProps> = ({ onRe
   };
 
   return (
-    <WidgetContainer 
+    <WidgetContainer
       title="Texas Longhorns Football"
       onRemove={onRemove}
       className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background border-orange-200 dark:border-orange-800/50"
@@ -72,7 +76,10 @@ export const TexasLonghornsWidget: React.FC<TexasLonghornsWidgetProps> = ({ onRe
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-orange-200 dark:border-orange-800/50">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200">
+            <Badge
+              variant="secondary"
+              className="bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200"
+            >
               🏈 Football
             </Badge>
           </div>
@@ -83,7 +90,9 @@ export const TexasLonghornsWidget: React.FC<TexasLonghornsWidgetProps> = ({ onRe
             disabled={isRefetching}
             className="h-6 w-6 p-0"
           >
-            <RefreshCw className={`h-3 w-3 ${isRefetching ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-3 w-3 ${isRefetching ? "animate-spin" : ""}`}
+            />
           </Button>
         </div>
 
@@ -94,9 +103,9 @@ export const TexasLonghornsWidget: React.FC<TexasLonghornsWidgetProps> = ({ onRe
           ) : error ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
               <p>Unable to load Longhorns news</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleRefresh}
                 className="mt-2"
               >

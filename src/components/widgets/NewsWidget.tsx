@@ -1,26 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useApiProxy } from '@/hooks/useApiProxy';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Newspaper, 
-  Search, 
-  Filter, 
-  ExternalLink, 
-  Clock, 
+import { useState, useEffect } from "react";
+import { useApiProxy } from "@/hooks/useApiProxy";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Newspaper,
+  Search,
+  Filter,
+  ExternalLink,
+  Clock,
   RefreshCw,
   AlertCircle,
   Settings,
-  X
-} from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Checkbox } from '@/components/ui/checkbox';
+  X,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface NewsArticle {
   title: string;
@@ -43,28 +55,28 @@ interface NewsResponse {
 }
 
 const NEWS_SOURCES = [
-  { id: 'bbc-news', name: 'BBC News' },
-  { id: 'cnn', name: 'CNN' },
-  { id: 'techcrunch', name: 'TechCrunch' },
-  { id: 'the-verge', name: 'The Verge' },
-  { id: 'ars-technica', name: 'Ars Technica' },
-  { id: 'reuters', name: 'Reuters' },
-  { id: 'associated-press', name: 'Associated Press' },
-  { id: 'the-wall-street-journal', name: 'Wall Street Journal' },
-  { id: 'bloomberg', name: 'Bloomberg' },
-  { id: 'espn', name: 'ESPN' },
-  { id: 'engadget', name: 'Engadget' },
-  { id: 'wired', name: 'Wired' },
+  { id: "bbc-news", name: "BBC News" },
+  { id: "cnn", name: "CNN" },
+  { id: "techcrunch", name: "TechCrunch" },
+  { id: "the-verge", name: "The Verge" },
+  { id: "ars-technica", name: "Ars Technica" },
+  { id: "reuters", name: "Reuters" },
+  { id: "associated-press", name: "Associated Press" },
+  { id: "the-wall-street-journal", name: "Wall Street Journal" },
+  { id: "bloomberg", name: "Bloomberg" },
+  { id: "espn", name: "ESPN" },
+  { id: "engadget", name: "Engadget" },
+  { id: "wired", name: "Wired" },
 ];
 
 const NEWS_CATEGORIES = [
-  { value: 'general', label: 'General' },
-  { value: 'business', label: 'Business' },
-  { value: 'entertainment', label: 'Entertainment' },
-  { value: 'health', label: 'Health' },
-  { value: 'science', label: 'Science' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'technology', label: 'Technology' },
+  { value: "general", label: "General" },
+  { value: "business", label: "Business" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "health", label: "Health" },
+  { value: "science", label: "Science" },
+  { value: "sports", label: "Sports" },
+  { value: "technology", label: "Technology" },
 ];
 
 interface NewsWidgetProps {
@@ -75,68 +87,71 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
   const { makeRequest, loading } = useApiProxy();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('general');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("general");
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'publishedAt' | 'popularity' | 'relevancy'>('publishedAt');
+  const [sortBy, setSortBy] = useState<
+    "publishedAt" | "popularity" | "relevancy"
+  >("publishedAt");
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [activeTab, setActiveTab] = useState('headlines');
+  const [activeTab, setActiveTab] = useState("headlines");
   const [showFilters, setShowFilters] = useState(false);
 
   // Fetch news based on current filters
   const fetchNews = async () => {
     try {
       setError(null);
-      
-      let endpoint = '';
+
+      let endpoint = "";
       const params: Record<string, any> = {
         pageSize: 20,
         sortBy: sortBy,
       };
 
-      if (activeTab === 'headlines') {
-        endpoint = '/top-headlines';
+      if (activeTab === "headlines") {
+        endpoint = "/top-headlines";
         params.category = selectedCategory;
-        params.country = 'us';
+        params.country = "us";
       } else {
-        endpoint = '/everything';
-        params.q = searchQuery || 'technology';
-        params.language = 'en';
+        endpoint = "/everything";
+        params.q = searchQuery || "technology";
+        params.language = "en";
       }
 
       // Add source filtering
       if (selectedSources.length > 0) {
-        params.sources = selectedSources.join(',');
+        params.sources = selectedSources.join(",");
         // Remove country and category when using sources (NewsAPI limitation)
         delete params.country;
         delete params.category;
       }
 
-      console.log('Fetching news with params:', params);
+      console.log("Fetching news with params:", params);
 
       const response = await makeRequest({
-        service: 'news',
+        service: "news",
         endpoint,
-        params
+        params,
       });
 
       if (response.success && response.data) {
         const newsData = response.data as NewsResponse;
-        if (newsData.status === 'ok') {
+        if (newsData.status === "ok") {
           setArticles(newsData.articles || []);
           setFilteredArticles(newsData.articles || []);
           setLastUpdated(new Date());
         } else {
-          throw new Error('Invalid response from NewsAPI');
+          throw new Error("Invalid response from NewsAPI");
         }
       } else {
-        throw new Error(response.error || 'Failed to fetch news');
+        throw new Error(response.error || "Failed to fetch news");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch news';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch news";
       setError(errorMessage);
-      console.error('News fetch error:', err);
+      console.error("News fetch error:", err);
     }
   };
 
@@ -147,10 +162,13 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
       return;
     }
 
-    const filtered = articles.filter(article =>
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.source.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = articles.filter(
+      (article) =>
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.description
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        article.source.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
     setFilteredArticles(filtered);
   }, [searchQuery, articles]);
@@ -158,17 +176,17 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
   // Initial load
   useEffect(() => {
     fetchNews();
-    
+
     // Auto-refresh every 15 minutes
     const interval = setInterval(fetchNews, 15 * 60 * 1000);
     return () => clearInterval(interval);
   }, [selectedCategory, selectedSources, sortBy, activeTab]);
 
   const handleSourceToggle = (sourceId: string) => {
-    setSelectedSources(prev => 
+    setSelectedSources((prev) =>
       prev.includes(sourceId)
-        ? prev.filter(id => id !== sourceId)
-        : [...prev, sourceId]
+        ? prev.filter((id) => id !== sourceId)
+        : [...prev, sourceId],
     );
   };
 
@@ -179,9 +197,11 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60),
+    );
+
+    if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${diffInHours}h ago`;
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays}d ago`;
@@ -236,7 +256,11 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
         {/* Quick Filters */}
         {showFilters && (
           <div className="space-y-4 p-3 border rounded-lg mb-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="headlines">Headlines</TabsTrigger>
                 <TabsTrigger value="search">Search</TabsTrigger>
@@ -245,12 +269,15 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
               <TabsContent value="headlines" className="space-y-3">
                 <div className="space-y-2">
                   <Label className="text-xs">Category</Label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
                     <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {NEWS_CATEGORIES.map(category => (
+                      {NEWS_CATEGORIES.map((category) => (
                         <SelectItem key={category.value} value={category.value}>
                           {category.label}
                         </SelectItem>
@@ -269,7 +296,7 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
                       placeholder="Search news..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && fetchNews()}
+                      onKeyPress={(e) => e.key === "Enter" && fetchNews()}
                       className="pl-7 h-8 text-xs"
                     />
                   </div>
@@ -283,10 +310,14 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
                 Sources ({selectedSources.length} selected)
               </Label>
               <div className="flex flex-wrap gap-1">
-                {NEWS_SOURCES.slice(0, 6).map(source => (
+                {NEWS_SOURCES.slice(0, 6).map((source) => (
                   <Button
                     key={source.id}
-                    variant={selectedSources.includes(source.id) ? "default" : "outline"}
+                    variant={
+                      selectedSources.includes(source.id)
+                        ? "default"
+                        : "outline"
+                    }
                     size="sm"
                     className="h-6 text-xs"
                     onClick={() => handleSourceToggle(source.id)}
@@ -333,10 +364,12 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
           ) : (
             <div className="space-y-0">
               {filteredArticles.slice(0, 10).map((article, index) => (
-                <div 
+                <div
                   key={index}
                   className={`p-3 hover:bg-muted/30 transition-colors cursor-pointer ${
-                    index !== filteredArticles.length - 1 ? 'border-b border-border/50' : ''
+                    index !== filteredArticles.length - 1
+                      ? "border-b border-border/50"
+                      : ""
                   }`}
                 >
                   <div className="flex gap-3">
@@ -346,7 +379,7 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
                         alt={article.title}
                         className="w-16 h-16 object-cover rounded flex-shrink-0"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          (e.target as HTMLImageElement).style.display = "none";
                         }}
                       />
                     )}
@@ -365,13 +398,13 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       </div>
-                      
+
                       {article.description && (
                         <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                           {article.description}
                         </p>
                       )}
-                      
+
                       <div className="flex items-center justify-between text-xs">
                         <Badge variant="outline" className="text-xs">
                           {article.source.name}
@@ -393,7 +426,8 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
         {filteredArticles.length > 0 && (
           <div className="mt-3 pt-3 border-t border-border/50 text-center">
             <span className="text-xs text-muted-foreground">
-              Showing {Math.min(filteredArticles.length, 10)} of {filteredArticles.length} articles
+              Showing {Math.min(filteredArticles.length, 10)} of{" "}
+              {filteredArticles.length} articles
             </span>
           </div>
         )}

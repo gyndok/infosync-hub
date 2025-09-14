@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { useToast } from './use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+import { useToast } from "./use-toast";
 
 export interface SavedTimeZoneConfig {
   id: string;
@@ -17,18 +17,23 @@ export interface ClockSettings {
 
 const defaultClockSettings: ClockSettings = {
   selectedTimezones: [
-    { id: 'local', city: 'Local Time', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-    { id: 'ny', city: 'New York', timezone: 'America/New_York' },
-    { id: 'london', city: 'London', timezone: 'Europe/London' },
-    { id: 'tokyo', city: 'Tokyo', timezone: 'Asia/Tokyo' },
-    { id: 'sydney', city: 'Sydney', timezone: 'Australia/Sydney' },
-  ]
+    {
+      id: "local",
+      city: "Local Time",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
+    { id: "ny", city: "New York", timezone: "America/New_York" },
+    { id: "london", city: "London", timezone: "Europe/London" },
+    { id: "tokyo", city: "Tokyo", timezone: "Asia/Tokyo" },
+    { id: "sydney", city: "Sydney", timezone: "Australia/Sydney" },
+  ],
 };
 
 export const useClockConfig = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [clockSettings, setClockSettings] = useState<ClockSettings>(defaultClockSettings);
+  const [clockSettings, setClockSettings] =
+    useState<ClockSettings>(defaultClockSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,13 +48,13 @@ export const useClockConfig = () => {
 
       try {
         const { data, error } = await supabase
-          .from('user_preferences')
-          .select('clock_settings')
-          .eq('user_id', user.id)
+          .from("user_preferences")
+          .select("clock_settings")
+          .eq("user_id", user.id)
           .maybeSingle();
 
         if (error) {
-          console.error('Error loading clock config:', error);
+          console.error("Error loading clock config:", error);
           setClockSettings(defaultClockSettings);
         } else if (data && (data as any).clock_settings) {
           const settings = (data as any).clock_settings as ClockSettings;
@@ -58,7 +63,7 @@ export const useClockConfig = () => {
           setClockSettings(defaultClockSettings);
         }
       } catch (error) {
-        console.error('Error loading clock config:', error);
+        console.error("Error loading clock config:", error);
         setClockSettings(defaultClockSettings);
       } finally {
         setIsLoading(false);
@@ -75,21 +80,22 @@ export const useClockConfig = () => {
     setIsSaving(true);
     try {
       // Use upsert approach with proper type handling
-      const { error } = await supabase
-        .from('user_preferences')
-        .upsert({
+      const { error } = await supabase.from("user_preferences").upsert(
+        {
           user_id: user.id,
           clock_settings: newSettings,
-        } as any, {
-          onConflict: 'user_id'
-        });
+        } as any,
+        {
+          onConflict: "user_id",
+        },
+      );
 
       if (error) throw error;
 
       setClockSettings(newSettings);
-      console.log('Clock settings saved successfully');
+      console.log("Clock settings saved successfully");
     } catch (error: any) {
-      console.error('Error saving clock settings:', error);
+      console.error("Error saving clock settings:", error);
       toast({
         title: "Error saving clock settings",
         description: error?.message || "Failed to save your clock settings.",

@@ -1,21 +1,21 @@
-import React, { useMemo } from 'react';
-import { Responsive, WidthProvider } from 'react-grid-layout';
-import { DraggableWidget } from './DraggableWidget';
-import { useLayoutConfig } from '@/hooks/useLayoutConfig';
-import { NewsWidget } from '@/components/widgets/NewsWidget';
-import { WeatherWidget } from '@/components/widgets/WeatherWidget';
-import { MajorIndicesWidget } from '@/components/widgets/MajorIndicesWidget';
-import { StockWatchlistWidget } from '@/components/widgets/StockWatchlistWidget';
-import { CryptocurrencyWidget } from '@/components/widgets/CryptocurrencyWidget';
-import { SportsWidget } from '@/components/widgets/SportsWidget';
-import { ClockWidget } from '@/components/widgets/ClockWidget';
-import { KHOUSportsWidget } from '@/components/widgets/KHOUSportsWidget';
-import { KHOUAstrosWidget } from '@/components/widgets/KHOUAstrosWidget';
-import { KHOURocketsWidget } from '@/components/widgets/KHOURocketsWidget';
-import { KHOUTexansWidget } from '@/components/widgets/KHOUTexansWidget';
-import { KHOULocalWidget } from '@/components/widgets/KHOULocalWidget';
-import { TexasLonghornsWidget } from '@/components/widgets/TexasLonghornsWidget';
-import { HoustonTrafficWidget } from '@/components/widgets/HoustonTrafficWidget';
+import React, { useMemo } from "react";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import { DraggableWidget } from "./DraggableWidget";
+import { useLayoutConfig } from "@/hooks/useLayoutConfig";
+import { NewsWidget } from "@/components/widgets/NewsWidget";
+import { WeatherWidget } from "@/components/widgets/WeatherWidget";
+import { MajorIndicesWidget } from "@/components/widgets/MajorIndicesWidget";
+import { StockWatchlistWidget } from "@/components/widgets/StockWatchlistWidget";
+import { CryptocurrencyWidget } from "@/components/widgets/CryptocurrencyWidget";
+import { SportsWidget } from "@/components/widgets/SportsWidget";
+import { ClockWidget } from "@/components/widgets/ClockWidget";
+import { KHOUSportsWidget } from "@/components/widgets/KHOUSportsWidget";
+import { KHOUAstrosWidget } from "@/components/widgets/KHOUAstrosWidget";
+import { KHOURocketsWidget } from "@/components/widgets/KHOURocketsWidget";
+import { KHOUTexansWidget } from "@/components/widgets/KHOUTexansWidget";
+import { KHOULocalWidget } from "@/components/widgets/KHOULocalWidget";
+import { TexasLonghornsWidget } from "@/components/widgets/TexasLonghornsWidget";
+import { HoustonTrafficWidget } from "@/components/widgets/HoustonTrafficWidget";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -37,10 +37,15 @@ const widgetComponents = {
 } as const;
 
 export const GridLayout: React.FC = () => {
-  const { layoutConfig, updateWidgetLayout, saveLayoutFromLayouts, removeWidget } = useLayoutConfig();
+  const {
+    layoutConfig,
+    updateWidgetLayout,
+    saveLayoutFromLayouts,
+    removeWidget,
+  } = useLayoutConfig();
 
   const layouts = useMemo(() => {
-    const baseLayouts = layoutConfig.widgets.map(widget => ({
+    const baseLayouts = layoutConfig.widgets.map((widget) => ({
       i: widget.id,
       x: widget.x,
       y: widget.y,
@@ -50,14 +55,18 @@ export const GridLayout: React.FC = () => {
       maxW: widget.maxW || layoutConfig.columns,
       minH: widget.minH || 2,
       maxH: widget.maxH || 6,
-      static: false
+      static: false,
     }));
 
     return {
       lg: baseLayouts,
       md: baseLayouts,
-      sm: baseLayouts.map(layout => ({ ...layout, w: Math.min(layout.w, 2), x: layout.x % 2 })),
-      xs: baseLayouts.map(layout => ({ ...layout, w: 1, x: 0 })),
+      sm: baseLayouts.map((layout) => ({
+        ...layout,
+        w: Math.min(layout.w, 2),
+        x: layout.x % 2,
+      })),
+      xs: baseLayouts.map((layout) => ({ ...layout, w: 1, x: 0 })),
     };
   }, [layoutConfig]);
 
@@ -104,17 +113,20 @@ export const GridLayout: React.FC = () => {
         onResizeStop={handleResizeStop}
         draggableHandle=".drag-handle"
         draggableCancel=".widget-action, .no-drag, button, input, a"
-        resizeHandles={['se']}
+        resizeHandles={["se"]}
       >
         {layoutConfig.widgets.map((widget) => {
-          const WidgetComponent = widgetComponents[widget.type as keyof typeof widgetComponents];
-          
+          const WidgetComponent =
+            widgetComponents[widget.type as keyof typeof widgetComponents];
+
           if (!WidgetComponent) {
             return (
               <div key={widget.id}>
                 <DraggableWidget>
                   <div className="h-full border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
-                    <span className="text-muted-foreground">Unknown widget: {widget.type}</span>
+                    <span className="text-muted-foreground">
+                      Unknown widget: {widget.type}
+                    </span>
                   </div>
                 </DraggableWidget>
               </div>

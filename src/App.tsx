@@ -24,16 +24,16 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<Index />} />
-            <Route 
-              path="/profile" 
+            <Route
+              path="/profile"
               element={
                 <ProtectedRoute>
                   <Profile />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/admin/api-health" 
+            <Route
+              path="/admin/api-health"
               element={
                 <ProtectedRoute>
                   <div className="min-h-screen bg-dashboard-bg p-6">
@@ -42,15 +42,15 @@ const App = () => (
                     </div>
                   </div>
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/demo/news" 
+            <Route
+              path="/demo/news"
               element={
                 <ProtectedRoute>
                   <NewsDemo />
                 </ProtectedRoute>
-              } 
+              }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

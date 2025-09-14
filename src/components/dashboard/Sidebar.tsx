@@ -1,28 +1,28 @@
-import React from 'react';
-import { 
-  BarChart3, 
-  Calendar, 
-  Home, 
-  Settings, 
-  Users, 
+import React from "react";
+import {
+  BarChart3,
+  Calendar,
+  Home,
+  Settings,
+  Users,
   Puzzle,
   HelpCircle,
-  LogOut
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  LogOut,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { icon: Home, label: 'Dashboard', active: true },
-  { icon: Puzzle, label: 'Widgets Library' },
-  { icon: BarChart3, label: 'Analytics' },
-  { icon: Calendar, label: 'Calendar' },
-  { icon: Users, label: 'Team' },
+  { icon: Home, label: "Dashboard", active: true },
+  { icon: Puzzle, label: "Widgets Library" },
+  { icon: BarChart3, label: "Analytics" },
+  { icon: Calendar, label: "Calendar" },
+  { icon: Users, label: "Team" },
 ];
 
 const generalItems = [
-  { icon: Settings, label: 'Settings' },
-  { icon: HelpCircle, label: 'Help' },
-  { icon: LogOut, label: 'Logout' },
+  { icon: Settings, label: "Settings" },
+  { icon: HelpCircle, label: "Help" },
+  { icon: LogOut, label: "Logout" },
 ];
 
 export const Sidebar: React.FC = () => {
@@ -49,10 +49,7 @@ export const Sidebar: React.FC = () => {
               <a
                 key={item.label}
                 href="#"
-                className={cn(
-                  "sidebar-item",
-                  item.active && "active"
-                )}
+                className={cn("sidebar-item", item.active && "active")}
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
@@ -68,11 +65,7 @@ export const Sidebar: React.FC = () => {
           </div>
           <nav className="space-y-1">
             {generalItems.map((item) => (
-              <a
-                key={item.label}
-                href="#"
-                className="sidebar-item"
-              >
+              <a key={item.label} href="#" className="sidebar-item">
                 <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
               </a>

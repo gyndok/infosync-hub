@@ -1,29 +1,43 @@
-import React from 'react';
-import { Search, Bell, Plus, LogOut, User, Settings, Shield } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import {
+  Search,
+  Bell,
+  Plus,
+  LogOut,
+  User,
+  Settings,
+  Shield,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export const TopBar: React.FC = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  
-  const userInitials = user?.email 
-    ? user.email.substring(0, 2).toUpperCase() 
-    : 'U';
+
+  const userInitials = user?.email
+    ? user.email.substring(0, 2).toUpperCase()
+    : "U";
 
   const handleSignOut = async () => {
     await signOut();
   };
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate("/profile");
   };
 
   const handleApiHealthClick = () => {
-    navigate('/admin/api-health');
+    navigate("/admin/api-health");
   };
 
   return (
@@ -32,13 +46,15 @@ export const TopBar: React.FC = () => {
       <div className="flex items-center gap-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Monitor and manage your information feeds with ease.</p>
+          <p className="text-sm text-muted-foreground">
+            Monitor and manage your information feeds with ease.
+          </p>
         </div>
-        
+
         {/* Search Bar */}
         <div className="relative w-80">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
+          <Input
             placeholder="Search feeds, widgets, or data..."
             className="pl-10 pr-4"
           />
@@ -51,7 +67,7 @@ export const TopBar: React.FC = () => {
           <Plus className="w-4 h-4 mr-2" />
           Add Widget
         </Button>
-        
+
         <Button variant="default" size="sm">
           Import Data
         </Button>
@@ -64,13 +80,22 @@ export const TopBar: React.FC = () => {
         {/* Profile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2 ml-2 p-2">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 ml-2 p-2"
+            >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-primary-foreground">{userInitials}</span>
+                <span className="text-sm font-medium text-primary-foreground">
+                  {userInitials}
+                </span>
               </div>
               <div className="text-left">
-                <div className="text-sm font-medium text-foreground">{user?.email}</div>
-                <div className="text-xs text-muted-foreground">Dashboard User</div>
+                <div className="text-sm font-medium text-foreground">
+                  {user?.email}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Dashboard User
+                </div>
               </div>
             </Button>
           </DropdownMenuTrigger>
@@ -84,7 +109,10 @@ export const TopBar: React.FC = () => {
               API Health Dashboard
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-destructive"
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </DropdownMenuItem>

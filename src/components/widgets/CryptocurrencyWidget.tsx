@@ -1,24 +1,37 @@
-import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Settings, RefreshCw, Bitcoin, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import { useCryptocurrency } from '@/hooks/useCryptocurrency';
+import React, { useState } from "react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Settings,
+  RefreshCw,
+  Bitcoin,
+  X,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { useCryptocurrency } from "@/hooks/useCryptocurrency";
 
 // Safe currency formatter
 const formatPrice = (value?: number) => {
-  const n = typeof value === 'number' && isFinite(value) ? value : 0;
+  const n = typeof value === "number" && isFinite(value) ? value : 0;
   const big = n > 1000;
   const min = big ? 0 : 2;
   const max = big ? 0 : 2;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: min,
     maximumFractionDigits: max,
   }).format(n);
@@ -48,19 +61,22 @@ const CryptoItem: React.FC<{
     </div>
     <div className="flex items-center gap-3">
       <div className="text-right">
-        <div className="text-sm font-medium">
-          {formatPrice(price)}
-        </div>
-        <div className={cn(
-          "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-          change > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-        )}>
+        <div className="text-sm font-medium">{formatPrice(price)}</div>
+        <div
+          className={cn(
+            "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
+            change > 0
+              ? "bg-success/10 text-success"
+              : "bg-destructive/10 text-destructive",
+          )}
+        >
           {change > 0 ? (
             <TrendingUp className="w-3 h-3" />
           ) : (
             <TrendingDown className="w-3 h-3" />
           )}
-          {changePercent > 0 ? '+' : ''}{changePercent.toFixed(2)}%
+          {changePercent > 0 ? "+" : ""}
+          {changePercent.toFixed(2)}%
         </div>
       </div>
     </div>
@@ -72,29 +88,31 @@ const CryptoSettingsDialog: React.FC<{
   onUpdateConfig: (config: any) => void;
   isUpdating: boolean;
 }> = ({ config, onUpdateConfig, isUpdating }) => {
-  const [selectedCurrencies, setSelectedCurrencies] = useState(config.currencies || []);
+  const [selectedCurrencies, setSelectedCurrencies] = useState(
+    config.currencies || [],
+  );
   const [open, setOpen] = useState(false);
 
   const availableCrypto = [
-    { id: 'bitcoin', name: 'Bitcoin' },
-    { id: 'ethereum', name: 'Ethereum' },
-    { id: 'binancecoin', name: 'BNB' },
-    { id: 'cardano', name: 'Cardano' },
-    { id: 'solana', name: 'Solana' },
-    { id: 'polkadot', name: 'Polkadot' },
-    { id: 'dogecoin', name: 'Dogecoin' },
-    { id: 'avalanche-2', name: 'Avalanche' },
-    { id: 'chainlink', name: 'Chainlink' },
-    { id: 'polygon', name: 'Polygon' },
-    { id: 'litecoin', name: 'Litecoin' },
-    { id: 'stellar', name: 'Stellar' },
+    { id: "bitcoin", name: "Bitcoin" },
+    { id: "ethereum", name: "Ethereum" },
+    { id: "binancecoin", name: "BNB" },
+    { id: "cardano", name: "Cardano" },
+    { id: "solana", name: "Solana" },
+    { id: "polkadot", name: "Polkadot" },
+    { id: "dogecoin", name: "Dogecoin" },
+    { id: "avalanche-2", name: "Avalanche" },
+    { id: "chainlink", name: "Chainlink" },
+    { id: "polygon", name: "Polygon" },
+    { id: "litecoin", name: "Litecoin" },
+    { id: "stellar", name: "Stellar" },
   ];
 
   const handleToggleCrypto = (cryptoId: string, checked: boolean) => {
     if (checked) {
       setSelectedCurrencies([...selectedCurrencies, cryptoId]);
     } else {
-      setSelectedCurrencies(selectedCurrencies.filter(id => id !== cryptoId));
+      setSelectedCurrencies(selectedCurrencies.filter((id) => id !== cryptoId));
     }
   };
 
@@ -121,9 +139,14 @@ const CryptoSettingsDialog: React.FC<{
                 <Checkbox
                   id={crypto.id}
                   checked={selectedCurrencies.includes(crypto.id)}
-                  onCheckedChange={(checked) => handleToggleCrypto(crypto.id, checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    handleToggleCrypto(crypto.id, checked as boolean)
+                  }
                 />
-                <label htmlFor={crypto.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label
+                  htmlFor={crypto.id}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
                   {crypto.name}
                 </label>
               </div>
@@ -134,14 +157,17 @@ const CryptoSettingsDialog: React.FC<{
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isUpdating || selectedCurrencies.length === 0}>
+          <Button
+            onClick={handleSave}
+            disabled={isUpdating || selectedCurrencies.length === 0}
+          >
             {isUpdating ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                 Saving...
               </>
             ) : (
-              'Save Changes'
+              "Save Changes"
             )}
           </Button>
         </div>
@@ -171,8 +197,11 @@ interface CryptocurrencyWidgetProps {
   onRemove?: () => void;
 }
 
-export const CryptocurrencyWidget: React.FC<CryptocurrencyWidgetProps> = ({ onRemove }) => {
-  const { crypto, isLoading, config, updateConfig, isUpdatingConfig } = useCryptocurrency();
+export const CryptocurrencyWidget: React.FC<CryptocurrencyWidgetProps> = ({
+  onRemove,
+}) => {
+  const { crypto, isLoading, config, updateConfig, isUpdatingConfig } =
+    useCryptocurrency();
 
   return (
     <Card className="dashboard-card h-full">
@@ -185,13 +214,19 @@ export const CryptocurrencyWidget: React.FC<CryptocurrencyWidgetProps> = ({ onRe
             </Badge>
           </div>
           <div className="flex items-center gap-1">
-            <CryptoSettingsDialog 
-              config={config} 
+            <CryptoSettingsDialog
+              config={config}
               onUpdateConfig={updateConfig}
               isUpdating={isUpdatingConfig}
             />
-            <Button variant="ghost" size="sm" onClick={() => window.location.reload()}>
-              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.location.reload()}
+            >
+              <RefreshCw
+                className={cn("w-4 h-4", isLoading && "animate-spin")}
+              />
             </Button>
             {onRemove && (
               <Button variant="ghost" size="sm" onClick={onRemove}>
@@ -207,8 +242,12 @@ export const CryptocurrencyWidget: React.FC<CryptocurrencyWidgetProps> = ({ onRe
         ) : crypto.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Bitcoin className="w-12 h-12 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">No cryptocurrencies selected</p>
-            <p className="text-xs text-muted-foreground">Use settings to add cryptocurrencies</p>
+            <p className="text-sm text-muted-foreground">
+              No cryptocurrencies selected
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Use settings to add cryptocurrencies
+            </p>
           </div>
         ) : (
           <div className="px-1 pb-4">

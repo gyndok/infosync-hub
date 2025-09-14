@@ -1,22 +1,22 @@
-import React from 'react';
-import { RefreshCw, MapPin, Clock, AlertTriangle, X, Zap } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { useHoustonTraffic } from '@/hooks/useHoustonTraffic';
+import React from "react";
+import { RefreshCw, MapPin, Clock, AlertTriangle, X, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { useHoustonTraffic } from "@/hooks/useHoustonTraffic";
 
 // Safe time formatter
 const formatTime = (timeString?: string) => {
-  if (!timeString) return '';
+  if (!timeString) return "";
   try {
-    return new Date(timeString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit'
+    return new Date(timeString).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
     });
   } catch {
-    return '';
+    return "";
   }
 };
 
@@ -26,29 +26,50 @@ const formatTimeAgo = (timeString: string) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
-    
-    if (diffMins < 1) return 'Just now';
+
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
     return `${Math.floor(diffMins / 1440)}d ago`;
   } catch {
-    return '';
+    return "";
   }
 };
 
 const SeverityBadge: React.FC<{ severity: string }> = ({ severity }) => {
   const severityConfig = {
-    critical: { color: 'bg-destructive/10 text-destructive', icon: '🚨' },
-    high: { color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200', icon: '⚠️' },
-    medium: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', icon: '⚡' },
-    low: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', icon: '💨' },
-    info: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', icon: 'ℹ️' },
-    warning: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', icon: '⚠️' },
-    severe: { color: 'bg-destructive/10 text-destructive', icon: '🚨' }
+    critical: { color: "bg-destructive/10 text-destructive", icon: "🚨" },
+    high: {
+      color:
+        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      icon: "⚠️",
+    },
+    medium: {
+      color:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      icon: "⚡",
+    },
+    low: {
+      color:
+        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      icon: "💨",
+    },
+    info: {
+      color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      icon: "ℹ️",
+    },
+    warning: {
+      color:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      icon: "⚠️",
+    },
+    severe: { color: "bg-destructive/10 text-destructive", icon: "🚨" },
   };
 
-  const config = severityConfig[severity as keyof typeof severityConfig] || severityConfig.info;
-  
+  const config =
+    severityConfig[severity as keyof typeof severityConfig] ||
+    severityConfig.info;
+
   return (
     <Badge className={config.color}>
       <span className="mr-1">{config.icon}</span>
@@ -69,7 +90,9 @@ const TrafficIncidentItem: React.FC<{
           <SeverityBadge severity={incident.severity} />
         </div>
         {incident.description && (
-          <p className="text-xs text-muted-foreground mb-2">{incident.description}</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            {incident.description}
+          </p>
         )}
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           {incident.highway_road && (
@@ -102,12 +125,14 @@ const MetroAlertItem: React.FC<{
           <SeverityBadge severity={alert.severity} />
         </div>
         {alert.description && (
-          <p className="text-xs text-muted-foreground mb-2">{alert.description}</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            {alert.description}
+          </p>
         )}
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           {alert.affected_routes && alert.affected_routes.length > 0 && (
             <span className="flex items-center gap-1">
-              <span>Routes: {alert.affected_routes.join(', ')}</span>
+              <span>Routes: {alert.affected_routes.join(", ")}</span>
             </span>
           )}
           {alert.start_time && (
@@ -140,14 +165,16 @@ interface HoustonTrafficWidgetProps {
   onRemove?: () => void;
 }
 
-export const HoustonTrafficWidget: React.FC<HoustonTrafficWidgetProps> = ({ onRemove }) => {
+export const HoustonTrafficWidget: React.FC<HoustonTrafficWidgetProps> = ({
+  onRemove,
+}) => {
   const {
     trafficIncidents,
     metroAlerts,
     isLoading,
     error,
     lastUpdated,
-    refreshData
+    refreshData,
   } = useHoustonTraffic();
 
   const totalAlerts = trafficIncidents.length + metroAlerts.length;
@@ -158,7 +185,10 @@ export const HoustonTrafficWidget: React.FC<HoustonTrafficWidgetProps> = ({ onRe
         <CardTitle className="flex items-center justify-between text-lg font-semibold">
           <div className="flex items-center gap-2">
             🚗 Houston Traffic
-            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+            <Badge
+              variant="secondary"
+              className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+            >
               {totalAlerts} Active
             </Badge>
           </div>
@@ -170,10 +200,17 @@ export const HoustonTrafficWidget: React.FC<HoustonTrafficWidgetProps> = ({ onRe
               disabled={isLoading}
               className="h-6 w-6 p-0"
             >
-              <RefreshCw className={cn("w-3 h-3", isLoading && "animate-spin")} />
+              <RefreshCw
+                className={cn("w-3 h-3", isLoading && "animate-spin")}
+              />
             </Button>
             {onRemove && (
-              <Button variant="ghost" size="sm" onClick={onRemove} className="h-6 w-6 p-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRemove}
+                className="h-6 w-6 p-0"
+              >
                 <X className="w-3 h-3" />
               </Button>
             )}
@@ -188,20 +225,26 @@ export const HoustonTrafficWidget: React.FC<HoustonTrafficWidgetProps> = ({ onRe
       <CardContent className="p-0 h-full flex flex-col">
         {error && (
           <div className="p-4 text-center">
-            <div className="text-destructive text-sm mb-2">⚠️ Unable to load traffic data</div>
+            <div className="text-destructive text-sm mb-2">
+              ⚠️ Unable to load traffic data
+            </div>
             <Button variant="outline" size="sm" onClick={refreshData}>
               Try Again
             </Button>
           </div>
         )}
-        
+
         {isLoading && !error ? (
           <LoadingSkeleton />
         ) : totalAlerts === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="text-4xl mb-2">🚗</div>
-            <p className="text-sm text-muted-foreground">No active traffic alerts</p>
-            <p className="text-xs text-muted-foreground">Houston traffic is flowing smoothly</p>
+            <p className="text-sm text-muted-foreground">
+              No active traffic alerts
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Houston traffic is flowing smoothly
+            </p>
           </div>
         ) : (
           <div className="px-4 pb-4 overflow-y-auto max-h-96">

@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Trophy, RefreshCw, Settings, X, Star, Users, Target, TrendingUp, Newspaper, Grid3X3 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
-import { useSports } from '@/hooks/useSports';
+import React, { useState, useEffect } from "react";
+import {
+  Trophy,
+  RefreshCw,
+  Settings,
+  X,
+  Star,
+  Users,
+  Target,
+  TrendingUp,
+  Newspaper,
+  Grid3X3,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
+import { useSports } from "@/hooks/useSports";
 
 // Sports Widget - Dark themed design matching modern sports apps
 
@@ -25,148 +42,174 @@ const MatchItem: React.FC<{
   homeRecord?: string;
   awayRecord?: string;
   isFavorite?: boolean;
-}> = ({ homeTeam, awayTeam, homeScore, awayScore, status, date, time, league, period, clock, homeRecord, awayRecord, isFavorite }) => {
-  const isLive = status === 'Match Finished' || status === 'FT' || status.toLowerCase().includes('live') || status.toLowerCase().includes('final');
+}> = ({
+  homeTeam,
+  awayTeam,
+  homeScore,
+  awayScore,
+  status,
+  date,
+  time,
+  league,
+  period,
+  clock,
+  homeRecord,
+  awayRecord,
+  isFavorite,
+}) => {
+  const isLive =
+    status === "Match Finished" ||
+    status === "FT" ||
+    status.toLowerCase().includes("live") ||
+    status.toLowerCase().includes("final");
   const hasScore = homeScore !== undefined && awayScore !== undefined;
-  
+
   // Get team abbreviations (standard 3-letter sports codes)
   const getTeamAbbr = (teamName: string) => {
     const abbrevMap: Record<string, string> = {
       // MLB Teams
-      'houston astros': 'HOU',
-      'atlanta braves': 'ATL',
-      'new york yankees': 'NYY',
-      'new york mets': 'NYM',
-      'boston red sox': 'BOS',
-      'los angeles dodgers': 'LAD',
-      'los angeles angels': 'LAA',
-      'chicago cubs': 'CHC',
-      'chicago white sox': 'CWS',
-      'philadelphia phillies': 'PHI',
-      'san francisco giants': 'SF',
-      'texas rangers': 'TEX',
-      'seattle mariners': 'SEA',
-      'miami marlins': 'MIA',
-      'washington nationals': 'WSH',
-      'baltimore orioles': 'BAL',
-      'toronto blue jays': 'TOR',
-      'tampa bay rays': 'TB',
-      'detroit tigers': 'DET',
-      'cleveland guardians': 'CLE',
-      'minnesota twins': 'MIN',
-      'kansas city royals': 'KC',
-      'oakland athletics': 'OAK',
-      'milwaukee brewers': 'MIL',
-      'colorado rockies': 'COL',
-      'arizona diamondbacks': 'ARI',
-      'san diego padres': 'SD',
-      'st. louis cardinals': 'STL',
-      'pittsburgh pirates': 'PIT',
-      'cincinnati reds': 'CIN',
-      
+      "houston astros": "HOU",
+      "atlanta braves": "ATL",
+      "new york yankees": "NYY",
+      "new york mets": "NYM",
+      "boston red sox": "BOS",
+      "los angeles dodgers": "LAD",
+      "los angeles angels": "LAA",
+      "chicago cubs": "CHC",
+      "chicago white sox": "CWS",
+      "philadelphia phillies": "PHI",
+      "san francisco giants": "SF",
+      "texas rangers": "TEX",
+      "seattle mariners": "SEA",
+      "miami marlins": "MIA",
+      "washington nationals": "WSH",
+      "baltimore orioles": "BAL",
+      "toronto blue jays": "TOR",
+      "tampa bay rays": "TB",
+      "detroit tigers": "DET",
+      "cleveland guardians": "CLE",
+      "minnesota twins": "MIN",
+      "kansas city royals": "KC",
+      "oakland athletics": "OAK",
+      "milwaukee brewers": "MIL",
+      "colorado rockies": "COL",
+      "arizona diamondbacks": "ARI",
+      "san diego padres": "SD",
+      "st. louis cardinals": "STL",
+      "pittsburgh pirates": "PIT",
+      "cincinnati reds": "CIN",
+
       // NFL Teams
-      'houston texans': 'HOU',
-      'atlanta falcons': 'ATL',
-      'new york jets': 'NYJ',
-      'new york giants': 'NYG',
-      'new england patriots': 'NE',
-      'dallas cowboys': 'DAL',
-      'chicago bears': 'CHI',
-      'philadelphia eagles': 'PHI',
-      'los angeles rams': 'LAR',
-      'los angeles chargers': 'LAC',
-      'san francisco 49ers': 'SF',
-      'seattle seahawks': 'SEA',
-      'miami dolphins': 'MIA',
-      'washington commanders': 'WSH',
-      'baltimore ravens': 'BAL',
-      'buffalo bills': 'BUF',
-      'tampa bay buccaneers': 'TB',
-      'detroit lions': 'DET',
-      'cleveland browns': 'CLE',
-      'minnesota vikings': 'MIN',
-      'kansas city chiefs': 'KC',
-      'las vegas raiders': 'LV',
-      'green bay packers': 'GB',
-      'denver broncos': 'DEN',
-      'arizona cardinals': 'ARI',
-      'carolina panthers': 'CAR',
-      'new orleans saints': 'NO',
-      'tennessee titans': 'TEN',
-      'indianapolis colts': 'IND',
-      'jacksonville jaguars': 'JAX',
-      'pittsburgh steelers': 'PIT',
-      'cincinnati bengals': 'CIN',
-      
+      "houston texans": "HOU",
+      "atlanta falcons": "ATL",
+      "new york jets": "NYJ",
+      "new york giants": "NYG",
+      "new england patriots": "NE",
+      "dallas cowboys": "DAL",
+      "chicago bears": "CHI",
+      "philadelphia eagles": "PHI",
+      "los angeles rams": "LAR",
+      "los angeles chargers": "LAC",
+      "san francisco 49ers": "SF",
+      "seattle seahawks": "SEA",
+      "miami dolphins": "MIA",
+      "washington commanders": "WSH",
+      "baltimore ravens": "BAL",
+      "buffalo bills": "BUF",
+      "tampa bay buccaneers": "TB",
+      "detroit lions": "DET",
+      "cleveland browns": "CLE",
+      "minnesota vikings": "MIN",
+      "kansas city chiefs": "KC",
+      "las vegas raiders": "LV",
+      "green bay packers": "GB",
+      "denver broncos": "DEN",
+      "arizona cardinals": "ARI",
+      "carolina panthers": "CAR",
+      "new orleans saints": "NO",
+      "tennessee titans": "TEN",
+      "indianapolis colts": "IND",
+      "jacksonville jaguars": "JAX",
+      "pittsburgh steelers": "PIT",
+      "cincinnati bengals": "CIN",
+
       // NBA Teams
-      'houston rockets': 'HOU',
-      'atlanta hawks': 'ATL',
-      'new york knicks': 'NYK',
-      'brooklyn nets': 'BKN',
-      'boston celtics': 'BOS',
-      'los angeles lakers': 'LAL',
-      'los angeles clippers': 'LAC',
-      'chicago bulls': 'CHI',
-      'philadelphia 76ers': 'PHI',
-      'golden state warriors': 'GSW',
-      'sacramento kings': 'SAC',
-      'phoenix suns': 'PHX',
-      'denver nuggets': 'DEN',
-      'utah jazz': 'UTA',
-      'portland trail blazers': 'POR',
-      'seattle supersonics': 'SEA',
-      'miami heat': 'MIA',
-      'orlando magic': 'ORL',
-      'washington wizards': 'WSH',
-      'charlotte hornets': 'CHA',
-      'detroit pistons': 'DET',
-      'cleveland cavaliers': 'CLE',
-      'milwaukee bucks': 'MIL',
-      'minnesota timberwolves': 'MIN',
-      'new orleans pelicans': 'NO',
-      'san antonio spurs': 'SA',
-      'memphis grizzlies': 'MEM',
-      'dallas mavericks': 'DAL',
-      'oklahoma city thunder': 'OKC',
-      'toronto raptors': 'TOR',
-      'indiana pacers': 'IND',
-      
+      "houston rockets": "HOU",
+      "atlanta hawks": "ATL",
+      "new york knicks": "NYK",
+      "brooklyn nets": "BKN",
+      "boston celtics": "BOS",
+      "los angeles lakers": "LAL",
+      "los angeles clippers": "LAC",
+      "chicago bulls": "CHI",
+      "philadelphia 76ers": "PHI",
+      "golden state warriors": "GSW",
+      "sacramento kings": "SAC",
+      "phoenix suns": "PHX",
+      "denver nuggets": "DEN",
+      "utah jazz": "UTA",
+      "portland trail blazers": "POR",
+      "seattle supersonics": "SEA",
+      "miami heat": "MIA",
+      "orlando magic": "ORL",
+      "washington wizards": "WSH",
+      "charlotte hornets": "CHA",
+      "detroit pistons": "DET",
+      "cleveland cavaliers": "CLE",
+      "milwaukee bucks": "MIL",
+      "minnesota timberwolves": "MIN",
+      "new orleans pelicans": "NO",
+      "san antonio spurs": "SA",
+      "memphis grizzlies": "MEM",
+      "dallas mavericks": "DAL",
+      "oklahoma city thunder": "OKC",
+      "toronto raptors": "TOR",
+      "indiana pacers": "IND",
+
       // NHL Teams
-      'tampa bay lightning': 'TB',
-      'florida panthers': 'FLA',
-      'boston bruins': 'BOS',
-      'new york rangers': 'NYR',
-      'new york islanders': 'NYI',
-      'new jersey devils': 'NJ',
-      'philadelphia flyers': 'PHI',
-      'pittsburgh penguins': 'PIT',
-      'washington capitals': 'WSH',
-      'carolina hurricanes': 'CAR',
-      'toronto maple leafs': 'TOR',
-      'montreal canadiens': 'MTL',
-      'ottawa senators': 'OTT',
-      'buffalo sabres': 'BUF',
-      'detroit red wings': 'DET',
-      'chicago blackhawks': 'CHI',
-      'nashville predators': 'NSH',
-      'dallas stars': 'DAL',
-      'st. louis blues': 'STL',
-      'minnesota wild': 'MIN',
-      'winnipeg jets': 'WPG',
-      'colorado avalanche': 'COL',
-      'arizona coyotes': 'ARI',
-      'vegas golden knights': 'VGK',
-      'los angeles kings': 'LAK',
-      'san jose sharks': 'SJ',
-      'anaheim ducks': 'ANA',
-      'seattle kraken': 'SEA',
-      'vancouver canucks': 'VAN',
-      'calgary flames': 'CGY',
-      'edmonton oilers': 'EDM'
+      "tampa bay lightning": "TB",
+      "florida panthers": "FLA",
+      "boston bruins": "BOS",
+      "new york rangers": "NYR",
+      "new york islanders": "NYI",
+      "new jersey devils": "NJ",
+      "philadelphia flyers": "PHI",
+      "pittsburgh penguins": "PIT",
+      "washington capitals": "WSH",
+      "carolina hurricanes": "CAR",
+      "toronto maple leafs": "TOR",
+      "montreal canadiens": "MTL",
+      "ottawa senators": "OTT",
+      "buffalo sabres": "BUF",
+      "detroit red wings": "DET",
+      "chicago blackhawks": "CHI",
+      "nashville predators": "NSH",
+      "dallas stars": "DAL",
+      "st. louis blues": "STL",
+      "minnesota wild": "MIN",
+      "winnipeg jets": "WPG",
+      "colorado avalanche": "COL",
+      "arizona coyotes": "ARI",
+      "vegas golden knights": "VGK",
+      "los angeles kings": "LAK",
+      "san jose sharks": "SJ",
+      "anaheim ducks": "ANA",
+      "seattle kraken": "SEA",
+      "vancouver canucks": "VAN",
+      "calgary flames": "CGY",
+      "edmonton oilers": "EDM",
     };
-    
+
     const lower = teamName.toLowerCase();
-    return abbrevMap[lower] || teamName.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3);
+    return (
+      abbrevMap[lower] ||
+      teamName
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 3)
+    );
   };
 
   // Team logo placeholders with colors
@@ -187,52 +230,54 @@ const MatchItem: React.FC<{
           <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
         </div>
       )}
-      
+
       {/* League badge */}
       <div className="text-center py-2 border-b border-gray-700/50">
         <span className="text-xs font-medium text-gray-300 uppercase tracking-wider">
-          {league || 'Sports'}
+          {league || "Sports"}
         </span>
       </div>
-      
+
       {/* Main game content */}
       <div className="flex items-center justify-between p-4">
         {/* Away team */}
         <div className="flex flex-col items-center space-y-2 flex-1">
           {getTeamLogo(awayTeam)}
           <div className="text-center">
-            <div className="text-white font-medium text-sm">{getTeamAbbr(awayTeam)}</div>
+            <div className="text-white font-medium text-sm">
+              {getTeamAbbr(awayTeam)}
+            </div>
             {awayRecord && (
               <div className="text-gray-400 text-xs">{awayRecord}</div>
             )}
           </div>
         </div>
-        
+
         {/* Score/Status section */}
         <div className="flex flex-col items-center space-y-1 px-4">
           <div className="flex items-center space-x-4">
             <span className="text-3xl font-bold text-white">
-              {hasScore ? awayScore : '0'}
+              {hasScore ? awayScore : "0"}
             </span>
             <span className="text-3xl font-bold text-white">
-              {hasScore ? homeScore : '0'}
+              {hasScore ? homeScore : "0"}
             </span>
           </div>
           <div className="text-center">
             <div className="text-xs font-medium text-gray-300">
-              {hasScore ? (period || status || 'Final') : time}
+              {hasScore ? period || status || "Final" : time}
             </div>
-            {clock && (
-              <div className="text-xs text-gray-400">{clock}</div>
-            )}
+            {clock && <div className="text-xs text-gray-400">{clock}</div>}
           </div>
         </div>
-        
+
         {/* Home team */}
         <div className="flex flex-col items-center space-y-2 flex-1">
           {getTeamLogo(homeTeam)}
           <div className="text-center">
-            <div className="text-white font-medium text-sm">{getTeamAbbr(homeTeam)}</div>
+            <div className="text-white font-medium text-sm">
+              {getTeamAbbr(homeTeam)}
+            </div>
             {homeRecord && (
               <div className="text-gray-400 text-xs">{homeRecord}</div>
             )}
@@ -250,24 +295,31 @@ const SportsSettingsDialog: React.FC<{
   onRemoveTeam: (team: string) => void;
   onToggleNotifications: (enabled: boolean) => void;
   isUpdating: boolean;
-}> = ({ favoriteTeams, enableNotifications, onAddTeam, onRemoveTeam, onToggleNotifications, isUpdating }) => {
-  const [newTeam, setNewTeam] = useState('');
+}> = ({
+  favoriteTeams,
+  enableNotifications,
+  onAddTeam,
+  onRemoveTeam,
+  onToggleNotifications,
+  isUpdating,
+}) => {
+  const [newTeam, setNewTeam] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleAddTeam = (e: React.FormEvent) => {
     e.preventDefault();
     if (newTeam.trim()) {
       onAddTeam(newTeam.trim());
-      setNewTeam('');
+      setNewTeam("");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="text-white hover:bg-gray-800"
           data-testid="sports-settings"
         >
@@ -282,7 +334,9 @@ const SportsSettingsDialog: React.FC<{
           <div className="flex items-center justify-between">
             <div>
               <h4 className="text-sm font-medium">Live Score Notifications</h4>
-              <p className="text-xs text-muted-foreground">Get alerts for your favorite teams</p>
+              <p className="text-xs text-muted-foreground">
+                Get alerts for your favorite teams
+              </p>
             </div>
             <Switch
               checked={enableNotifications}
@@ -290,12 +344,15 @@ const SportsSettingsDialog: React.FC<{
               disabled={isUpdating}
             />
           </div>
-          
+
           <div>
             <h4 className="text-sm font-medium mb-2">Favorite Teams</h4>
             <div className="space-y-2">
               {favoriteTeams.map((team) => (
-                <div key={team} className="flex items-center justify-between p-2 bg-muted rounded">
+                <div
+                  key={team}
+                  className="flex items-center justify-between p-2 bg-muted rounded"
+                >
                   <span className="text-sm">{team}</span>
                   <Button
                     variant="ghost"
@@ -315,7 +372,11 @@ const SportsSettingsDialog: React.FC<{
                 onChange={(e) => setNewTeam(e.target.value)}
                 className="flex-1"
               />
-              <Button type="submit" size="sm" disabled={!newTeam.trim() || isUpdating}>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!newTeam.trim() || isUpdating}
+              >
                 Add
               </Button>
             </form>
@@ -340,7 +401,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
     updateConfig,
     isUpdatingConfig,
     refetch,
-    checkLiveScores
+    checkLiveScores,
   } = useSports();
 
   const [activeView, setActiveView] = useState("following");
@@ -355,7 +416,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
   const handleToggleNotifications = (enabled: boolean) => {
     updateConfig({
       ...config,
-      enableNotifications: enabled
+      enableNotifications: enabled,
     });
   };
 
@@ -369,39 +430,52 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
 
   // Helper function to match teams with favorites
   const matchesTeam = (game: any, searchOrTeam: string) => {
-    const homeTeam = game.strHomeTeam?.toLowerCase() || '';
-    const awayTeam = game.strAwayTeam?.toLowerCase() || '';
+    const homeTeam = game.strHomeTeam?.toLowerCase() || "";
+    const awayTeam = game.strAwayTeam?.toLowerCase() || "";
     const term = searchOrTeam.toLowerCase();
-    
+
     // Direct matches
     if (homeTeam.includes(term) || awayTeam.includes(term)) {
       return true;
     }
-    
+
     // Houston teams special handling
-    const isHoustonGame = homeTeam.includes('houston') || awayTeam.includes('houston');
-    if (isHoustonGame && (term.includes('astros') || term.includes('texans') || term.includes('rockets'))) {
+    const isHoustonGame =
+      homeTeam.includes("houston") || awayTeam.includes("houston");
+    if (
+      isHoustonGame &&
+      (term.includes("astros") ||
+        term.includes("texans") ||
+        term.includes("rockets"))
+    ) {
       return true;
     }
-    
+
     // Texans specific - match with both "houston texans" and "texans"
-    if ((term.includes('texans') || term === 'texans') && 
-        (homeTeam.includes('texans') || awayTeam.includes('texans') || 
-         homeTeam.includes('houston') || awayTeam.includes('houston'))) {
+    if (
+      (term.includes("texans") || term === "texans") &&
+      (homeTeam.includes("texans") ||
+        awayTeam.includes("texans") ||
+        homeTeam.includes("houston") ||
+        awayTeam.includes("houston"))
+    ) {
       return true;
     }
-    
+
     // Other common team nicknames
-    if (term.includes('lightning') && (homeTeam.includes('tampa bay') || awayTeam.includes('tampa bay'))) {
+    if (
+      term.includes("lightning") &&
+      (homeTeam.includes("tampa bay") || awayTeam.includes("tampa bay"))
+    ) {
       return true;
     }
-    
+
     return false;
   };
 
   // Get favorite team games from all time periods
-  const favoriteTeamGames = sportsData.filter(game => {
-    return config.favoriteTeams.some(team => matchesTeam(game, team));
+  const favoriteTeamGames = sportsData.filter((game) => {
+    return config.favoriteTeams.some((team) => matchesTeam(game, team));
   });
 
   // Process games by time period
@@ -412,62 +486,74 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   // Get live/active games for favorites
-  const liveOrActiveFavoriteGames = favoriteTeamGames.filter(game => {
-    const status = game.strStatus?.toLowerCase() || '';
-    return status.includes('live') || status.includes('active') || status.includes('in progress') || 
-           (game.intHomeScore && game.intAwayScore && !status.includes('final'));
+  const liveOrActiveFavoriteGames = favoriteTeamGames.filter((game) => {
+    const status = game.strStatus?.toLowerCase() || "";
+    return (
+      status.includes("live") ||
+      status.includes("active") ||
+      status.includes("in progress") ||
+      (game.intHomeScore && game.intAwayScore && !status.includes("final"))
+    );
   });
 
   // Get next upcoming favorite game
   const nextFavoriteGame = favoriteTeamGames
-    .filter(game => {
+    .filter((game) => {
       const gameDate = new Date(game.dateEvent);
-      const gameTime = new Date(`${game.dateEvent} ${game.strTime || '00:00'}`);
+      const gameTime = new Date(`${game.dateEvent} ${game.strTime || "00:00"}`);
       return gameTime > now;
     })
     .sort((a, b) => {
-      const aTime = new Date(`${a.dateEvent} ${a.strTime || '00:00'}`);
-      const bTime = new Date(`${b.dateEvent} ${b.strTime || '00:00'}`);
+      const aTime = new Date(`${a.dateEvent} ${a.strTime || "00:00"}`);
+      const bTime = new Date(`${b.dateEvent} ${b.strTime || "00:00"}`);
       return aTime.getTime() - bTime.getTime();
     })[0];
 
   // Debug logging for favorite teams
-  console.log('Favorite teams:', config.favoriteTeams);
-  console.log('All sports data:', sportsData.length, 'games');
-  console.log('Favorite team games:', favoriteTeamGames.length);
-  console.log('Next favorite game:', nextFavoriteGame);
+  console.log("Favorite teams:", config.favoriteTeams);
+  console.log("All sports data:", sportsData.length, "games");
+  console.log("Favorite team games:", favoriteTeamGames.length);
+  console.log("Next favorite game:", nextFavoriteGame);
 
   // Favorite team games organized by time period
-  const favoriteYesterdayGames = favoriteTeamGames.filter(game => {
+  const favoriteYesterdayGames = favoriteTeamGames.filter((game) => {
     const gameDate = new Date(game.dateEvent);
     return gameDate.toDateString() === yesterday.toDateString();
   });
 
-  const favoriteTodayGames = favoriteTeamGames.filter(game => {
+  const favoriteTodayGames = favoriteTeamGames.filter((game) => {
     const gameDate = new Date(game.dateEvent);
     return gameDate.toDateString() === now.toDateString();
   });
 
-  const favoriteUpcomingGames = favoriteTeamGames.filter(game => {
-    const gameDate = new Date(game.dateEvent);
-    return gameDate > now;
-  }).slice(0, 6);
+  const favoriteUpcomingGames = favoriteTeamGames
+    .filter((game) => {
+      const gameDate = new Date(game.dateEvent);
+      return gameDate > now;
+    })
+    .slice(0, 6);
 
   // All games organized by time period (fallback when no favorites)
-  const yesterdayGames = sportsData.filter(game => {
-    const gameDate = new Date(game.dateEvent);
-    return gameDate.toDateString() === yesterday.toDateString();
-  }).slice(0, 6);
+  const yesterdayGames = sportsData
+    .filter((game) => {
+      const gameDate = new Date(game.dateEvent);
+      return gameDate.toDateString() === yesterday.toDateString();
+    })
+    .slice(0, 6);
 
-  const todayGames = sportsData.filter(game => {
-    const gameDate = new Date(game.dateEvent);
-    return gameDate.toDateString() === now.toDateString();
-  }).slice(0, 6);
+  const todayGames = sportsData
+    .filter((game) => {
+      const gameDate = new Date(game.dateEvent);
+      return gameDate.toDateString() === now.toDateString();
+    })
+    .slice(0, 6);
 
-  const upcomingGames = sportsData.filter(game => {
-    const gameDate = new Date(game.dateEvent);
-    return gameDate > now;
-  }).slice(0, 6);
+  const upcomingGames = sportsData
+    .filter((game) => {
+      const gameDate = new Date(game.dateEvent);
+      return gameDate > now;
+    })
+    .slice(0, 6);
 
   // Determine what to show for each tab
   const getGamesForTab = (tab: string) => {
@@ -493,11 +579,17 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
       // For games view, show all games
       switch (tab) {
         case "yesterday":
-          return favoriteYesterdayGames.length > 0 ? favoriteYesterdayGames : yesterdayGames;
+          return favoriteYesterdayGames.length > 0
+            ? favoriteYesterdayGames
+            : yesterdayGames;
         case "today":
-          return favoriteTodayGames.length > 0 ? favoriteTodayGames : todayGames;
+          return favoriteTodayGames.length > 0
+            ? favoriteTodayGames
+            : todayGames;
         case "upcoming":
-          return favoriteUpcomingGames.length > 0 ? favoriteUpcomingGames : upcomingGames;
+          return favoriteUpcomingGames.length > 0
+            ? favoriteUpcomingGames
+            : upcomingGames;
         default:
           return [];
       }
@@ -540,12 +632,17 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             {liveOrActiveFavoriteGames.length > 0 ? (
               <>
                 <div className="text-center py-2">
-                  <Badge variant="secondary" className="bg-red-600 text-white text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="bg-red-600 text-white text-xs"
+                  >
                     LIVE GAMES
                   </Badge>
                 </div>
                 {liveOrActiveFavoriteGames.map((game, index) => {
-                  const isFavorite = config.favoriteTeams.some(team => matchesTeam(game, team));
+                  const isFavorite = config.favoriteTeams.some((team) =>
+                    matchesTeam(game, team),
+                  );
                   return (
                     <MatchItem
                       key={game.idEvent || index}
@@ -569,7 +666,10 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             ) : nextFavoriteGame ? (
               <>
                 <div className="text-center py-2">
-                  <Badge variant="secondary" className="bg-blue-600 text-white text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="bg-blue-600 text-white text-xs"
+                  >
                     NEXT GAME
                   </Badge>
                 </div>
@@ -591,11 +691,16 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
                 />
                 <div className="text-center py-4">
                   <p className="text-gray-400 text-sm">
-                    Next game: {new Date(nextFavoriteGame.dateEvent).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })} at {nextFavoriteGame.strTime || 'TBD'}
+                    Next game:{" "}
+                    {new Date(nextFavoriteGame.dateEvent).toLocaleDateString(
+                      "en-US",
+                      {
+                        weekday: "long",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )}{" "}
+                    at {nextFavoriteGame.strTime || "TBD"}
                   </p>
                 </div>
               </>
@@ -604,12 +709,15 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
                 <Star className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-400 mb-2">No favorite teams added</p>
                 <p className="text-gray-500 text-sm">
-                  Add favorite teams in settings to see live games and upcoming matches
+                  Add favorite teams in settings to see live games and upcoming
+                  matches
                 </p>
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-400 mb-2">No live games for your favorite teams</p>
+                <p className="text-gray-400 mb-2">
+                  No live games for your favorite teams
+                </p>
                 <p className="text-gray-500 text-sm">
                   Check the Games tab for all available matches
                 </p>
@@ -617,13 +725,15 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             )}
           </div>
         );
-      
+
       case "games":
         return (
           <div className="space-y-3">
             {currentGames.length > 0 ? (
               currentGames.slice(0, 6).map((game, index) => {
-                const isFavorite = config.favoriteTeams.some(team => matchesTeam(game, team));
+                const isFavorite = config.favoriteTeams.some((team) =>
+                  matchesTeam(game, team),
+                );
                 return (
                   <MatchItem
                     key={game.idEvent || index}
@@ -654,7 +764,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             )}
           </div>
         );
-      
+
       case "teams":
         return (
           <div className="space-y-3">
@@ -664,10 +774,20 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
               {config.favoriteTeams.length > 0 ? (
                 <div className="space-y-2">
                   {config.favoriteTeams.map((team, index) => (
-                    <div key={index} className="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center border border-slate-500">
-                          <span className="text-white font-bold text-xs">{team.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3)}</span>
+                          <span className="text-white font-bold text-xs">
+                            {team
+                              .split(" ")
+                              .map((word) => word[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 3)}
+                          </span>
                         </div>
                         <span className="text-white font-medium">{team}</span>
                       </div>
@@ -683,7 +803,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             </div>
           </div>
         );
-      
+
       case "standings":
         return (
           <div className="space-y-3">
@@ -696,7 +816,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             </div>
           </div>
         );
-      
+
       default:
         return renderContent();
     }
@@ -711,14 +831,24 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             <Trophy className="w-5 h-5 text-white" />
             <span className="text-white font-semibold">Sports</span>
             {liveOrActiveFavoriteGames.length > 0 && (
-              <Badge variant="secondary" className="bg-green-600 text-white text-xs">
+              <Badge
+                variant="secondary"
+                className="bg-green-600 text-white text-xs"
+              >
                 Live
               </Badge>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-white hover:bg-gray-800">
-              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => refetch()}
+              className="text-white hover:bg-gray-800"
+            >
+              <RefreshCw
+                className={cn("w-4 h-4", isLoading && "animate-spin")}
+              />
             </Button>
             <SportsSettingsDialog
               favoriteTeams={config.favoriteTeams}
@@ -729,7 +859,12 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
               isUpdating={isUpdatingConfig}
             />
             {onRemove && (
-              <Button variant="ghost" size="sm" onClick={onRemove} className="text-white hover:bg-gray-800">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRemove}
+                className="text-white hover:bg-gray-800"
+              >
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -744,7 +879,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             { key: "following", label: "Following", icon: Star },
             { key: "games", label: "Games", icon: Grid3X3 },
             { key: "teams", label: "Teams", icon: Users },
-            { key: "standings", label: "Standings", icon: TrendingUp }
+            { key: "standings", label: "Standings", icon: TrendingUp },
           ].map((nav) => {
             const IconComponent = nav.icon;
             return (
@@ -755,7 +890,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
                   "flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-md text-xs font-medium transition-colors",
                   activeView === nav.key
                     ? "bg-gray-700 text-white"
-                    : "text-gray-400 hover:text-gray-300"
+                    : "text-gray-400 hover:text-gray-300",
                 )}
               >
                 <IconComponent className="w-3 h-3" />
@@ -771,7 +906,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
             {[
               { key: "yesterday", label: "Yesterday" },
               { key: "today", label: "Today" },
-              { key: "upcoming", label: "Upcoming" }
+              { key: "upcoming", label: "Upcoming" },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -780,7 +915,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
                   "pb-3 px-1 text-sm font-medium border-b-2 transition-colors",
                   activeTab === tab.key
                     ? "text-white border-white"
-                    : "text-gray-400 border-transparent hover:text-gray-300"
+                    : "text-gray-400 border-transparent hover:text-gray-300",
                 )}
               >
                 {tab.label}
@@ -792,11 +927,7 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
 
       {/* Content */}
       <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : (
-          renderContent()
-        )}
+        {isLoading ? <LoadingSkeleton /> : renderContent()}
       </div>
     </div>
   );

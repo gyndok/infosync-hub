@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Settings, X, Maximize2, Minimize2, GripVertical } from 'lucide-react';
+import { ReactNode } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Settings, X, Maximize2, Minimize2, GripVertical } from "lucide-react";
 
 interface WidgetContainerProps {
   children: ReactNode;
@@ -20,7 +20,7 @@ const WidgetContainer = ({
   onRemove,
   onResize,
   isMaximized = false,
-  className = '',
+  className = "",
 }: WidgetContainerProps) => {
   return (
     <Card className={`h-full flex flex-col ${className}`}>
@@ -53,9 +53,7 @@ const WidgetContainer = ({
           )}
         </div>
       </div>
-      <div className="flex-1 overflow-hidden">
-        {children}
-      </div>
+      <div className="flex-1 overflow-hidden">{children}</div>
     </Card>
   );
 };

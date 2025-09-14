@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useFinance } from '@/hooks/useFinance';
+import React, { useState } from "react";
+import { useFinance } from "@/hooks/useFinance";
 import {
   Dialog,
   DialogContent,
@@ -7,12 +7,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CreatePortfolioDialogProps {
   open: boolean;
@@ -25,14 +25,14 @@ export const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
 }) => {
   const { createPortfolio, isCreatingPortfolio } = useFinance();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     is_default: false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       return;
     }
@@ -46,8 +46,8 @@ export const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
     // Close dialog and reset form
     onOpenChange(false);
     setFormData({
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       is_default: false,
     });
   };
@@ -68,7 +68,9 @@ export const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
               id="name"
               placeholder="My Portfolio"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
           </div>
@@ -79,7 +81,9 @@ export const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
               id="description"
               placeholder="A brief description of this portfolio..."
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
             />
           </div>
 
@@ -95,11 +99,15 @@ export const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isCreatingPortfolio}>
-              {isCreatingPortfolio ? 'Creating...' : 'Create Portfolio'}
+              {isCreatingPortfolio ? "Creating..." : "Create Portfolio"}
             </Button>
           </DialogFooter>
         </form>

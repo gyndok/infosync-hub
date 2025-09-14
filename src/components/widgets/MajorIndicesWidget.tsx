@@ -1,16 +1,16 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, RefreshCw, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { useStockIndices } from '@/hooks/useStockIndices';
+import React from "react";
+import { TrendingUp, TrendingDown, RefreshCw, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { useStockIndices } from "@/hooks/useStockIndices";
 
 // Safe number formatter for indices (no currency symbol)
 const formatPrice = (value?: number) => {
-  const n = typeof value === 'number' && isFinite(value) ? value : 0;
-  return new Intl.NumberFormat('en-US', {
+  const n = typeof value === "number" && isFinite(value) ? value : 0;
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(n);
@@ -18,11 +18,11 @@ const formatPrice = (value?: number) => {
 
 // Format points change
 const formatChange = (value?: number) => {
-  const n = typeof value === 'number' && isFinite(value) ? value : 0;
-  return new Intl.NumberFormat('en-US', {
+  const n = typeof value === "number" && isFinite(value) ? value : 0;
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    signDisplay: 'always'
+    signDisplay: "always",
   }).format(n);
 };
 
@@ -42,13 +42,15 @@ const IndexItem: React.FC<{
     </div>
     <div className="flex items-center gap-3">
       <div className="text-right">
-        <div className="text-sm font-medium">
-          {formatPrice(price)}
-        </div>
-        <div className={cn(
-          "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-          change > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-        )}>
+        <div className="text-sm font-medium">{formatPrice(price)}</div>
+        <div
+          className={cn(
+            "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
+            change > 0
+              ? "bg-success/10 text-success"
+              : "bg-destructive/10 text-destructive",
+          )}
+        >
           {change > 0 ? (
             <TrendingUp className="w-3 h-3" />
           ) : (
@@ -82,7 +84,9 @@ interface MajorIndicesWidgetProps {
   onRemove?: () => void;
 }
 
-export const MajorIndicesWidget: React.FC<MajorIndicesWidgetProps> = ({ onRemove }) => {
+export const MajorIndicesWidget: React.FC<MajorIndicesWidgetProps> = ({
+  onRemove,
+}) => {
   const { indices, isLoading, refetch } = useStockIndices();
 
   return (
@@ -97,7 +101,9 @@ export const MajorIndicesWidget: React.FC<MajorIndicesWidgetProps> = ({ onRemove
           </div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="sm" onClick={() => refetch()}>
-              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+              <RefreshCw
+                className={cn("w-4 h-4", isLoading && "animate-spin")}
+              />
             </Button>
             {onRemove && (
               <Button variant="ghost" size="sm" onClick={onRemove}>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useFinance } from '@/hooks/useFinance';
+import React, { useState } from "react";
+import { useFinance } from "@/hooks/useFinance";
 import {
   Dialog,
   DialogContent,
@@ -7,12 +7,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AddHoldingDialogProps {
   open: boolean;
@@ -27,20 +33,25 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
 }) => {
   const { addHolding, portfolios, isAddingHolding } = useFinance();
   const [formData, setFormData] = useState({
-    symbol: '',
-    name: '',
-    asset_type: 'stock' as 'stock' | 'crypto' | 'etf' | 'mutual_fund',
-    quantity: '',
-    avg_cost_per_unit: '',
-    purchase_date: '',
-    notes: '',
-    portfolio_id: portfolioId || '',
+    symbol: "",
+    name: "",
+    asset_type: "stock" as "stock" | "crypto" | "etf" | "mutual_fund",
+    quantity: "",
+    avg_cost_per_unit: "",
+    purchase_date: "",
+    notes: "",
+    portfolio_id: portfolioId || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.portfolio_id || !formData.symbol || !formData.quantity || !formData.avg_cost_per_unit) {
+
+    if (
+      !formData.portfolio_id ||
+      !formData.symbol ||
+      !formData.quantity ||
+      !formData.avg_cost_per_unit
+    ) {
       return;
     }
 
@@ -54,14 +65,14 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
     // Close dialog and reset form
     onOpenChange(false);
     setFormData({
-      symbol: '',
-      name: '',
-      asset_type: 'stock',
-      quantity: '',
-      avg_cost_per_unit: '',
-      purchase_date: '',
-      notes: '',
-      portfolio_id: portfolioId || '',
+      symbol: "",
+      name: "",
+      asset_type: "stock",
+      quantity: "",
+      avg_cost_per_unit: "",
+      purchase_date: "",
+      notes: "",
+      portfolio_id: portfolioId || "",
     });
   };
 
@@ -83,7 +94,10 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
                 placeholder="AAPL"
                 value={formData.symbol}
                 onChange={(e) =>
-                  setFormData({ ...formData, symbol: e.target.value.toUpperCase() })
+                  setFormData({
+                    ...formData,
+                    symbol: e.target.value.toUpperCase(),
+                  })
                 }
                 required
               />
@@ -115,7 +129,9 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
               id="name"
               placeholder="Apple Inc."
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
             />
           </div>
 
@@ -149,7 +165,9 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
                 step="0.00000001"
                 placeholder="10"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: e.target.value })
+                }
                 required
               />
             </div>
@@ -162,7 +180,10 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
                 placeholder="150.00"
                 value={formData.avg_cost_per_unit}
                 onChange={(e) =>
-                  setFormData({ ...formData, avg_cost_per_unit: e.target.value })
+                  setFormData({
+                    ...formData,
+                    avg_cost_per_unit: e.target.value,
+                  })
                 }
                 required
               />
@@ -187,16 +208,22 @@ export const AddHoldingDialog: React.FC<AddHoldingDialogProps> = ({
               id="notes"
               placeholder="Additional notes..."
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
             />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isAddingHolding}>
-              {isAddingHolding ? 'Adding...' : 'Add Holding'}
+              {isAddingHolding ? "Adding..." : "Add Holding"}
             </Button>
           </DialogFooter>
         </form>

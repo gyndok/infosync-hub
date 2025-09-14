@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 
 interface ApiProxyResponse {
   success: boolean;
@@ -23,33 +23,39 @@ export const useApiProxy = () => {
   const [error, setError] = useState<string | null>(null);
   const { session } = useAuth();
 
-  const makeRequest = async (request: ApiRequest): Promise<ApiProxyResponse> => {
+  const makeRequest = async (
+    request: ApiRequest,
+  ): Promise<ApiProxyResponse> => {
     if (!session) {
-      throw new Error('User not authenticated');
+      throw new Error("User not authenticated");
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('api-proxy', {
-        body: request,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
+      const { data, error: functionError } = await supabase.functions.invoke(
+        "api-proxy",
+        {
+          body: request,
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         },
-      });
+      );
 
       if (functionError) {
         throw new Error(functionError.message);
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'API request failed');
+        throw new Error(data.error || "API request failed");
       }
 
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : "Unknown error occurred";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -60,16 +66,16 @@ export const useApiProxy = () => {
   const getHealthStatus = async (service?: string) => {
     try {
       const params = new URLSearchParams();
-      params.append('action', service ? 'check-service' : 'check-all');
+      params.append("action", service ? "check-service" : "check-all");
       if (service) {
-        params.append('service', service);
+        params.append("service", service);
       }
 
       const { data, error: functionError } = await supabase.functions.invoke(
         `health-monitor?${params.toString()}`,
         {
-          method: 'GET',
-        }
+          method: "GET",
+        },
       );
 
       if (functionError) {
@@ -78,7 +84,8 @@ export const useApiProxy = () => {
 
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Health check failed';
+      const errorMessage =
+        err instanceof Error ? err.message : "Health check failed";
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -86,25 +93,25 @@ export const useApiProxy = () => {
 
   const getHealthLogs = async (service?: string, limit = 50) => {
     if (!session) {
-      throw new Error('User not authenticated');
+      throw new Error("User not authenticated");
     }
 
     try {
       const params = new URLSearchParams();
-      params.append('action', 'get-logs');
-      params.append('limit', limit.toString());
+      params.append("action", "get-logs");
+      params.append("limit", limit.toString());
       if (service) {
-        params.append('service', service);
+        params.append("service", service);
       }
 
       const { data, error: functionError } = await supabase.functions.invoke(
         `health-monitor?${params.toString()}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
-        }
+        },
       );
 
       if (functionError) {
@@ -113,7 +120,8 @@ export const useApiProxy = () => {
 
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch health logs';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch health logs";
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -121,18 +129,18 @@ export const useApiProxy = () => {
 
   const getSecretsStatus = async () => {
     if (!session) {
-      throw new Error('User not authenticated');
+      throw new Error("User not authenticated");
     }
 
     try {
       const { data, error: functionError } = await supabase.functions.invoke(
-        'manage-secrets?action=list',
+        "manage-secrets?action=list",
         {
-          method: 'GET',
+          method: "GET",
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
-        }
+        },
       );
 
       if (functionError) {
@@ -141,7 +149,8 @@ export const useApiProxy = () => {
 
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch secrets status';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch secrets status";
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -149,16 +158,19 @@ export const useApiProxy = () => {
 
   const testApiKey = async (service: string) => {
     if (!session) {
-      throw new Error('User not authenticated');
+      throw new Error("User not authenticated");
     }
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('manage-secrets', {
-        body: { service },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
+      const { data, error: functionError } = await supabase.functions.invoke(
+        "manage-secrets",
+        {
+          body: { service },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         },
-      });
+      );
 
       if (functionError) {
         throw new Error(functionError.message);
@@ -166,7 +178,8 @@ export const useApiProxy = () => {
 
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'API key test failed';
+      const errorMessage =
+        err instanceof Error ? err.message : "API key test failed";
       setError(errorMessage);
       throw new Error(errorMessage);
     }
