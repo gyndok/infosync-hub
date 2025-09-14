@@ -172,9 +172,14 @@ export const useSports = () => {
 
   // Transform ESPN data to our format
   const transformEspnEvent = (event: any, league: string): SportsData | null => {
+    // Debug NFL events specifically
+    if (league === 'NFL') {
+      console.log(`NFL Transform Debug - Event ID: ${event.id}, Competitions:`, !!event.competitions, event.competitions?.length);
+    }
+    
     const competition = event.competitions?.[0];
     if (!competition) {
-      console.warn(`No competition data for event:`, event.id);
+      if (league === 'NFL') console.warn(`NFL Transform - No competition data for event:`, event.id);
       return null;
     }
     
@@ -183,7 +188,14 @@ export const useSports = () => {
     const status = event.status || competition.status;
     
     if (!homeTeam || !awayTeam) {
-      console.warn(`Missing team data for event:`, event.id, { homeTeam: !!homeTeam, awayTeam: !!awayTeam });
+      if (league === 'NFL') {
+        console.warn(`NFL Transform - Missing team data for event:`, event.id, { 
+          homeTeam: !!homeTeam, 
+          awayTeam: !!awayTeam, 
+          competitors: competition.competitors?.length,
+          competitorTypes: competition.competitors?.map((c: any) => c.homeAway)
+        });
+      }
       return null;
     }
     
