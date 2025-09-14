@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { logError } from '@/lib/logError';
 
 export interface SavedTimeZoneConfig {
   id: string;
@@ -49,7 +50,7 @@ export const useClockConfig = () => {
           .maybeSingle();
 
         if (error) {
-          console.error('Error loading clock config:', error);
+          logError('Error loading clock config:', error);
           setClockSettings(defaultClockSettings);
         } else if (data && (data as any).clock_settings) {
           const settings = (data as any).clock_settings as ClockSettings;
@@ -58,7 +59,7 @@ export const useClockConfig = () => {
           setClockSettings(defaultClockSettings);
         }
       } catch (error) {
-        console.error('Error loading clock config:', error);
+        logError('Error loading clock config:', error);
         setClockSettings(defaultClockSettings);
       } finally {
         setIsLoading(false);
@@ -89,12 +90,7 @@ export const useClockConfig = () => {
       setClockSettings(newSettings);
       console.log('Clock settings saved successfully');
     } catch (error: any) {
-      console.error('Error saving clock settings:', error);
-      toast({
-        title: "Error saving clock settings",
-        description: error?.message || "Failed to save your clock settings.",
-        variant: "destructive",
-      });
+      logError('Error saving clock settings:', error);
     } finally {
       setIsSaving(false);
     }

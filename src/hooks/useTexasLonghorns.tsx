@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logError';
 
 interface LonghornsArticle {
   title: string;
@@ -31,7 +32,7 @@ export const useTexasLonghorns = () => {
       console.log('🏈 Longhorns data received:', data);
       return data;
     } catch (error) {
-      console.error('Error fetching Longhorns news:', error);
+      logError('Error fetching Longhorns news:', error);
       throw error;
     }
   };

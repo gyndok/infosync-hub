@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logError';
 
 interface TrafficIncident {
   id: string;
@@ -57,7 +58,7 @@ export const useHoustonTraffic = () => {
       if (error) throw error;
       setTrafficIncidents((data || []) as TrafficIncident[]);
     } catch (err) {
-      console.error('Error fetching traffic incidents:', err);
+      logError('Error fetching traffic incidents:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch traffic data');
     } finally {
       setIsLoadingTraffic(false);
@@ -79,7 +80,7 @@ export const useHoustonTraffic = () => {
       if (error) throw error;
       setMetroAlerts((data || []) as MetroAlert[]);
     } catch (err) {
-      console.error('Error fetching Metro alerts:', err);
+      logError('Error fetching Metro alerts:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch Metro data');
     } finally {
       setIsLoadingMetro(false);
@@ -108,7 +109,7 @@ export const useHoustonTraffic = () => {
       
       setLastUpdated(new Date());
     } catch (err) {
-      console.error('Error refreshing traffic data:', err);
+      logError('Error refreshing traffic data:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh traffic data');
     }
   };

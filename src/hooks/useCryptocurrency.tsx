@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useApiProxy } from './useApiProxy';
 import { useToast } from './use-toast';
+import { logError } from '@/lib/logError';
 
 interface CryptoData {
   id: string;
@@ -42,7 +43,7 @@ export const useCryptocurrency = () => {
         .limit(1);
       
       if (error) {
-        console.error('Error fetching crypto config:', error);
+        logError('Error fetching crypto config:', error);
         return { currencies: defaultCrypto };
       }
       
@@ -83,7 +84,7 @@ export const useCryptocurrency = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching crypto data:', error);
+      logError('Error fetching crypto data:', error);
     }
     
     return [];

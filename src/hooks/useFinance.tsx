@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useApiProxy } from './useApiProxy';
 import { useToast } from './use-toast';
+import { logError } from '@/lib/logError';
 
 interface StockData {
   symbol: string;
@@ -105,13 +106,13 @@ export const useFinance = () => {
             volume: parseInt(quote['06. volume']),
           });
         } else {
-          console.error(
+          logError(
             `Error fetching stock data for ${symbol}: Invalid response`,
             response
           );
         }
       } else {
-        console.error(
+        logError(
           `Error fetching stock data for ${symbol}:`,
           result.reason
         );
@@ -151,7 +152,7 @@ export const useFinance = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching crypto data:', error);
+      logError('Error fetching crypto data:', error);
     }
     
     return [];

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApiProxy } from './useApiProxy';
+import { logError } from '@/lib/logError';
 
 interface IndexData {
   symbol: string;
@@ -56,7 +57,7 @@ export const useStockIndices = () => {
           }
         }
       } catch (error) {
-        console.error(`Error fetching index data for ${index.symbol}:`, error);
+        logError(`Error fetching index data for ${index.symbol}:`, error);
       }
     }
     

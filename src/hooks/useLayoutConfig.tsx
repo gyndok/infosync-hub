@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logError } from '@/lib/logError';
 
 export interface WidgetConfig {
   id: string;
@@ -59,7 +60,7 @@ export const useLayoutConfig = () => {
           .maybeSingle();
 
         if (error) {
-          console.error('Error loading layout config:', error);
+          logError('Error loading layout config:', error);
           setLayoutConfig(defaultLayout);
         } else if (data && (data as any).dashboard_layout) {
           const config = (data as any).dashboard_layout as unknown as LayoutConfig;
@@ -104,7 +105,7 @@ export const useLayoutConfig = () => {
           setLayoutConfig(defaultLayout);
         }
       } catch (error) {
-        console.error('Error loading layout config:', error);
+        logError('Error loading layout config:', error);
         setLayoutConfig(defaultLayout);
       } finally {
         setIsLoading(false);
@@ -148,12 +149,7 @@ export const useLayoutConfig = () => {
         description: "Your dashboard layout has been saved.",
       });
     } catch (error: any) {
-      console.error('Error saving layout:', error);
-      toast({
-        title: "Error saving layout",
-        description: error?.message || "Failed to save your dashboard layout.",
-        variant: "destructive",
-      });
+      logError('Error saving layout:', error);
     } finally {
       setIsSaving(false);
     }
