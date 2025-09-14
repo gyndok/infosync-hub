@@ -94,13 +94,80 @@ export const useSports = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // ESPN API endpoints for US sports
+  // ESPN API endpoints for US sports (keeping for non-MLB)
   const espnEndpoints = {
-    MLB: '/apis/site/v2/sports/baseball/mlb/scoreboard',
     NBA: '/apis/site/v2/sports/basketball/nba/scoreboard', 
     NFL: '/apis/site/v2/sports/football/nfl/scoreboard',
     NHL: '/apis/site/v2/sports/hockey/nhl/scoreboard',
     NCAAF: '/apis/site/v2/sports/football/college-football/scoreboard'
+  };
+
+  // MLB API endpoint
+  const mlbApiBase = 'https://statsapi.mlb.com/api/v1';
+
+  // Transform MLB API data to our format
+  const transformMlbGame = (game: any): SportsData | null => {
+    try {
+      const homeTeam = game.teams?.home;
+      const awayTeam = game.teams?.away;
+      
+      if (!homeTeam || !awayTeam) {
+        console.warn(`Missing team data for MLB game:`, game.gamePk);
+        return null;
+      }
+
+      // Extract pitcher information
+      const homePitcher = homeTeam.probablePitcher?.fullName || null;
+      const awayPitcher = awayTeam.probablePitcher?.fullName || null;
+      
+      // Extract records
+      const homeRecord = homeTeam.leagueRecord ? `${homeTeam.leagueRecord.wins}-${homeTeam.leagueRecord.losses}` : null;
+      const awayRecord = awayTeam.leagueRecord ? `${awayTeam.leagueRecord.wins}-${awayTeam.leagueRecord.losses}` : null;
+      
+      // Game status and scores
+      const isLive = game.status?.statusCode === 'I' || game.status?.detailedState?.includes('In Progress');
+      const isFinal = game.status?.statusCode === 'F' || game.status?.detailedState?.includes('Final');
+      
+      let strPeriod = '';
+      let strClock = '';
+      
+      if (isLive && game.liveData?.linescore) {
+        const inning = game.liveData.linescore.currentInning;
+        const inningHalf = game.liveData.linescore.inningHalf;
+        strPeriod = `${inning}${inning === 1 ? 'st' : inning === 2 ? 'nd' : inning === 3 ? 'rd' : 'th'}`;
+        strClock = inningHalf === 'Top' ? 'Top' : 'Bot';
+      }
+      
+      return {
+        idEvent: game.gamePk.toString(),
+        strEvent: `${awayTeam.team.name} vs ${homeTeam.team.name}`,
+        strHomeTeam: homeTeam.team.name,
+        strAwayTeam: awayTeam.team.name,
+        intHomeScore: homeTeam.score?.toString() || '0',
+        intAwayScore: awayTeam.score?.toString() || '0',
+        strStatus: game.status?.detailedState || 'Scheduled',
+        strLeague: 'MLB',
+        dateEvent: game.gameDate?.split('T')[0] || new Date().toISOString().split('T')[0],
+        strTime: game.gameDate ? new Date(game.gameDate).toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }) : 'TBD',
+        strThumb: `https://www.mlbstatic.com/team-logos/${homeTeam.team.id}.svg`,
+        strPeriod,
+        strClock,
+        homeRecord,
+        awayRecord,
+        homePitcher,
+        awayPitcher,
+        homeOdds: null, // MLB API doesn't provide betting odds
+        awayOdds: null,
+        overUnder: null
+      };
+    } catch (error) {
+      console.error('Error transforming MLB game:', error, game);
+      return null;
+    }
   };
 
   // Transform ESPN data to our format
@@ -252,12 +319,35 @@ export const useSports = () => {
     };
   };
 
-  // Fetch live sports data from ESPN
+  // Fetch live sports data from multiple APIs
   const fetchSportsData = async (): Promise<SportsData[]> => {
     const allEvents: SportsData[] = [];
     
     try {
-      // Fetch data from ESPN for all major US sports
+      // Fetch MLB data from MLB Stats API
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const mlbResponse = await makeRequest({
+          service: 'mlb',
+          endpoint: `/schedule/games/?sportId=1&date=${today}&hydrate=team(leaders(showOnPreview(leaderCategories=[homeRuns,runsBattedIn,battingAverage],statGroup=[pitching,hitting]))),linescore,probablePitcher`,
+          params: {}
+        });
+
+        console.log('MLB API response:', mlbResponse.success, mlbResponse.data?.dates?.[0]?.games?.length || 0);
+        
+        if (mlbResponse.success && mlbResponse.data?.dates?.[0]?.games) {
+          const mlbGames = mlbResponse.data.dates[0].games
+            .map((game: any) => transformMlbGame(game))
+            .filter((game): game is SportsData => game !== null);
+          
+          console.log('MLB processed games:', mlbGames.length);
+          allEvents.push(...mlbGames);
+        }
+      } catch (error) {
+        console.error('Error fetching MLB data:', error);
+      }
+
+      // Fetch data from ESPN for other sports
       for (const [league, endpoint] of Object.entries(espnEndpoints)) {
         try {
           const response = await makeRequest({
@@ -283,7 +373,7 @@ export const useSports = () => {
             if (events.length > 0) {
               const transformedEvents = events.slice(0, 15)
                 .map((event: any) => transformEspnEvent(event, league))
-                .filter((event): event is SportsData => event !== null && !!event?.strHomeTeam && !!event?.strAwayTeam); // Filter out malformed events
+                .filter((event): event is SportsData => event !== null && !!event?.strHomeTeam && !!event?.strAwayTeam);
               
               console.log(`${league} processed events:`, transformedEvents.length);
               allEvents.push(...transformedEvents);
@@ -291,7 +381,6 @@ export const useSports = () => {
           }
         } catch (error) {
           console.error(`Error fetching ${league} data:`, error);
-          // Continue with other leagues even if one fails
         }
       }
       

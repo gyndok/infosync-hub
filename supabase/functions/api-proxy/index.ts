@@ -147,7 +147,7 @@ serve(async (req) => {
     
     const apiKey = Deno.env.get(apiKeyName);
 
-    if (!apiKey && service !== 'crypto' && service !== 'coingecko' && service !== 'yahoo_finance' && service !== 'thesportsdb' && service !== 'espn') { // These services don't require API keys
+    if (!apiKey && service !== 'crypto' && service !== 'coingecko' && service !== 'yahoo_finance' && service !== 'thesportsdb' && service !== 'espn' && service !== 'mlb') { // These services don't require API keys
       throw new Error(`API key not configured for ${service}`);
     }
 
