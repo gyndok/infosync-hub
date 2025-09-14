@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useFinance } from '@/hooks/useFinance';
+import React, { useState } from "react";
+import { useFinance } from "@/hooks/useFinance";
 import {
   Dialog,
   DialogContent,
@@ -7,12 +7,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface AddPriceAlertDialogProps {
   open: boolean;
@@ -25,16 +31,16 @@ export const AddPriceAlertDialog: React.FC<AddPriceAlertDialogProps> = ({
 }) => {
   const { createPriceAlert, isCreatingAlert } = useFinance();
   const [formData, setFormData] = useState({
-    symbol: '',
-    asset_type: 'stock' as 'stock' | 'crypto' | 'etf' | 'mutual_fund',
-    alert_type: 'above' as 'above' | 'below' | 'change_percent',
-    target_value: '',
-    notification_method: 'in_app' as 'in_app' | 'email' | 'both',
+    symbol: "",
+    asset_type: "stock" as "stock" | "crypto" | "etf" | "mutual_fund",
+    alert_type: "above" as "above" | "below" | "change_percent",
+    target_value: "",
+    notification_method: "in_app" as "in_app" | "email" | "both",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.symbol || !formData.target_value) {
       return;
     }
@@ -48,11 +54,11 @@ export const AddPriceAlertDialog: React.FC<AddPriceAlertDialogProps> = ({
     // Close dialog and reset form
     onOpenChange(false);
     setFormData({
-      symbol: '',
-      asset_type: 'stock',
-      alert_type: 'above',
-      target_value: '',
-      notification_method: 'in_app',
+      symbol: "",
+      asset_type: "stock",
+      alert_type: "above",
+      target_value: "",
+      notification_method: "in_app",
     });
   };
 
@@ -62,7 +68,8 @@ export const AddPriceAlertDialog: React.FC<AddPriceAlertDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Create Price Alert</DialogTitle>
           <DialogDescription>
-            Set up a price alert to be notified when a security reaches your target price.
+            Set up a price alert to be notified when a security reaches your
+            target price.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,7 +81,10 @@ export const AddPriceAlertDialog: React.FC<AddPriceAlertDialogProps> = ({
                 placeholder="AAPL"
                 value={formData.symbol}
                 onChange={(e) =>
-                  setFormData({ ...formData, symbol: e.target.value.toUpperCase() })
+                  setFormData({
+                    ...formData,
+                    symbol: e.target.value.toUpperCase(),
+                  })
                 }
                 required
               />
@@ -125,13 +135,19 @@ export const AddPriceAlertDialog: React.FC<AddPriceAlertDialogProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="target_value">
-              Target {formData.alert_type === 'change_percent' ? 'Percentage' : 'Price'} *
+              Target{" "}
+              {formData.alert_type === "change_percent"
+                ? "Percentage"
+                : "Price"}{" "}
+              *
             </Label>
             <Input
               id="target_value"
               type="number"
-              step={formData.alert_type === 'change_percent' ? '0.1' : '0.01'}
-              placeholder={formData.alert_type === 'change_percent' ? '5.0' : '150.00'}
+              step={formData.alert_type === "change_percent" ? "0.1" : "0.01"}
+              placeholder={
+                formData.alert_type === "change_percent" ? "5.0" : "150.00"
+              }
               value={formData.target_value}
               onChange={(e) =>
                 setFormData({ ...formData, target_value: e.target.value })
@@ -164,11 +180,15 @@ export const AddPriceAlertDialog: React.FC<AddPriceAlertDialogProps> = ({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isCreatingAlert}>
-              {isCreatingAlert ? 'Creating...' : 'Create Alert'}
+              {isCreatingAlert ? "Creating..." : "Create Alert"}
             </Button>
           </DialogFooter>
         </form>

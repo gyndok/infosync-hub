@@ -1,20 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useApiProxy } from '@/hooks/useApiProxy';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { 
-  Cloud, 
-  Sun, 
-  CloudRain, 
-  CloudSnow, 
-  Zap, 
+import { useState, useEffect, useCallback } from "react";
+import { useApiProxy } from "@/hooks/useApiProxy";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Cloud,
+  Sun,
+  CloudRain,
+  CloudSnow,
+  Zap,
   CloudDrizzle,
-  Search, 
+  Search,
   RefreshCw,
   AlertTriangle,
   Navigation,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 interface WeatherData {
   location: {
@@ -58,21 +58,30 @@ interface WeatherData {
     description: string;
     start: number;
     end: number;
-    severity: 'minor' | 'moderate' | 'severe' | 'extreme';
+    severity: "minor" | "moderate" | "severe" | "extreme";
   }>;
 }
 
 const getWeatherIcon = (iconCode: string, main: string) => {
   const iconMap: { [key: string]: any } = {
-    '01d': Sun, '01n': Sun,
-    '02d': Cloud, '02n': Cloud,
-    '03d': Cloud, '03n': Cloud, 
-    '04d': Cloud, '04n': Cloud,
-    '09d': CloudDrizzle, '09n': CloudDrizzle,
-    '10d': CloudRain, '10n': CloudRain,
-    '11d': Zap, '11n': Zap,
-    '13d': CloudSnow, '13n': CloudSnow,
-    '50d': Cloud, '50n': Cloud,
+    "01d": Sun,
+    "01n": Sun,
+    "02d": Cloud,
+    "02n": Cloud,
+    "03d": Cloud,
+    "03n": Cloud,
+    "04d": Cloud,
+    "04n": Cloud,
+    "09d": CloudDrizzle,
+    "09n": CloudDrizzle,
+    "10d": CloudRain,
+    "10n": CloudRain,
+    "11d": Zap,
+    "11n": Zap,
+    "13d": CloudSnow,
+    "13n": CloudSnow,
+    "50d": Cloud,
+    "50n": Cloud,
   };
 
   return iconMap[iconCode] || Cloud;
@@ -80,11 +89,16 @@ const getWeatherIcon = (iconCode: string, main: string) => {
 
 const getAlertSeverityColor = (severity: string) => {
   switch (severity) {
-    case 'extreme': return 'destructive';
-    case 'severe': return 'destructive';
-    case 'moderate': return 'warning';
-    case 'minor': return 'secondary';
-    default: return 'secondary';
+    case "extreme":
+      return "destructive";
+    case "severe":
+      return "destructive";
+    case "moderate":
+      return "warning";
+    case "minor":
+      return "secondary";
+    default:
+      return "secondary";
   }
 };
 
@@ -94,13 +108,71 @@ const getAlertSeverityColor = (severity: string) => {
 //  - "Toronto, ca" -> "Toronto,CA"
 //  - "Paris" -> "Paris" (unchanged)
 const US_STATE_CODES = new Set([
-  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC','PR','VI','GU','AS','MP'
+  "AL",
+  "AK",
+  "AZ",
+  "AR",
+  "CA",
+  "CO",
+  "CT",
+  "DE",
+  "FL",
+  "GA",
+  "HI",
+  "ID",
+  "IL",
+  "IN",
+  "IA",
+  "KS",
+  "KY",
+  "LA",
+  "ME",
+  "MD",
+  "MA",
+  "MI",
+  "MN",
+  "MS",
+  "MO",
+  "MT",
+  "NE",
+  "NV",
+  "NH",
+  "NJ",
+  "NM",
+  "NY",
+  "NC",
+  "ND",
+  "OH",
+  "OK",
+  "OR",
+  "PA",
+  "RI",
+  "SC",
+  "SD",
+  "TN",
+  "TX",
+  "UT",
+  "VT",
+  "VA",
+  "WA",
+  "WV",
+  "WI",
+  "WY",
+  "DC",
+  "PR",
+  "VI",
+  "GU",
+  "AS",
+  "MP",
 ]);
 
 const normalizeLocationQuery = (input: string) => {
-  const raw = (input || '').trim();
+  const raw = (input || "").trim();
   if (!raw) return raw;
-  const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
+  const parts = raw
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   if (parts.length === 2) {
     const [city, region] = parts;
@@ -131,17 +203,22 @@ interface WeatherWidgetProps {
 export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   const { makeRequest, loading } = useApiProxy();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [location, setLocation] = useState('');
-  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [location, setLocation] = useState("");
+  const [currentLocation, setCurrentLocation] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedForecast, setExpandedForecast] = useState(false);
-  const [activeTab, setActiveTab] = useState('current');
+  const [activeTab, setActiveTab] = useState("current");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(true);
 
   // Convert temperature between Celsius and Fahrenheit
   const convertTemp = (temp: number, toFahrenheit: boolean) => {
-    return toFahrenheit ? Math.round((temp * 9/5) + 32) : Math.round((temp - 32) * 5/9);
+    return toFahrenheit
+      ? Math.round((temp * 9) / 5 + 32)
+      : Math.round(((temp - 32) * 5) / 9);
   };
 
   // Get displayed temperature (convert if needed)
@@ -154,7 +231,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   const handleUnitToggle = async () => {
     const newUseFahrenheit = !useFahrenheit;
     setUseFahrenheit(newUseFahrenheit);
-    
+
     // Immediately re-fetch data with new units
     if (currentLocation) {
       await fetchWeatherData(currentLocation.lat, currentLocation.lon);
@@ -165,7 +242,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
 
   // Get current location
   const getCurrentLocation = useCallback(() => {
-    if ('geolocation' in navigator) {
+    if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -173,26 +250,30 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
           fetchWeatherData(latitude, longitude);
         },
         (error) => {
-          console.error('Geolocation error:', error);
-          setError('Unable to access your location. Please search for a city.');
+          console.error("Geolocation error:", error);
+          setError("Unable to access your location. Please search for a city.");
           // Default to London as fallback
-          fetchWeatherData(51.5074, -0.1278, 'London, UK');
-        }
+          fetchWeatherData(51.5074, -0.1278, "London, UK");
+        },
       );
     } else {
-      setError('Geolocation is not supported by this browser.');
+      setError("Geolocation is not supported by this browser.");
       // Default to London as fallback
-      fetchWeatherData(51.5074, -0.1278, 'London, UK');
+      fetchWeatherData(51.5074, -0.1278, "London, UK");
     }
   }, []);
 
   // Fetch weather data
-  const fetchWeatherData = async (lat?: number, lon?: number, locationName?: string) => {
+  const fetchWeatherData = async (
+    lat?: number,
+    lon?: number,
+    locationName?: string,
+  ) => {
     try {
       setError(null);
-      
+
       let params: any = {
-        units: useFahrenheit ? 'imperial' : 'metric'
+        units: useFahrenheit ? "imperial" : "metric",
       };
 
       if (lat && lon) {
@@ -207,82 +288,91 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
 
       // Get current weather
       const currentResponse = await makeRequest({
-        service: 'weather',
-        endpoint: '/weather',
-        params
+        service: "weather",
+        endpoint: "/weather",
+        params,
       });
 
       if (!currentResponse.success) {
-        throw new Error(currentResponse.error || 'Failed to fetch current weather');
+        throw new Error(
+          currentResponse.error || "Failed to fetch current weather",
+        );
       }
 
       const currentWeather = currentResponse.data;
 
       // Get 5-day forecast
       const forecastResponse = await makeRequest({
-        service: 'weather', 
-        endpoint: '/forecast',
-        params
+        service: "weather",
+        endpoint: "/forecast",
+        params,
       });
 
       if (!forecastResponse.success) {
-        throw new Error(forecastResponse.error || 'Failed to fetch weather forecast');
+        throw new Error(
+          forecastResponse.error || "Failed to fetch weather forecast",
+        );
       }
 
       const forecastData = forecastResponse.data;
 
       // Process forecast data (group by day and get daily min/max)
       const dailyForecast: { [key: string]: any } = {};
-      
+
       forecastData.list.forEach((item: any) => {
-        const date = new Date(item.dt * 1000).toISOString().split('T')[0];
-        
+        const date = new Date(item.dt * 1000).toISOString().split("T")[0];
+
         if (!dailyForecast[date]) {
           dailyForecast[date] = {
             temps: [item.main.temp],
             weather: item.weather[0],
             humidity: item.main.humidity,
             wind_speed: item.wind.speed,
-            pop: item.pop || 0
+            pop: item.pop || 0,
           };
         } else {
           dailyForecast[date].temps.push(item.main.temp);
-          dailyForecast[date].pop = Math.max(dailyForecast[date].pop, item.pop || 0);
+          dailyForecast[date].pop = Math.max(
+            dailyForecast[date].pop,
+            item.pop || 0,
+          );
         }
       });
 
-      const forecast = Object.entries(dailyForecast).slice(0, 7).map(([date, data]: [string, any]) => ({
-        date,
-        temp: {
-          min: Math.round(Math.min(...data.temps)),
-          max: Math.round(Math.max(...data.temps))
-        },
-        weather: data.weather,
-        humidity: data.humidity,
-        wind_speed: data.wind_speed,
-        pop: Math.round(data.pop * 100)
-      }));
+      const forecast = Object.entries(dailyForecast)
+        .slice(0, 7)
+        .map(([date, data]: [string, any]) => ({
+          date,
+          temp: {
+            min: Math.round(Math.min(...data.temps)),
+            max: Math.round(Math.max(...data.temps)),
+          },
+          weather: data.weather,
+          humidity: data.humidity,
+          wind_speed: data.wind_speed,
+          pop: Math.round(data.pop * 100),
+        }));
 
       // Try to get weather alerts (some locations may not have this)
       let alerts = [];
       try {
         const alertsResponse = await makeRequest({
-          service: 'weather',
-          endpoint: '/onecall',
+          service: "weather",
+          endpoint: "/onecall",
           params: {
             lat: currentWeather.coord.lat,
             lon: currentWeather.coord.lon,
-            exclude: 'minutely,hourly,daily',
-            units: useFahrenheit ? 'imperial' : 'metric'
-          }
+            exclude: "minutely,hourly,daily",
+            units: useFahrenheit ? "imperial" : "metric",
+          },
         });
-        
+
         if (alertsResponse.success && alertsResponse.data.alerts) {
           alerts = alertsResponse.data.alerts;
         }
       } catch (alertError) {
         // Alerts API might not be available for all locations
-        console.log('Weather alerts not available for this location');
+        console.log("Weather alerts not available for this location");
       }
 
       const processedData: WeatherData = {
@@ -290,7 +380,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
           name: locationName || currentWeather.name,
           country: currentWeather.sys.country,
           lat: currentWeather.coord.lat,
-          lon: currentWeather.coord.lon
+          lon: currentWeather.coord.lon,
         },
         current: {
           temp: Math.round(currentWeather.main.temp),
@@ -298,30 +388,33 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
           humidity: currentWeather.main.humidity,
           pressure: currentWeather.main.pressure,
           visibility: Math.round((currentWeather.visibility || 10000) / 1000),
-          wind_speed: Math.round(currentWeather.wind.speed * (useFahrenheit ? 2.237 : 3.6)), // Convert m/s to mph or km/h
+          wind_speed: Math.round(
+            currentWeather.wind.speed * (useFahrenheit ? 2.237 : 3.6),
+          ), // Convert m/s to mph or km/h
           wind_deg: currentWeather.wind.deg,
           weather: {
             main: currentWeather.weather[0].main,
             description: currentWeather.weather[0].description,
-            icon: currentWeather.weather[0].icon
+            icon: currentWeather.weather[0].icon,
           },
           sunrise: currentWeather.sys.sunrise,
-          sunset: currentWeather.sys.sunset
+          sunset: currentWeather.sys.sunset,
         },
         forecast,
-        alerts
+        alerts,
       };
 
       setWeatherData(processedData);
       setLastUpdated(new Date());
-
     } catch (err) {
-      const rawMessage = err instanceof Error ? err.message : 'Failed to fetch weather data';
-      const friendlyMessage = /404/.test(rawMessage) || /city not found/i.test(rawMessage)
-        ? 'City not found. Try "City, State, Country" (e.g., "Sacramento, CA, US").'
-        : rawMessage;
+      const rawMessage =
+        err instanceof Error ? err.message : "Failed to fetch weather data";
+      const friendlyMessage =
+        /404/.test(rawMessage) || /city not found/i.test(rawMessage)
+          ? 'City not found. Try "City, State, Country" (e.g., "Sacramento, CA, US").'
+          : rawMessage;
       setError(friendlyMessage);
-      console.error('Weather fetch error:', err);
+      console.error("Weather fetch error:", err);
     }
   };
 
@@ -349,21 +442,24 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
 
   // Auto-refresh every 10 minutes
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (currentLocation) {
-        fetchWeatherData(currentLocation.lat, currentLocation.lon);
-      } else if (location) {
-        fetchWeatherData();
-      }
-    }, 10 * 60 * 1000);
-    
+    const interval = setInterval(
+      () => {
+        if (currentLocation) {
+          fetchWeatherData(currentLocation.lat, currentLocation.lon);
+        } else if (location) {
+          fetchWeatherData();
+        }
+      },
+      10 * 60 * 1000,
+    );
+
     return () => clearInterval(interval);
   }, [currentLocation, location]);
 
   const formatTime = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(timestamp * 1000).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -373,10 +469,10 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    if (date.toDateString() === today.toDateString()) return 'Today';
-    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-    
-    return date.toLocaleDateString([], { weekday: 'short' });
+    if (date.toDateString() === today.toDateString()) return "Today";
+    if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+
+    return date.toLocaleDateString([], { weekday: "short" });
   };
 
   if (!weatherData && !error && loading) {
@@ -390,10 +486,12 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
     );
   }
 
-  const WeatherIcon = weatherData ? getWeatherIcon(
-    weatherData.current.weather.icon, 
-    weatherData.current.weather.main
-  ) : Cloud;
+  const WeatherIcon = weatherData
+    ? getWeatherIcon(
+        weatherData.current.weather.icon,
+        weatherData.current.weather.main,
+      )
+    : Cloud;
 
   return (
     <div className="h-full bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 rounded-xl overflow-hidden relative">
@@ -404,17 +502,18 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
           size="sm"
           onClick={handleUnitToggle}
           className="h-7 px-2 text-xs text-white/80 hover:text-white hover:bg-white/10"
-          title={`Switch to ${useFahrenheit ? 'Celsius' : 'Fahrenheit'}`}
+          title={`Switch to ${useFahrenheit ? "Celsius" : "Fahrenheit"}`}
           disabled={loading}
         >
-          {useFahrenheit ? '°F' : '°C'}
+          {useFahrenheit ? "°F" : "°C"}
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => currentLocation ? 
-            fetchWeatherData(currentLocation.lat, currentLocation.lon) : 
-            fetchWeatherData()
+          onClick={() =>
+            currentLocation
+              ? fetchWeatherData(currentLocation.lat, currentLocation.lon)
+              : fetchWeatherData()
           }
           disabled={loading}
           className="text-white/80 hover:text-white hover:bg-white/10"
@@ -426,9 +525,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
           )}
         </Button>
         {onRemove && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onRemove}
             className="text-white/80 hover:text-white hover:bg-white/10"
           >
@@ -442,7 +541,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setActiveTab(activeTab === 'search' ? 'current' : 'search')}
+          onClick={() =>
+            setActiveTab(activeTab === "search" ? "current" : "search")
+          }
           className="text-white/80 hover:text-white hover:bg-white/10"
           title="Search location"
         >
@@ -450,28 +551,28 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
         </Button>
       </div>
 
-      {activeTab === 'search' && (
+      {activeTab === "search" && (
         <div className="absolute top-14 left-3 right-3 z-10 flex gap-2">
           <div className="relative flex-1">
             <Input
               placeholder="Search city..."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
+              onKeyPress={(e) => e.key === "Enter" && handleLocationSearch()}
               className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
             />
           </div>
-          <Button 
-            onClick={handleLocationSearch} 
+          <Button
+            onClick={handleLocationSearch}
             disabled={loading}
             className="bg-white/20 hover:bg-white/30 text-white border-white/30"
             variant="outline"
           >
             <Search className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={getCurrentLocation} 
+          <Button
+            variant="outline"
+            onClick={getCurrentLocation}
             disabled={loading}
             title="Use current location"
             className="bg-white/20 hover:bg-white/30 text-white border-white/30"
@@ -502,10 +603,10 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
               {weatherData.location.name}
             </h2>
             <p className="text-white/70 text-sm">
-              {new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                day: 'numeric',
-                month: 'long'
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
               })}
             </p>
           </div>
@@ -537,12 +638,18 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
           <div className="p-6 pt-0">
             <div className="flex justify-between items-center gap-4 overflow-x-auto">
               {weatherData.forecast.slice(0, 6).map((day, index) => {
-                const ForecastIcon = getWeatherIcon(day.weather.icon, day.weather.main);
-                
+                const ForecastIcon = getWeatherIcon(
+                  day.weather.icon,
+                  day.weather.main,
+                );
+
                 return (
-                  <div key={day.date} className="flex flex-col items-center min-w-[60px] text-center">
+                  <div
+                    key={day.date}
+                    className="flex flex-col items-center min-w-[60px] text-center"
+                  >
                     <div className="text-white/80 text-xs mb-2">
-                      {index === 0 ? 'Today' : formatDay(day.date)}
+                      {index === 0 ? "Today" : formatDay(day.date)}
                     </div>
                     <ForecastIcon className="h-8 w-8 text-yellow-200 mb-2" />
                     <div className="space-y-1">

@@ -1,8 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { useApiProxy } from './useApiProxy';
-import { useToast } from './use-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+import { useApiProxy } from "./useApiProxy";
+import { useToast } from "./use-toast";
 
 interface CryptoData {
   id: string;
@@ -25,27 +25,27 @@ export const useCryptocurrency = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const defaultCrypto = ['bitcoin', 'ethereum', 'ripple', 'cardano', 'solana'];
+  const defaultCrypto = ["bitcoin", "ethereum", "ripple", "cardano", "solana"];
 
   // Fetch user's crypto preferences
   const configQuery = useQuery({
-    queryKey: ['crypto-config', user?.id],
+    queryKey: ["crypto-config", user?.id],
     queryFn: async () => {
       if (!user) return { currencies: defaultCrypto };
-      
+
       const { data, error } = await supabase
-        .from('user_widgets')
-        .select('configuration')
-        .eq('user_id', user.id)
-        .eq('widget_type', 'cryptocurrency')
-        .order('created_at', { ascending: false })
+        .from("user_widgets")
+        .select("configuration")
+        .eq("user_id", user.id)
+        .eq("widget_type", "cryptocurrency")
+        .order("created_at", { ascending: false })
         .limit(1);
-      
+
       if (error) {
-        console.error('Error fetching crypto config:', error);
+        console.error("Error fetching crypto config:", error);
         return { currencies: defaultCrypto };
       }
-      
+
       const config = data?.[0]?.configuration as unknown as CryptoConfig | null;
       return config || { currencies: defaultCrypto };
     },
@@ -56,19 +56,19 @@ export const useCryptocurrency = () => {
   const fetchCryptoData = async (ids: string[]): Promise<CryptoData[]> => {
     try {
       const response = await makeRequest({
-        service: 'coingecko',
-        endpoint: '/simple/price',
+        service: "coingecko",
+        endpoint: "/simple/price",
         params: {
-          ids: ids.join(','),
-          vs_currencies: 'usd',
-          include_24hr_change: 'true',
-          include_market_cap: 'true',
-          include_24hr_vol: 'true'
-        }
+          ids: ids.join(","),
+          vs_currencies: "usd",
+          include_24hr_change: "true",
+          include_market_cap: "true",
+          include_24hr_vol: "true",
+        },
       });
 
       if (response.success) {
-        return Object.keys(response.data).map(id => {
+        return Object.keys(response.data).map((id) => {
           const data = response.data[id];
           return {
             id,
@@ -78,21 +78,21 @@ export const useCryptocurrency = () => {
             change: data.usd_24h_change || 0,
             changePercent: data.usd_24h_change || 0,
             marketCap: data.usd_market_cap,
-            volume: data.usd_24h_vol
+            volume: data.usd_24h_vol,
           };
         });
       }
     } catch (error) {
-      console.error('Error fetching crypto data:', error);
+      console.error("Error fetching crypto data:", error);
     }
-    
+
     return [];
   };
 
   const cryptoCurrencies = configQuery.data?.currencies || defaultCrypto;
 
   const cryptoQuery = useQuery({
-    queryKey: ['crypto-prices', cryptoCurrencies],
+    queryKey: ["crypto-prices", cryptoCurrencies],
     queryFn: () => fetchCryptoData(cryptoCurrencies),
     refetchInterval: 60000,
     staleTime: 30000,
@@ -101,21 +101,19 @@ export const useCryptocurrency = () => {
   // Update crypto configuration
   const updateConfigMutation = useMutation({
     mutationFn: async (newConfig: CryptoConfig) => {
-      if (!user) throw new Error('User not authenticated');
-      
-      const { error } = await supabase
-        .from('user_widgets')
-        .upsert({
-          user_id: user.id,
-          widget_type: 'cryptocurrency',
-          configuration: newConfig as any
-        });
-      
+      if (!user) throw new Error("User not authenticated");
+
+      const { error } = await supabase.from("user_widgets").upsert({
+        user_id: user.id,
+        widget_type: "cryptocurrency",
+        configuration: newConfig as any,
+      });
+
       if (error) throw error;
       return newConfig;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['crypto-config', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["crypto-config", user?.id] });
       toast({
         title: "Settings updated",
         description: "Cryptocurrency widget settings have been updated.",
@@ -135,7 +133,7 @@ export const useCryptocurrency = () => {
     const currentConfig = configQuery.data || { currencies: defaultCrypto };
     if (!currentConfig.currencies.includes(cryptoId)) {
       const newConfig = {
-        currencies: [...currentConfig.currencies, cryptoId]
+        currencies: [...currentConfig.currencies, cryptoId],
       };
       updateConfigMutation.mutate(newConfig);
     }
@@ -145,7 +143,7 @@ export const useCryptocurrency = () => {
   const removeCrypto = (cryptoId: string) => {
     const currentConfig = configQuery.data || { currencies: defaultCrypto };
     const newConfig = {
-      currencies: currentConfig.currencies.filter(id => id !== cryptoId)
+      currencies: currentConfig.currencies.filter((id) => id !== cryptoId),
     };
     updateConfigMutation.mutate(newConfig);
   };

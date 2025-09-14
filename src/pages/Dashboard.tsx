@@ -1,10 +1,10 @@
-import React from 'react';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import { GridLayout } from '@/components/dashboard/GridLayout';
-import { LayoutSettings } from '@/components/dashboard/LayoutSettings';
-import { BreakingNewsBanner } from '@/components/widgets/BreakingNewsBanner';
-import { useLayoutConfig } from '@/hooks/useLayoutConfig';
-import { Skeleton } from '@/components/ui/skeleton';
+import React from "react";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { GridLayout } from "@/components/dashboard/GridLayout";
+import { LayoutSettings } from "@/components/dashboard/LayoutSettings";
+import { BreakingNewsBanner } from "@/components/widgets/BreakingNewsBanner";
+import { useLayoutConfig } from "@/hooks/useLayoutConfig";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard: React.FC = () => {
   const { isLoading } = useLayoutConfig();
@@ -38,7 +38,9 @@ const Dashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Drag widgets to customize your layout</p>
+            <p className="text-sm text-muted-foreground">
+              Drag widgets to customize your layout
+            </p>
           </div>
           <LayoutSettings />
         </div>

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import WidgetContainer from './WidgetContainer';
-import { ExternalLink, Clock } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import WidgetContainer from "./WidgetContainer";
+import { ExternalLink, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface NewsItem {
   title: string;
@@ -25,20 +25,25 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
       try {
         setLoading(true);
         setError(null);
-        
-        const { data, error: fetchError } = await supabase.functions.invoke('rss-fetcher', {
-          body: { sources: ['khou_astros'], limit: 8 }
-        });
+
+        const { data, error: fetchError } = await supabase.functions.invoke(
+          "rss-fetcher",
+          {
+            body: { sources: ["khou_astros"], limit: 8 },
+          },
+        );
 
         if (fetchError) throw fetchError;
 
         if (data?.success && data.items?.length) {
           setNews(data.items);
         } else {
-          setError('No Astros news available');
+          setError("No Astros news available");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch Astros news');
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch Astros news",
+        );
       } finally {
         setLoading(false);
       }
@@ -50,11 +55,13 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
   }, []);
 
   const formatTimeAgo = (dateString?: string) => {
-    if (!dateString) return 'Recently';
+    if (!dateString) return "Recently";
     const now = new Date();
     const publishedDate = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - publishedDate.getTime()) / (1000 * 60));
-    
+    const diffInMinutes = Math.floor(
+      (now.getTime() - publishedDate.getTime()) / (1000 * 60),
+    );
+
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
@@ -62,9 +69,15 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
 
   if (loading) {
     return (
-      <WidgetContainer title="Houston Astros" className="h-full" onRemove={onRemove}>
+      <WidgetContainer
+        title="Houston Astros"
+        className="h-full"
+        onRemove={onRemove}
+      >
         <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse text-muted-foreground">Loading Astros news...</div>
+          <div className="animate-pulse text-muted-foreground">
+            Loading Astros news...
+          </div>
         </div>
       </WidgetContainer>
     );
@@ -72,7 +85,11 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
 
   if (error) {
     return (
-      <WidgetContainer title="Houston Astros" className="h-full" onRemove={onRemove}>
+      <WidgetContainer
+        title="Houston Astros"
+        className="h-full"
+        onRemove={onRemove}
+      >
         <div className="flex items-center justify-center h-full text-center p-4">
           <div className="text-muted-foreground text-sm">{error}</div>
         </div>
@@ -81,7 +98,11 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
   }
 
   return (
-    <WidgetContainer title="Houston Astros" className="h-full" onRemove={onRemove}>
+    <WidgetContainer
+      title="Houston Astros"
+      className="h-full"
+      onRemove={onRemove}
+    >
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {news.length === 0 ? (
@@ -91,9 +112,9 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
           ) : (
             news.map((item, index) => (
               <article key={index} className="group cursor-pointer">
-                <a 
-                  href={item.link} 
-                  target="_blank" 
+                <a
+                  href={item.link}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="block p-3 rounded-lg hover:bg-accent/50 transition-colors"
                 >
@@ -103,7 +124,10 @@ export const KHOUAstrosWidget = ({ onRemove }: KHOUAstrosWidgetProps = {}) => {
                         {item.title}
                       </h3>
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-orange-100 text-orange-800">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-2 py-0.5 bg-orange-100 text-orange-800"
+                        >
                           Astros
                         </Badge>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">

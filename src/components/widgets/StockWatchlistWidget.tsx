@@ -1,23 +1,36 @@
-import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Plus, X, RefreshCw, Star } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
-import { useStockWatchlist } from '@/hooks/useStockWatchlist';
+import React, { useState } from "react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  X,
+  RefreshCw,
+  Star,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { useStockWatchlist } from "@/hooks/useStockWatchlist";
 
 // Safe currency formatter
 const formatPrice = (value?: number) => {
-  const n = typeof value === 'number' && isFinite(value) ? value : 0;
+  const n = typeof value === "number" && isFinite(value) ? value : 0;
   const big = n > 1000;
   const min = big ? 0 : 2;
   const max = big ? 0 : 2;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: min,
     maximumFractionDigits: max,
   }).format(n);
@@ -41,19 +54,22 @@ const WatchlistItem: React.FC<{
     <div className="flex items-center gap-2">
       {price !== undefined ? (
         <div className="text-right">
-          <div className="text-sm font-medium">
-            {formatPrice(price)}
-          </div>
-          <div className={cn(
-            "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-            (change || 0) > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-          )}>
+          <div className="text-sm font-medium">{formatPrice(price)}</div>
+          <div
+            className={cn(
+              "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
+              (change || 0) > 0
+                ? "bg-success/10 text-success"
+                : "bg-destructive/10 text-destructive",
+            )}
+          >
             {(change || 0) > 0 ? (
               <TrendingUp className="w-3 h-3" />
             ) : (
               <TrendingDown className="w-3 h-3" />
             )}
-            {(changePercent || 0) > 0 ? '+' : ''}{(changePercent || 0).toFixed(2)}%
+            {(changePercent || 0) > 0 ? "+" : ""}
+            {(changePercent || 0).toFixed(2)}%
           </div>
         </div>
       ) : (
@@ -78,16 +94,16 @@ const AddStockDialog: React.FC<{
   onAdd: (symbol: string, name: string) => void;
   isAdding: boolean;
 }> = ({ onAdd, isAdding }) => {
-  const [symbol, setSymbol] = useState('');
-  const [name, setName] = useState('');
+  const [symbol, setSymbol] = useState("");
+  const [name, setName] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (symbol.trim() && name.trim()) {
       onAdd(symbol.trim().toUpperCase(), name.trim());
-      setSymbol('');
-      setName('');
+      setSymbol("");
+      setName("");
       setOpen(false);
     }
   };
@@ -118,14 +134,17 @@ const AddStockDialog: React.FC<{
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          <Button type="submit" disabled={!symbol.trim() || !name.trim() || isAdding}>
+          <Button
+            type="submit"
+            disabled={!symbol.trim() || !name.trim() || isAdding}
+          >
             {isAdding ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                 Adding...
               </>
             ) : (
-              'Add to Watchlist'
+              "Add to Watchlist"
             )}
           </Button>
         </form>
@@ -155,7 +174,9 @@ interface StockWatchlistWidgetProps {
   onRemove?: () => void;
 }
 
-export const StockWatchlistWidget: React.FC<StockWatchlistWidgetProps> = ({ onRemove }) => {
+export const StockWatchlistWidget: React.FC<StockWatchlistWidgetProps> = ({
+  onRemove,
+}) => {
   const {
     watchlist,
     prices,
@@ -163,11 +184,11 @@ export const StockWatchlistWidget: React.FC<StockWatchlistWidgetProps> = ({ onRe
     isLoadingPrices,
     addToWatchlist,
     removeFromWatchlist,
-    isAddingStock
+    isAddingStock,
   } = useStockWatchlist();
 
   const getPriceData = (symbol: string) => {
-    return prices.find(p => p.symbol === symbol);
+    return prices.find((p) => p.symbol === symbol);
   };
 
   return (
@@ -181,9 +202,9 @@ export const StockWatchlistWidget: React.FC<StockWatchlistWidgetProps> = ({ onRe
             </Badge>
           </div>
           <div className="flex items-center gap-1">
-            <AddStockDialog 
-              onAdd={(symbol, name) => addToWatchlist({ symbol, name })} 
-              isAdding={isAddingStock} 
+            <AddStockDialog
+              onAdd={(symbol, name) => addToWatchlist({ symbol, name })}
+              isAdding={isAddingStock}
             />
             {onRemove && (
               <Button variant="ghost" size="sm" onClick={onRemove}>
@@ -199,8 +220,12 @@ export const StockWatchlistWidget: React.FC<StockWatchlistWidgetProps> = ({ onRe
         ) : watchlist.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Star className="w-12 h-12 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">No stocks in watchlist</p>
-            <p className="text-xs text-muted-foreground">Add stocks to track their prices</p>
+            <p className="text-sm text-muted-foreground">
+              No stocks in watchlist
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Add stocks to track their prices
+            </p>
           </div>
         ) : (
           <div className="px-1 pb-4">

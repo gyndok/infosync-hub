@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from './useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { useAuth } from "./useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface WidgetConfig {
   id: string;
@@ -22,18 +22,38 @@ export interface LayoutConfig {
 }
 
 const defaultWidgets: WidgetConfig[] = [
-  { id: 'news', type: 'news', x: 0, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
-  { id: 'weather', type: 'weather', x: 1, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
-  { id: 'sports', type: 'sports', x: 0, y: 4, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'watchlist', type: 'watchlist', x: 1, y: 4, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'indices', type: 'indices', x: 0, y: 7, w: 1, h: 3, minH: 2, maxH: 4 },
-  { id: 'crypto', type: 'crypto', x: 1, y: 7, w: 1, h: 3, minH: 3, maxH: 5 },
-  { id: 'clock', type: 'clock', x: 0, y: 10, w: 2, h: 2, minH: 2, maxH: 3, minW: 2, maxW: 3 },
+  { id: "news", type: "news", x: 0, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
+  { id: "weather", type: "weather", x: 1, y: 0, w: 1, h: 4, minH: 3, maxH: 6 },
+  { id: "sports", type: "sports", x: 0, y: 4, w: 1, h: 3, minH: 3, maxH: 5 },
+  {
+    id: "watchlist",
+    type: "watchlist",
+    x: 1,
+    y: 4,
+    w: 1,
+    h: 3,
+    minH: 3,
+    maxH: 5,
+  },
+  { id: "indices", type: "indices", x: 0, y: 7, w: 1, h: 3, minH: 2, maxH: 4 },
+  { id: "crypto", type: "crypto", x: 1, y: 7, w: 1, h: 3, minH: 3, maxH: 5 },
+  {
+    id: "clock",
+    type: "clock",
+    x: 0,
+    y: 10,
+    w: 2,
+    h: 2,
+    minH: 2,
+    maxH: 3,
+    minW: 2,
+    maxW: 3,
+  },
 ];
 
 const defaultLayout: LayoutConfig = {
   columns: 2,
-  widgets: defaultWidgets
+  widgets: defaultWidgets,
 };
 
 export const useLayoutConfig = () => {
@@ -53,49 +73,66 @@ export const useLayoutConfig = () => {
 
       try {
         const { data, error } = await supabase
-          .from('user_preferences')
-          .select('dashboard_layout, clock_settings')
-          .eq('user_id', user.id)
+          .from("user_preferences")
+          .select("dashboard_layout, clock_settings")
+          .eq("user_id", user.id)
           .maybeSingle();
 
         if (error) {
-          console.error('Error loading layout config:', error);
+          console.error("Error loading layout config:", error);
           setLayoutConfig(defaultLayout);
         } else if (data && (data as any).dashboard_layout) {
-          const config = (data as any).dashboard_layout as unknown as LayoutConfig;
+          const config = (data as any)
+            .dashboard_layout as unknown as LayoutConfig;
           // Ensure all widgets have required properties
           const validatedConfig = {
             ...config,
-            widgets: config.widgets.map(widget => ({
+            widgets: config.widgets.map((widget) => ({
               ...widget,
               minH: widget.minH || 2,
               maxH: widget.maxH || 6,
               minW: widget.minW || 1,
-              maxW: widget.maxW || config.columns
-            }))
+              maxW: widget.maxW || config.columns,
+            })),
           };
 
           // Ensure clock widget exists for users with older saved layouts and spans full width
           let finalConfig = validatedConfig;
-          const existingClock = validatedConfig.widgets.find(w => w.type === 'clock' || w.id === 'clock');
+          const existingClock = validatedConfig.widgets.find(
+            (w) => w.type === "clock" || w.id === "clock",
+          );
           if (!existingClock) {
-            const nextY = validatedConfig.widgets.reduce((max, w) => Math.max(max, (w.y || 0) + (w.h || 1)), 0);
+            const nextY = validatedConfig.widgets.reduce(
+              (max, w) => Math.max(max, (w.y || 0) + (w.h || 1)),
+              0,
+            );
             finalConfig = {
               ...validatedConfig,
               widgets: [
-                { id: 'clock', type: 'clock', x: 0, y: 0, w: validatedConfig.columns, h: 2, minH: 2, maxH: 3, minW: 2, maxW: 3 },
-                ...validatedConfig.widgets.map(w => ({ ...w, y: w.y + 2 }))
-              ]
+                {
+                  id: "clock",
+                  type: "clock",
+                  x: 0,
+                  y: 0,
+                  w: validatedConfig.columns,
+                  h: 2,
+                  minH: 2,
+                  maxH: 3,
+                  minW: 2,
+                  maxW: 3,
+                },
+                ...validatedConfig.widgets.map((w) => ({ ...w, y: w.y + 2 })),
+              ],
             };
           } else if (existingClock.w < validatedConfig.columns) {
             // Update existing clock to span full width if it doesn't already
             finalConfig = {
               ...validatedConfig,
-              widgets: validatedConfig.widgets.map(w => 
-                w.id === 'clock' || w.type === 'clock' 
+              widgets: validatedConfig.widgets.map((w) =>
+                w.id === "clock" || w.type === "clock"
                   ? { ...w, w: validatedConfig.columns, x: 0, minW: 2, maxW: 3 }
-                  : w
-              )
+                  : w,
+              ),
             };
           }
 
@@ -104,7 +141,7 @@ export const useLayoutConfig = () => {
           setLayoutConfig(defaultLayout);
         }
       } catch (error) {
-        console.error('Error loading layout config:', error);
+        console.error("Error loading layout config:", error);
         setLayoutConfig(defaultLayout);
       } finally {
         setIsLoading(false);
@@ -122,22 +159,22 @@ export const useLayoutConfig = () => {
     try {
       // Ensure a preferences row exists; update if found, otherwise insert
       const { data: existing, error: fetchErr } = await supabase
-        .from('user_preferences')
-        .select('id')
-        .eq('user_id', user.id)
+        .from("user_preferences")
+        .select("id")
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (fetchErr) throw fetchErr;
 
       if (existing) {
         const { error: updateErr } = await supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .update({ dashboard_layout: newConfig as any })
-          .eq('user_id', user.id);
+          .eq("user_id", user.id);
         if (updateErr) throw updateErr;
       } else {
         const { error: insertErr } = await supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .insert({ user_id: user.id, dashboard_layout: newConfig as any });
         if (insertErr) throw insertErr;
       }
@@ -148,7 +185,7 @@ export const useLayoutConfig = () => {
         description: "Your dashboard layout has been saved.",
       });
     } catch (error: any) {
-      console.error('Error saving layout:', error);
+      console.error("Error saving layout:", error);
       toast({
         title: "Error saving layout",
         description: error?.message || "Failed to save your dashboard layout.",
@@ -164,12 +201,15 @@ export const useLayoutConfig = () => {
     const newConfig = {
       ...layoutConfig,
       columns,
-      widgets: layoutConfig.widgets.map(widget => ({
+      widgets: layoutConfig.widgets.map((widget) => ({
         ...widget,
         maxW: columns,
-        w: widget.type === 'clock' || widget.id === 'clock' ? columns : Math.min(widget.w, columns),
-        x: Math.min(widget.x, columns - 1)
-      }))
+        w:
+          widget.type === "clock" || widget.id === "clock"
+            ? columns
+            : Math.min(widget.w, columns),
+        x: Math.min(widget.x, columns - 1),
+      })),
     };
     saveLayoutConfig(newConfig);
   };
@@ -178,16 +218,18 @@ export const useLayoutConfig = () => {
   const updateWidgetLayout = (layouts: any[]) => {
     const newConfig = {
       ...layoutConfig,
-      widgets: layouts.map(layout => {
-        const existingWidget = layoutConfig.widgets.find(w => w.id === layout.i);
+      widgets: layouts.map((layout) => {
+        const existingWidget = layoutConfig.widgets.find(
+          (w) => w.id === layout.i,
+        );
         return {
           ...existingWidget!,
           x: layout.x,
           y: layout.y,
           w: layout.w,
-          h: layout.h
+          h: layout.h,
         };
-      })
+      }),
     };
     setLayoutConfig(newConfig);
   };
@@ -196,16 +238,18 @@ export const useLayoutConfig = () => {
   const saveLayoutFromLayouts = (layouts: any[]) => {
     const newConfig = {
       ...layoutConfig,
-      widgets: layouts.map(layout => {
-        const existingWidget = layoutConfig.widgets.find(w => w.id === layout.i);
+      widgets: layouts.map((layout) => {
+        const existingWidget = layoutConfig.widgets.find(
+          (w) => w.id === layout.i,
+        );
         return {
           ...existingWidget!,
           x: layout.x,
           y: layout.y,
           w: layout.w,
-          h: layout.h
+          h: layout.h,
         };
-      })
+      }),
     };
     setLayoutConfig(newConfig);
     saveLayoutConfig(newConfig);
@@ -220,7 +264,7 @@ export const useLayoutConfig = () => {
   const resetLayout = () => {
     const resetConfig = {
       ...defaultLayout,
-      columns: layoutConfig.columns
+      columns: layoutConfig.columns,
     };
     // Update UI immediately regardless of save outcome
     setLayoutConfig(resetConfig);
@@ -230,29 +274,36 @@ export const useLayoutConfig = () => {
   // Add widget to layout
   const addWidget = (widgetType: string) => {
     // Check if widget already exists
-    if (layoutConfig.widgets.some(w => w.id === widgetType || w.type === widgetType)) {
+    if (
+      layoutConfig.widgets.some(
+        (w) => w.id === widgetType || w.type === widgetType,
+      )
+    ) {
       return false; // Don't add duplicates
     }
 
     // Find next available position
-    const nextY = layoutConfig.widgets.reduce((max, w) => Math.max(max, (w.y || 0) + (w.h || 1)), 0);
-    
+    const nextY = layoutConfig.widgets.reduce(
+      (max, w) => Math.max(max, (w.y || 0) + (w.h || 1)),
+      0,
+    );
+
     const newWidget = {
       id: widgetType,
       type: widgetType,
       x: 0,
       y: nextY,
-      w: widgetType === 'clock' ? layoutConfig.columns : 1,
+      w: widgetType === "clock" ? layoutConfig.columns : 1,
       h: 4,
       minH: 3,
       maxH: 6,
-      minW: widgetType === 'clock' ? 2 : 1,
+      minW: widgetType === "clock" ? 2 : 1,
       maxW: layoutConfig.columns,
     };
 
     const newConfig = {
       ...layoutConfig,
-      widgets: [...layoutConfig.widgets, newWidget]
+      widgets: [...layoutConfig.widgets, newWidget],
     };
 
     saveLayoutConfig(newConfig);
@@ -263,7 +314,7 @@ export const useLayoutConfig = () => {
   const removeWidget = (widgetId: string) => {
     const newConfig = {
       ...layoutConfig,
-      widgets: layoutConfig.widgets.filter(w => w.id !== widgetId)
+      widgets: layoutConfig.widgets.filter((w) => w.id !== widgetId),
     };
     saveLayoutConfig(newConfig);
   };
@@ -278,6 +329,6 @@ export const useLayoutConfig = () => {
     saveCurrentLayout,
     resetLayout,
     addWidget,
-    removeWidget
+    removeWidget,
   };
 };
