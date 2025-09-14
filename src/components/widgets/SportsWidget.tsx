@@ -265,7 +265,12 @@ const SportsSettingsDialog: React.FC<{
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-white hover:bg-gray-800">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-white hover:bg-gray-800"
+          data-testid="sports-settings"
+        >
           <Settings className="w-4 h-4" />
         </Button>
       </DialogTrigger>
@@ -364,16 +369,34 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
 
   // Helper function to match teams with favorites
   const matchesTeam = (game: any, searchOrTeam: string) => {
-    const homeTeam = game.strHomeTeam.toLowerCase();
-    const awayTeam = game.strAwayTeam.toLowerCase();
+    const homeTeam = game.strHomeTeam?.toLowerCase() || '';
+    const awayTeam = game.strAwayTeam?.toLowerCase() || '';
     const term = searchOrTeam.toLowerCase();
     
-    return homeTeam.includes(term) || 
-           awayTeam.includes(term) ||
-           (term === 'astros' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-           (term === 'texans' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-           (term === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-           (term === 'lightning' && (homeTeam.includes('tampa bay') || awayTeam.includes('tampa bay')));
+    // Direct matches
+    if (homeTeam.includes(term) || awayTeam.includes(term)) {
+      return true;
+    }
+    
+    // Houston teams special handling
+    const isHoustonGame = homeTeam.includes('houston') || awayTeam.includes('houston');
+    if (isHoustonGame && (term.includes('astros') || term.includes('texans') || term.includes('rockets'))) {
+      return true;
+    }
+    
+    // Texans specific - match with both "houston texans" and "texans"
+    if ((term.includes('texans') || term === 'texans') && 
+        (homeTeam.includes('texans') || awayTeam.includes('texans') || 
+         homeTeam.includes('houston') || awayTeam.includes('houston'))) {
+      return true;
+    }
+    
+    // Other common team nicknames
+    if (term.includes('lightning') && (homeTeam.includes('tampa bay') || awayTeam.includes('tampa bay'))) {
+      return true;
+    }
+    
+    return false;
   };
 
   // Get favorite team games from all time periods
@@ -397,8 +420,22 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
 
   // Get next upcoming favorite game
   const nextFavoriteGame = favoriteTeamGames
-    .filter(game => new Date(game.dateEvent) > now)
-    .sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime())[0];
+    .filter(game => {
+      const gameDate = new Date(game.dateEvent);
+      const gameTime = new Date(`${game.dateEvent} ${game.strTime || '00:00'}`);
+      return gameTime > now;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(`${a.dateEvent} ${a.strTime || '00:00'}`);
+      const bTime = new Date(`${b.dateEvent} ${b.strTime || '00:00'}`);
+      return aTime.getTime() - bTime.getTime();
+    })[0];
+
+  // Debug logging for favorite teams
+  console.log('Favorite teams:', config.favoriteTeams);
+  console.log('All sports data:', sportsData.length, 'games');
+  console.log('Favorite team games:', favoriteTeamGames.length);
+  console.log('Next favorite game:', nextFavoriteGame);
 
   // Favorite team games organized by time period
   const favoriteYesterdayGames = favoriteTeamGames.filter(game => {
@@ -554,7 +591,11 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
                 />
                 <div className="text-center py-4">
                   <p className="text-gray-400 text-sm">
-                    Next game: {new Date(nextFavoriteGame.dateEvent).toLocaleDateString()} at {nextFavoriteGame.strTime}
+                    Next game: {new Date(nextFavoriteGame.dateEvent).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })} at {nextFavoriteGame.strTime || 'TBD'}
                   </p>
                 </div>
               </>
