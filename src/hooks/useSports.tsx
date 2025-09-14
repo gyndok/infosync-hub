@@ -96,10 +96,21 @@ export const useSports = () => {
   };
 
   // Transform ESPN data to our format
-  const transformEspnEvent = (event: any, league: string): SportsData => {
-    const homeTeam = event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'home');
-    const awayTeam = event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'away');
-    const status = event.status;
+  const transformEspnEvent = (event: any, league: string): SportsData | null => {
+    const competition = event.competitions?.[0];
+    if (!competition) {
+      console.warn(`No competition data for event:`, event.id);
+      return null;
+    }
+    
+    const homeTeam = competition.competitors?.find((c: any) => c.homeAway === 'home');
+    const awayTeam = competition.competitors?.find((c: any) => c.homeAway === 'away');
+    const status = event.status || competition.status;
+    
+    if (!homeTeam || !awayTeam) {
+      console.warn(`Missing team data for event:`, event.id, { homeTeam: !!homeTeam, awayTeam: !!awayTeam });
+      return null;
+    }
     
     // Extract period/inning information based on sport type
     let strPeriod = '';
@@ -145,14 +156,17 @@ export const useSports = () => {
       }
     }
     
+    const homeTeamName = homeTeam.team?.displayName || homeTeam.team?.name || 'Home';
+    const awayTeamName = awayTeam.team?.displayName || awayTeam.team?.name || 'Away';
+    
     return {
       idEvent: event.id,
-      strEvent: `${awayTeam?.team?.displayName || 'Away'} vs ${homeTeam?.team?.displayName || 'Home'}`,
-      strHomeTeam: homeTeam?.team?.displayName || 'Home',
-      strAwayTeam: awayTeam?.team?.displayName || 'Away',
-      intHomeScore: homeTeam?.score?.toString(),
-      intAwayScore: awayTeam?.score?.toString(),
-      strStatus: event.status?.type?.description || event.status?.type?.name || 'Scheduled',
+      strEvent: `${awayTeamName} vs ${homeTeamName}`,
+      strHomeTeam: homeTeamName,
+      strAwayTeam: awayTeamName,
+      intHomeScore: homeTeam.score?.toString() || '0',
+      intAwayScore: awayTeam.score?.toString() || '0',
+      strStatus: status?.type?.description || status?.type?.name || status?.name || 'Scheduled',
       strLeague: league,
       dateEvent: event.date?.split('T')[0] || new Date().toISOString().split('T')[0],
       strTime: event.date ? new Date(event.date).toLocaleTimeString('en-US', { 
@@ -160,7 +174,7 @@ export const useSports = () => {
         minute: '2-digit',
         hour12: false 
       }) : 'TBD',
-      strThumb: event.competitions?.[0]?.competitors?.[0]?.team?.logo,
+      strThumb: homeTeam.team?.logo || awayTeam.team?.logo,
       strPeriod,
       strClock
     };
@@ -180,11 +194,28 @@ export const useSports = () => {
             params: {}
           });
 
-          if (response.success && response.data?.events) {
-            const events = response.data.events.slice(0, 15).map((event: any) => 
-              transformEspnEvent(event, league)
-            );
-            allEvents.push(...events);
+          console.log(`${league} API response:`, response.success, response.data?.events?.length || 0);
+          
+          if (response.success && response.data) {
+            let events = [];
+            
+            // Handle different response structures
+            if (response.data.events && Array.isArray(response.data.events)) {
+              events = response.data.events;
+            } else if (response.data.scoreboard && response.data.scoreboard.events) {
+              events = response.data.scoreboard.events;
+            } else if (response.data.leagues && response.data.leagues[0]?.events) {
+              events = response.data.leagues[0].events;
+            }
+            
+            if (events.length > 0) {
+              const transformedEvents = events.slice(0, 15)
+                .map((event: any) => transformEspnEvent(event, league))
+                .filter((event): event is SportsData => event !== null && !!event?.strHomeTeam && !!event?.strAwayTeam); // Filter out malformed events
+              
+              console.log(`${league} processed events:`, transformedEvents.length);
+              allEvents.push(...transformedEvents);
+            }
           }
         } catch (error) {
           console.error(`Error fetching ${league} data:`, error);
