@@ -16,6 +16,14 @@ interface GameCardProps {
     strTime: string;
     strPeriod?: string;
     strClock?: string;
+    // Additional real data fields
+    homeRecord?: string;
+    awayRecord?: string;
+    homePitcher?: string;
+    awayPitcher?: string;
+    homeOdds?: number;
+    awayOdds?: number;
+    overUnder?: number;
   };
   isFollowing?: boolean;
   isUpcoming?: boolean;
@@ -57,15 +65,14 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isFollowing = false, i
     return teamName.substring(0, 3).toUpperCase();
   };
 
-  // Mock team records
+  // Mock fallback functions (only used when real data not available)
   const generateMockRecord = (teamName: string) => {
-    const seed = teamName.length * 17; // Simple seed based on team name
+    const seed = teamName.length * 17;
     const wins = 81 + (seed % 20);
     const losses = 81 - (seed % 20);
     return `${wins}-${losses}`;
   };
 
-  // Mock odds data
   const generateMockOdds = (teamName: string, isHome: boolean) => {
     const seed = teamName.length + (isHome ? 1 : 0);
     const moneyline = isHome ? -150 - (seed % 100) : +120 + (seed % 80);
@@ -74,11 +81,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isFollowing = false, i
 
   const generateOverUnder = (game: any) => {
     const seed = game.idEvent.length;
-    const total = 8 + (seed % 4) + 0.5; // 8.5 to 11.5
+    const total = 8 + (seed % 4) + 0.5;
     return total;
   };
 
-  // Get probable pitchers or starters (mock data)
   const getProbablePitcher = (teamName: string, isHome: boolean) => {
     const pitchers = [
       'F. Valdez', 'J. Wentz', 'A. Suarez', 'S. Bieber', 'Y. Gómez', 'S. Cecconi',
@@ -91,13 +97,15 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isFollowing = false, i
 
   const homeAbbr = getTeamAbbr(game.strHomeTeam);
   const awayAbbr = getTeamAbbr(game.strAwayTeam);
-  const homeRecord = generateMockRecord(game.strHomeTeam);
-  const awayRecord = generateMockRecord(game.strAwayTeam);
-  const homeML = generateMockOdds(game.strHomeTeam, true);
-  const awayML = generateMockOdds(game.strAwayTeam, false);
-  const overUnder = generateOverUnder(game);
-  const homePitcher = getProbablePitcher(game.strHomeTeam, true);
-  const awayPitcher = getProbablePitcher(game.strAwayTeam, false);
+  
+  // Use real data if available, otherwise fall back to mock data
+  const homeRecord = game.homeRecord || generateMockRecord(game.strHomeTeam);
+  const awayRecord = game.awayRecord || generateMockRecord(game.strAwayTeam);
+  const homeML = game.homeOdds || generateMockOdds(game.strHomeTeam, true);
+  const awayML = game.awayOdds || generateMockOdds(game.strAwayTeam, false);
+  const overUnder = game.overUnder || generateOverUnder(game);
+  const homePitcher = game.homePitcher || getProbablePitcher(game.strHomeTeam, true);
+  const awayPitcher = game.awayPitcher || getProbablePitcher(game.strAwayTeam, false);
 
   return (
     <div className={cn(

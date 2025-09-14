@@ -18,6 +18,14 @@ interface SportsData {
   strThumb?: string;
   strPeriod?: string; // Inning, Quarter, Period, etc.
   strClock?: string; // Game clock if available
+  // Additional real data fields
+  homeRecord?: string;
+  awayRecord?: string;
+  homePitcher?: string;
+  awayPitcher?: string;
+  homeOdds?: number;
+  awayOdds?: number;
+  overUnder?: number;
 }
 
 interface SportsConfig {
@@ -159,6 +167,31 @@ export const useSports = () => {
     const homeTeamName = homeTeam.team?.displayName || homeTeam.team?.name || 'Home';
     const awayTeamName = awayTeam.team?.displayName || awayTeam.team?.name || 'Away';
     
+    // Extract additional real data where available
+    const homeRecord = homeTeam.records?.[0]?.summary || homeTeam.team?.record?.summary || null;
+    const awayRecord = awayTeam.records?.[0]?.summary || awayTeam.team?.record?.summary || null;
+    
+    // Extract pitcher information for MLB
+    let homePitcher = null;
+    let awayPitcher = null;
+    if (league === 'MLB' && competition.situation) {
+      homePitcher = competition.situation.pitcher?.athlete?.displayName || 
+                   competition.situation.pitcher?.displayName ||
+                   homeTeam.probables?.[0]?.athlete?.displayName;
+      awayPitcher = awayTeam.probables?.[0]?.athlete?.displayName;
+    }
+    
+    // Extract betting odds if available
+    let homeOdds = null;
+    let awayOdds = null;
+    let overUnder = null;
+    if (competition.odds && competition.odds.length > 0) {
+      const odds = competition.odds[0];
+      homeOdds = odds.homeTeamOdds?.moneyLine;
+      awayOdds = odds.awayTeamOdds?.moneyLine;
+      overUnder = odds.overUnder;
+    }
+    
     return {
       idEvent: event.id,
       strEvent: `${awayTeamName} vs ${homeTeamName}`,
@@ -176,7 +209,15 @@ export const useSports = () => {
       }) : 'TBD',
       strThumb: homeTeam.team?.logo || awayTeam.team?.logo,
       strPeriod,
-      strClock
+      strClock,
+      // Additional real data
+      homeRecord,
+      awayRecord,
+      homePitcher,
+      awayPitcher,
+      homeOdds,
+      awayOdds,
+      overUnder
     };
   };
 
