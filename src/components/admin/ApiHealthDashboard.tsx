@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import logger from '@/lib/logger';
 import { 
   Activity, 
   CheckCircle, 
@@ -70,7 +71,7 @@ const ApiHealthDashboard = () => {
   const handleTestApiKey = async (service: string) => {
     try {
       const result = await testApiKey(service);
-      console.log('API key test result:', result);
+      logger.debug('API key test result:', result);
       // Refresh data after test
       await fetchData();
     } catch (error) {

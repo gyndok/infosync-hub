@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import logger from '@/lib/logger';
 
 export interface SavedTimeZoneConfig {
   id: string;
@@ -87,7 +88,7 @@ export const useClockConfig = () => {
       if (error) throw error;
 
       setClockSettings(newSettings);
-      console.log('Clock settings saved successfully');
+      logger.debug('Clock settings saved successfully');
     } catch (error: any) {
       console.error('Error saving clock settings:', error);
       toast({

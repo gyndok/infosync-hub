@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApiProxy } from '@/hooks/useApiProxy';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import logger from '@/lib/logger';
 import { 
   Cloud, 
   Sun, 
@@ -282,7 +283,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
         }
       } catch (alertError) {
         // Alerts API might not be available for all locations
-        console.log('Weather alerts not available for this location');
+        logger.debug('Weather alerts not available for this location');
       }
 
       const processedData: WeatherData = {

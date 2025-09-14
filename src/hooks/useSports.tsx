@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useApiProxy } from './useApiProxy';
 import { useToast } from '@/hooks/use-toast';
+import logger from '@/lib/logger';
 
 interface SportsData {
   idEvent: string;
@@ -193,7 +194,7 @@ export const useSports = () => {
       }
       
       // Debug: Log some sample events to see team names
-      console.log('Sample sports events:', allEvents.slice(0, 5));
+      logger.debug('Sample sports events:', allEvents.slice(0, 5));
       
       // Sort by date (upcoming first, then recent) and return latest 20 events
       return allEvents
