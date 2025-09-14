@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useApiProxy } from '@/hooks/useApiProxy';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Cloud, 
   Sun, 
@@ -13,22 +9,10 @@ import {
   CloudSnow, 
   Zap, 
   CloudDrizzle,
-  Eye, 
-  Droplets, 
-  Wind, 
-  Thermometer, 
-  MapPin, 
   Search, 
   RefreshCw,
-  ChevronDown,
-  ChevronUp,
   AlertTriangle,
   Navigation,
-  Sunrise,
-  Sunset,
-  Gauge,
-  ToggleLeft,
-  ToggleRight,
   X
 } from 'lucide-react';
 
@@ -397,12 +381,12 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
 
   if (!weatherData && !error && loading) {
     return (
-      <Card className="dashboard-card h-full flex items-center justify-center">
-        <div className="flex items-center gap-2">
+      <div className="h-full bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 rounded-xl overflow-hidden flex items-center justify-center">
+        <div className="flex items-center gap-2 text-white">
           <RefreshCw className="h-4 w-4 animate-spin" />
           <span>Getting your location...</span>
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -412,77 +396,77 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   ) : Cloud;
 
   return (
-    <Card className="dashboard-card h-full flex flex-col">
-      <CardHeader className="widget-header pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-            🌤️ Weather
-            {weatherData && (
-              <span className="text-xs font-normal text-muted-foreground">
-                {weatherData.location.name}, {weatherData.location.country}
-              </span>
-            )}
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            {lastUpdated && (
-              <span className="text-xs text-muted-foreground">
-                {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleUnitToggle}
-              className="h-7 px-2 text-xs"
-              title={`Switch to ${useFahrenheit ? 'Celsius' : 'Fahrenheit'}`}
-              disabled={loading}
-            >
-              <Thermometer className="h-3 w-3 mr-1" />
-              {useFahrenheit ? '°F' : '°C'}
-              {useFahrenheit ? (
-                <ToggleRight className="h-3 w-3 ml-1" />
-              ) : (
-                <ToggleLeft className="h-3 w-3 ml-1" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => currentLocation ? 
-                fetchWeatherData(currentLocation.lat, currentLocation.lon) : 
-                fetchWeatherData()
-              }
-              disabled={loading}
-            >
-              {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-            </Button>
-            {onRemove && (
-              <Button variant="ghost" size="sm" onClick={onRemove}>
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardHeader>
+    <div className="h-full bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 rounded-xl overflow-hidden relative">
+      {/* Header Controls */}
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleUnitToggle}
+          className="h-7 px-2 text-xs text-white/80 hover:text-white hover:bg-white/10"
+          title={`Switch to ${useFahrenheit ? 'Celsius' : 'Fahrenheit'}`}
+          disabled={loading}
+        >
+          {useFahrenheit ? '°F' : '°C'}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => currentLocation ? 
+            fetchWeatherData(currentLocation.lat, currentLocation.lon) : 
+            fetchWeatherData()
+          }
+          disabled={loading}
+          className="text-white/80 hover:text-white hover:bg-white/10"
+        >
+          {loading ? (
+            <RefreshCw className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
+        </Button>
+        {onRemove && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onRemove}
+            className="text-white/80 hover:text-white hover:bg-white/10"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
 
-      <CardContent className="flex-1 flex flex-col p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent min-h-0">
-        {/* Location Search */}
-        <div className="flex gap-2 mb-4">
+      {/* Search Bar - Hidden by default, can be toggled */}
+      <div className="absolute top-3 left-3 z-10">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setActiveTab(activeTab === 'search' ? 'current' : 'search')}
+          className="text-white/80 hover:text-white hover:bg-white/10"
+          title="Search location"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {activeTab === 'search' && (
+        <div className="absolute top-14 left-3 right-3 z-10 flex gap-2">
           <div className="relative flex-1">
-            <MapPin className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search city..."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
-              className="pl-8"
+              className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
             />
           </div>
-          <Button onClick={handleLocationSearch} disabled={loading}>
+          <Button 
+            onClick={handleLocationSearch} 
+            disabled={loading}
+            className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+            variant="outline"
+          >
             <Search className="h-4 w-4" />
           </Button>
           <Button 
@@ -490,176 +474,114 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
             onClick={getCurrentLocation} 
             disabled={loading}
             title="Use current location"
+            className="bg-white/20 hover:bg-white/30 text-white border-white/30"
           >
             <Navigation className="h-4 w-4" />
           </Button>
         </div>
+      )}
 
-        {/* Error Display */}
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="text-xs">{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Weather Alerts */}
-        {weatherData?.alerts && weatherData.alerts.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {weatherData.alerts.map((alert, index) => (
-              <Alert key={index} variant={getAlertSeverityColor(alert.severity) as any}>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="text-xs">
-                  <div className="font-medium">{alert.event}</div>
-                  <div>{alert.description.substring(0, 100)}...</div>
-                </AlertDescription>
-              </Alert>
-            ))}
+      {/* Error Display */}
+      {error && (
+        <div className="absolute top-16 left-3 right-3 z-10">
+          <div className="bg-red-500/90 backdrop-blur-sm rounded-lg p-3 text-white text-sm">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Weather Content */}
-        {weatherData && (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="current">Current</TabsTrigger>
-              <TabsTrigger value="forecast">
-                {expandedForecast ? '7-Day' : 'Forecast'}
-              </TabsTrigger>
-            </TabsList>
+      {/* Main Weather Content */}
+      {weatherData ? (
+        <div className="h-full flex flex-col text-white">
+          {/* Top Section - Location and Date */}
+          <div className="p-6 pb-0">
+            <h2 className="text-xl font-medium mb-1">
+              {weatherData.location.name}
+            </h2>
+            <p className="text-white/70 text-sm">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                day: 'numeric',
+                month: 'long'
+              })}
+            </p>
+          </div>
 
-            <TabsContent value="current" className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">{/* Current Weather */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-3xl font-bold">
-                      {getDisplayTemp(weatherData.current.temp)}°{useFahrenheit ? 'F' : 'C'}
-                    </div>
-                    <div className="text-sm text-muted-foreground capitalize">
-                      {weatherData.current.weather.description}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Feels like {getDisplayTemp(weatherData.current.feels_like)}°{useFahrenheit ? 'F' : 'C'}
-                    </div>
-                  </div>
-                  <WeatherIcon className="h-12 w-12 text-primary" />
+          {/* Main Weather Display */}
+          <div className="flex-1 flex items-center justify-between p-6">
+            {/* Left Side - Temperature and Description */}
+            <div className="flex flex-col">
+              <div className="text-5xl md:text-6xl font-light mb-2">
+                +{getDisplayTemp(weatherData.current.temp)}°
+              </div>
+              <div className="space-y-1">
+                <div className="text-lg font-medium capitalize">
+                  {weatherData.current.weather.description}
                 </div>
-
-                {/* Weather Details Grid */}
-                <div className="grid grid-cols-2 gap-3 text-center">
-                  <div className="space-y-1">
-                    <Droplets className="h-4 w-4 text-blue-500 mx-auto" />
-                    <div className="text-xs text-muted-foreground">Humidity</div>
-                    <div className="text-sm font-medium">{weatherData.current.humidity}%</div>
-                  </div>
-                  <div className="space-y-1">
-                    <Wind className="h-4 w-4 text-gray-500 mx-auto" />
-                    <div className="text-xs text-muted-foreground">Wind</div>
-                    <div className="text-sm font-medium">
-                      {weatherData.current.wind_speed} {useFahrenheit ? 'mph' : 'km/h'}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <Eye className="h-4 w-4 text-purple-500 mx-auto" />
-                    <div className="text-xs text-muted-foreground">Visibility</div>
-                    <div className="text-sm font-medium">{weatherData.current.visibility} km</div>
-                  </div>
-                  <div className="space-y-1">
-                    <Gauge className="h-4 w-4 text-orange-500 mx-auto" />
-                    <div className="text-xs text-muted-foreground">Pressure</div>
-                    <div className="text-sm font-medium">{weatherData.current.pressure} mb</div>
-                  </div>
-                </div>
-
-                {/* Sun Times */}
-                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
-                  <div className="flex items-center gap-2">
-                    <Sunrise className="h-4 w-4 text-orange-500" />
-                    <div>
-                      <div className="text-xs text-muted-foreground">Sunrise</div>
-                      <div className="text-sm font-medium">
-                        {formatTime(weatherData.current.sunrise)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Sunset className="h-4 w-4 text-purple-500" />
-                    <div>
-                      <div className="text-xs text-muted-foreground">Sunset</div>
-                      <div className="text-sm font-medium">
-                        {formatTime(weatherData.current.sunset)}
-                      </div>
-                    </div>
-                  </div>
+                <div className="text-white/70 text-sm">
+                  Feels like +{getDisplayTemp(weatherData.current.feels_like)}°
                 </div>
               </div>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="forecast" className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium">
-                    {expandedForecast ? '7-Day Forecast' : '3-Day Forecast'}
-                  </h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setExpandedForecast(!expandedForecast)}
-                    className="h-6 text-xs"
-                  >
-                    {expandedForecast ? (
-                      <>Less <ChevronUp className="h-3 w-3 ml-1" /></>
-                    ) : (
-                      <>More <ChevronDown className="h-3 w-3 ml-1" /></>
-                    )}
-                  </Button>
-                </div>
+            {/* Right Side - Weather Icon */}
+            <div className="flex-shrink-0">
+              <WeatherIcon className="h-20 w-20 md:h-24 md:w-24 text-yellow-300" />
+            </div>
+          </div>
 
-                {weatherData.forecast
-                  .slice(0, expandedForecast ? 7 : 3)
-                  .map((day, index) => {
-                    const ForecastIcon = getWeatherIcon(day.weather.icon, day.weather.main);
-                    
-                    return (
-                      <div 
-                        key={day.date} 
-                        className="flex items-center justify-between py-2 border-b border-border/30 last:border-b-0"
-                      >
-                        <div className="flex items-center gap-3 flex-1">
-                          <ForecastIcon className="h-5 w-5 text-muted-foreground" />
-                          <div className="min-w-[60px]">
-                            <div className="text-sm font-medium">
-                              {formatDay(day.date)}
-                            </div>
-                            <div className="text-xs text-muted-foreground capitalize">
-                              {day.weather.description}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {day.pop > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Droplets className="h-3 w-3 text-blue-500" />
-                              <span className="text-xs text-muted-foreground">
-                                {day.pop}%
-                              </span>
-                            </div>
-                          )}
-                          <div className="text-right">
-                            <div className="text-sm font-medium">
-                              {getDisplayTemp(day.temp.max)}°{useFahrenheit ? 'F' : 'C'} <span className="text-muted-foreground">{getDisplayTemp(day.temp.min)}°{useFahrenheit ? 'F' : 'C'}</span>
-                            </div>
-                          </div>
-                        </div>
+          {/* Bottom Section - Forecast */}
+          <div className="p-6 pt-0">
+            <div className="flex justify-between items-center gap-4 overflow-x-auto">
+              {weatherData.forecast.slice(0, 6).map((day, index) => {
+                const ForecastIcon = getWeatherIcon(day.weather.icon, day.weather.main);
+                
+                return (
+                  <div key={day.date} className="flex flex-col items-center min-w-[60px] text-center">
+                    <div className="text-white/80 text-xs mb-2">
+                      {index === 0 ? 'Today' : formatDay(day.date)}
+                    </div>
+                    <ForecastIcon className="h-8 w-8 text-yellow-200 mb-2" />
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium">
+                        +{getDisplayTemp(day.temp.max)}°
                       </div>
-                    );
-                  })
-                }
+                      <div className="text-xs text-white/60">
+                        +{getDisplayTemp(day.temp.min)}°
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Weather Alerts */}
+          {weatherData.alerts && weatherData.alerts.length > 0 && (
+            <div className="px-6 pb-4">
+              <div className="bg-red-500/20 backdrop-blur-sm rounded-lg p-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="font-medium">Weather Alert</span>
+                </div>
+                <p className="text-xs text-white/80 mt-1">
+                  {weatherData.alerts[0].event}
+                </p>
               </div>
-            </TabsContent>
-          </Tabs>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="h-full flex items-center justify-center text-white">
+          <div className="flex items-center gap-2">
+            <RefreshCw className="h-5 w-5 animate-spin" />
+            <span>Loading weather...</span>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
