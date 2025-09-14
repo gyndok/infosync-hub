@@ -50,8 +50,18 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isFollowing = false, i
       'kansas city royals': 'KC', 'philadelphia phillies': 'PHI', 'detroit tigers': 'DET',
       'miami marlins': 'MIA',
       
-      // NFL Teams  
+      // NFL Teams
       'houston texans': 'HOU', 'dallas cowboys': 'DAL', 'new england patriots': 'NE',
+      'kansas city chiefs': 'KC', 'buffalo bills': 'BUF', 'miami dolphins': 'MIA',
+      'new york jets': 'NYJ', 'baltimore ravens': 'BAL', 'pittsburgh steelers': 'PIT',
+      'cleveland browns': 'CLE', 'cincinnati bengals': 'CIN', 'denver broncos': 'DEN',
+      'las vegas raiders': 'LV', 'los angeles chargers': 'LAC', 'tennessee titans': 'TEN',
+      'indianapolis colts': 'IND', 'jacksonville jaguars': 'JAX', 'philadelphia eagles': 'PHI',
+      'new york giants': 'NYG', 'washington commanders': 'WAS', 'green bay packers': 'GB',
+      'chicago bears': 'CHI', 'minnesota vikings': 'MIN', 'detroit lions': 'DET',
+      'atlanta falcons': 'ATL', 'carolina panthers': 'CAR', 'new orleans saints': 'NO',
+      'tampa bay buccaneers': 'TB', 'san francisco 49ers': 'SF', 'seattle seahawks': 'SEA',
+      'los angeles rams': 'LAR', 'arizona cardinals': 'ARI',
     };
     
     const lower = teamName.toLowerCase();
@@ -182,11 +192,19 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isFollowing = false, i
           </span>
         </div>
 
-        {/* Pitchers/Starters (for MLB) */}
+        {/* Pitchers/Starters */}
         {game.strLeague === 'MLB' && (
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>{awayAbbr}: {awayPitcher}</span>
-            <span>{homeAbbr}: {homePitcher}</span>
+            <span>{awayAbbr}: {game.awayPitcher || awayPitcher}</span>
+            <span>{homeAbbr}: {game.homePitcher || homePitcher}</span>
+          </div>
+        )}
+
+        {/* NFL Quarterbacks */}
+        {game.strLeague === 'NFL' && (game.homePitcher || game.awayPitcher) && (
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>{awayAbbr} QB: {game.awayPitcher || 'TBD'}</span>
+            <span>{homeAbbr} QB: {game.homePitcher || 'TBD'}</span>
           </div>
         )}
 

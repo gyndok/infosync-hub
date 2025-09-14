@@ -235,12 +235,30 @@ export const useSports = () => {
     const awayTeamName = awayTeam.team?.displayName || awayTeam.team?.name || 'Away';
     
     // Extract additional real data where available
-    const homeRecord = homeTeam.records?.[0]?.summary || homeTeam.team?.record?.summary || null;
-    const awayRecord = awayTeam.records?.[0]?.summary || awayTeam.team?.record?.summary || null;
-    
-    // Extract pitcher information for MLB
+    let homeRecord = null;
+    let awayRecord = null;
     let homePitcher = null;
     let awayPitcher = null;
+    
+    // Get team records with proper formatting for each sport
+    if (homeTeam.records && homeTeam.records.length > 0) {
+      const record = homeTeam.records[0];
+      if (league === 'NFL') {
+        homeRecord = `${record.wins}-${record.losses}${record.ties ? `-${record.ties}` : ''}`;
+      } else {
+        homeRecord = record.summary || `${record.wins}-${record.losses}`;
+      }
+    }
+    if (awayTeam.records && awayTeam.records.length > 0) {
+      const record = awayTeam.records[0];
+      if (league === 'NFL') {
+        awayRecord = `${record.wins}-${record.losses}${record.ties ? `-${record.ties}` : ''}`;
+      } else {
+        awayRecord = record.summary || `${record.wins}-${record.losses}`;
+      }
+    }
+    
+    // Extract sport-specific player information
     if (league === 'MLB') {
       // Try multiple paths for pitcher data
       homePitcher = competition.situation?.pitcher?.athlete?.displayName || 
@@ -252,31 +270,20 @@ export const useSports = () => {
       awayPitcher = awayTeam.probables?.[0]?.athlete?.displayName ||
                    awayTeam.probables?.[0]?.displayName ||
                    competition.competitors?.find((c: any) => c.homeAway === 'away')?.probables?.[0]?.athlete?.displayName;
-      
-       // Debug logging for pitcher data
-       if (!homePitcher || !awayPitcher) {
-         console.log(`Missing pitcher data for ${event.id}:`, {
-           homePitcher,
-           awayPitcher,
-           homeTeamProbables: homeTeam.probables,
-           awayTeamProbables: awayTeam.probables,
-           competitionSituation: competition.situation,
-           competitionNotes: competition.notes,
-           eventName: event.name
-         });
-         
-         // Try to extract from notes if available
-         if (competition.notes && competition.notes.length > 0) {
-           const pitcherNote = competition.notes.find((note: any) => 
-             note.headline?.toLowerCase().includes('probable') || 
-             note.headline?.toLowerCase().includes('pitcher') ||
-             note.headline?.toLowerCase().includes('starting')
-           );
-           if (pitcherNote) {
-             console.log('Found pitcher note:', pitcherNote);
-           }
-         }
-       }
+    } else if (league === 'NFL') {
+      // Get quarterback or key player info for NFL
+      if (homeTeam.leaders && homeTeam.leaders.length > 0) {
+        const passingLeader = homeTeam.leaders.find((l: any) => l.name === 'passingYards' || l.shortDisplayName === 'PASS YDS');
+        if (passingLeader && passingLeader.leaders && passingLeader.leaders[0]) {
+          homePitcher = passingLeader.leaders[0].athlete?.displayName || passingLeader.leaders[0].displayName;
+        }
+      }
+      if (awayTeam.leaders && awayTeam.leaders.length > 0) {
+        const passingLeader = awayTeam.leaders.find((l: any) => l.name === 'passingYards' || l.shortDisplayName === 'PASS YDS');
+        if (passingLeader && passingLeader.leaders && passingLeader.leaders[0]) {
+          awayPitcher = passingLeader.leaders[0].athlete?.displayName || passingLeader.leaders[0].displayName;
+        }
+      }
     }
     
     // Extract betting odds if available
