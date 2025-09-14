@@ -73,20 +73,25 @@ export const useFinance = () => {
 
   // Fetch stock data
   const fetchStockData = async (symbols: string[]): Promise<StockData[]> => {
-    const results: StockData[] = [];
-    
-    for (const symbol of symbols) {
-      try {
-        const response = await makeRequest({
+    const responses = await Promise.allSettled(
+      symbols.map(symbol =>
+        makeRequest({
           service: 'alpha_vantage',
           endpoint: '/query',
           params: {
             function: 'GLOBAL_QUOTE',
-            symbol: symbol,
-            apikey: 'API_KEY' // This will be replaced by the proxy
-          }
-        });
+            symbol,
+          },
+        })
+      )
+    );
 
+    const results: StockData[] = [];
+
+    responses.forEach((result, index) => {
+      const symbol = symbols[index];
+      if (result.status === 'fulfilled') {
+        const response = result.value;
         if (response.success && response.data['Global Quote']) {
           const quote = response.data['Global Quote'];
           results.push({
@@ -94,15 +99,25 @@ export const useFinance = () => {
             name: symbol, // We'll need to fetch company names separately
             price: parseFloat(quote['05. price']),
             change: parseFloat(quote['09. change']),
-            changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-            volume: parseInt(quote['06. volume'])
+            changePercent: parseFloat(
+              quote['10. change percent'].replace('%', '')
+            ),
+            volume: parseInt(quote['06. volume']),
           });
+        } else {
+          console.error(
+            `Error fetching stock data for ${symbol}: Invalid response`,
+            response
+          );
         }
-      } catch (error) {
-        console.error(`Error fetching stock data for ${symbol}:`, error);
+      } else {
+        console.error(
+          `Error fetching stock data for ${symbol}:`,
+          result.reason
+        );
       }
-    }
-    
+    });
+
     return results;
   };
 
