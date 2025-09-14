@@ -371,8 +371,14 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
            awayTeam.includes(term) ||
            (term === 'astros' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
            (term === 'texans' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
-           (term === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston')));
+           (term === 'rockets' && (homeTeam.includes('houston') || awayTeam.includes('houston'))) ||
+           (term === 'lightning' && (homeTeam.includes('tampa bay') || awayTeam.includes('tampa bay')));
   };
+
+  // Get favorite team games from all time periods
+  const favoriteTeamGames = sportsData.filter(game => {
+    return config.favoriteTeams.some(team => matchesTeam(game, team));
+  });
 
   // Process games by time period
   const now = new Date();
@@ -381,6 +387,23 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
+  // Favorite team games organized by time period
+  const favoriteYesterdayGames = favoriteTeamGames.filter(game => {
+    const gameDate = new Date(game.dateEvent);
+    return gameDate.toDateString() === yesterday.toDateString();
+  });
+
+  const favoriteTodayGames = favoriteTeamGames.filter(game => {
+    const gameDate = new Date(game.dateEvent);
+    return gameDate.toDateString() === now.toDateString();
+  });
+
+  const favoriteUpcomingGames = favoriteTeamGames.filter(game => {
+    const gameDate = new Date(game.dateEvent);
+    return gameDate > now;
+  }).slice(0, 6);
+
+  // All games organized by time period (fallback when no favorites)
   const yesterdayGames = sportsData.filter(game => {
     const gameDate = new Date(game.dateEvent);
     return gameDate.toDateString() === yesterday.toDateString();
@@ -395,6 +418,23 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
     const gameDate = new Date(game.dateEvent);
     return gameDate > now;
   }).slice(0, 6);
+
+  // Determine what to show for each tab
+  const getGamesForTab = (tab: string) => {
+    switch (tab) {
+      case "yesterday":
+        return favoriteYesterdayGames.length > 0 ? favoriteYesterdayGames : yesterdayGames;
+      case "today":
+        return favoriteTodayGames.length > 0 ? favoriteTodayGames : todayGames;
+      case "upcoming":
+        return favoriteUpcomingGames.length > 0 ? favoriteUpcomingGames : upcomingGames;
+      default:
+        return [];
+    }
+  };
+
+  const currentGames = getGamesForTab(activeTab);
+  const hasFavoriteGames = favoriteTeamGames.length > 0;
 
   const LoadingSkeleton = () => (
     <div className="space-y-3">
@@ -483,10 +523,11 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
           <LoadingSkeleton />
         ) : (
           <div className="space-y-3">
-            {activeTab === "yesterday" && (
+            {currentGames.length > 0 ? (
               <>
-                {yesterdayGames.length > 0 ? (
-                  yesterdayGames.map((game, index) => (
+                {currentGames.slice(0, 6).map((game, index) => {
+                  const isFavorite = config.favoriteTeams.some(team => matchesTeam(game, team));
+                  return (
                     <MatchItem
                       key={game.idEvent || index}
                       homeTeam={game.strHomeTeam}
@@ -499,67 +540,33 @@ export const SportsWidget: React.FC<SportsWidgetProps> = ({ onRemove }) => {
                       league={game.strLeague}
                       period={game.strStatus}
                       clock={game.strTime}
-                      isFavorite={config.favoriteTeams.some(team => matchesTeam(game, team))}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-400">No games yesterday</p>
-                  </div>
-                )}
-              </>
-            )}
-
-            {activeTab === "today" && (
-              <>
-                {todayGames.length > 0 ? (
-                  todayGames.map((game, index) => (
-                    <MatchItem
-                      key={game.idEvent || index}
-                      homeTeam={game.strHomeTeam}
-                      awayTeam={game.strAwayTeam}
-                      homeScore={game.intHomeScore}
-                      awayScore={game.intAwayScore}
-                      status={game.strStatus}
-                      date={game.dateEvent}
-                      time={game.strTime}
-                      league={game.strLeague}
-                      period={game.strStatus}
-                      clock={game.strTime}
-                      isFavorite={config.favoriteTeams.some(team => matchesTeam(game, team))}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-400">No games today</p>
-                  </div>
-                )}
-              </>
-            )}
-
-            {activeTab === "upcoming" && (
-              <>
-                {upcomingGames.length > 0 ? (
-                  upcomingGames.map((game, index) => (
-                    <MatchItem
-                      key={game.idEvent || index}
-                      homeTeam={game.strHomeTeam}
-                      awayTeam={game.strAwayTeam}
-                      status={game.strStatus}
-                      date={game.dateEvent}
-                      time={game.strTime}
-                      league={game.strLeague}
                       homeRecord={generateMockRecord()}
                       awayRecord={generateMockRecord()}
-                      isFavorite={config.favoriteTeams.some(team => matchesTeam(game, team))}
+                      isFavorite={isFavorite}
                     />
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-400">No upcoming games</p>
+                  );
+                })}
+                {hasFavoriteGames && favoriteTeamGames.length > currentGames.length && (
+                  <div className="text-center py-2">
+                    <p className="text-gray-400 text-sm">
+                      Showing favorite team games • {favoriteTeamGames.length} total games available
+                    </p>
                   </div>
                 )}
               </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400">
+                  {activeTab === "yesterday" && "No games yesterday"}
+                  {activeTab === "today" && "No games today"}
+                  {activeTab === "upcoming" && "No upcoming games"}
+                </p>
+                {config.favoriteTeams.length === 0 && (
+                  <p className="text-gray-500 text-sm mt-2">
+                    Add favorite teams in settings to see personalized scores
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}
