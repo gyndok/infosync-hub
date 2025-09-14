@@ -120,7 +120,7 @@ export const SportsApp: React.FC<SportsAppProps> = ({ onRemove }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         {renderContent()}
       </div>
 
