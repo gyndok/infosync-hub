@@ -14,6 +14,7 @@ import { KHOUAstrosWidget } from '@/components/widgets/KHOUAstrosWidget';
 import { KHOURocketsWidget } from '@/components/widgets/KHOURocketsWidget';
 import { KHOUTexansWidget } from '@/components/widgets/KHOUTexansWidget';
 import { KHOULocalWidget } from '@/components/widgets/KHOULocalWidget';
+import { KHOURSSWidget } from '@/components/widgets/KHOURSSWidget';
 import { TexasLonghornsWidget } from '@/components/widgets/TexasLonghornsWidget';
 import { HoustonTrafficWidget } from '@/components/widgets/HoustonTrafficWidget';
 
@@ -32,6 +33,7 @@ const widgetComponents = {
   khou_rockets: KHOURocketsWidget,
   khou_texans: KHOUTexansWidget,
   khou_local: KHOULocalWidget,
+  khou_rss: KHOURSSWidget,
   houston_traffic: HoustonTrafficWidget,
   texas_longhorns: TexasLonghornsWidget,
 } as const;
