@@ -1,20 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { useApiProxy } from '@/hooks/useApiProxy';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Cloud, 
-  Sun, 
-  CloudRain, 
-  CloudSnow, 
-  Zap, 
+import {
+  Cloud,
+  Sun,
+  CloudRain,
+  CloudSnow,
+  Zap,
   CloudDrizzle,
-  Search, 
+  Search,
   RefreshCw,
   AlertTriangle,
   Navigation,
   X
 } from 'lucide-react';
+import { normalizeLocationQuery } from '@/lib/utils';
 
 interface WeatherData {
   location: {
@@ -62,11 +63,56 @@ interface WeatherData {
   }>;
 }
 
-const getWeatherIcon = (iconCode: string, main: string) => {
-  const iconMap: { [key: string]: any } = {
+interface WeatherWidgetState {
+  weatherData: WeatherData | null;
+  location: string;
+  currentLocation: { lat: number; lon: number } | null;
+  error: string | null;
+  activeTab: string;
+  useFahrenheit: boolean;
+}
+
+type WeatherWidgetAction =
+  | { type: 'SET_WEATHER_DATA'; payload: WeatherData | null }
+  | { type: 'SET_LOCATION'; payload: string }
+  | { type: 'SET_CURRENT_LOCATION'; payload: { lat: number; lon: number } | null }
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_ACTIVE_TAB'; payload: string }
+  | { type: 'TOGGLE_UNITS' };
+
+const initialState: WeatherWidgetState = {
+  weatherData: null,
+  location: '',
+  currentLocation: null,
+  error: null,
+  activeTab: 'current',
+  useFahrenheit: true,
+};
+
+function reducer(state: WeatherWidgetState, action: WeatherWidgetAction): WeatherWidgetState {
+  switch (action.type) {
+    case 'SET_WEATHER_DATA':
+      return { ...state, weatherData: action.payload };
+    case 'SET_LOCATION':
+      return { ...state, location: action.payload };
+    case 'SET_CURRENT_LOCATION':
+      return { ...state, currentLocation: action.payload };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload };
+    case 'SET_ACTIVE_TAB':
+      return { ...state, activeTab: action.payload };
+    case 'TOGGLE_UNITS':
+      return { ...state, useFahrenheit: !state.useFahrenheit };
+    default:
+      return state;
+  }
+}
+
+const getWeatherIcon = (iconCode: string, main: string): React.ComponentType => {
+  const iconMap: { [key: string]: React.ComponentType } = {
     '01d': Sun, '01n': Sun,
     '02d': Cloud, '02n': Cloud,
-    '03d': Cloud, '03n': Cloud, 
+    '03d': Cloud, '03n': Cloud,
     '04d': Cloud, '04n': Cloud,
     '09d': CloudDrizzle, '09n': CloudDrizzle,
     '10d': CloudRain, '10n': CloudRain,
@@ -88,61 +134,21 @@ const getAlertSeverityColor = (severity: string) => {
   }
 };
 
-// Normalize user-entered city searches to OpenWeather format
-// Examples:
-//  - "Sacramento, ca" -> "Sacramento,CA,US"
-//  - "Toronto, ca" -> "Toronto,CA"
-//  - "Paris" -> "Paris" (unchanged)
-const US_STATE_CODES = new Set([
-  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC','PR','VI','GU','AS','MP'
-]);
-
-const normalizeLocationQuery = (input: string) => {
-  const raw = (input || '').trim();
-  if (!raw) return raw;
-  const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
-
-  if (parts.length === 2) {
-    const [city, region] = parts;
-    const regionUpper = region.toUpperCase();
-    if (US_STATE_CODES.has(regionUpper)) {
-      // Assume US when a valid state code is provided
-      return `${city},${regionUpper},US`;
-    }
-    // If it's likely a country code
-    if (region.length === 2) {
-      return `${city},${regionUpper}`;
-    }
-    return `${city},${region}`;
-  }
-
-  if (parts.length === 3) {
-    const [city, region, country] = parts;
-    return `${city},${region.toUpperCase()},${country.toUpperCase()}`;
-  }
-
-  return raw;
-};
-
 interface WeatherWidgetProps {
   onRemove?: () => void;
 }
 
 export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   const { makeRequest, loading } = useApiProxy();
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [location, setLocation] = useState('');
-  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [expandedForecast, setExpandedForecast] = useState(false);
-  const [activeTab, setActiveTab] = useState('current');
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [useFahrenheit, setUseFahrenheit] = useState(true);
-
-  // Convert temperature between Celsius and Fahrenheit
-  const convertTemp = (temp: number, toFahrenheit: boolean) => {
-    return toFahrenheit ? Math.round((temp * 9/5) + 32) : Math.round((temp - 32) * 5/9);
-  };
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {
+    weatherData,
+    location,
+    currentLocation,
+    error,
+    activeTab,
+    useFahrenheit,
+  } = state;
 
   // Get displayed temperature (convert if needed)
   const getDisplayTemp = (temp: number) => {
@@ -150,17 +156,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
     return Math.round(temp);
   };
 
-  // Handle unit toggle with immediate re-fetch
-  const handleUnitToggle = async () => {
-    const newUseFahrenheit = !useFahrenheit;
-    setUseFahrenheit(newUseFahrenheit);
-    
-    // Immediately re-fetch data with new units
-    if (currentLocation) {
-      await fetchWeatherData(currentLocation.lat, currentLocation.lon);
-    } else if (location) {
-      await fetchWeatherData();
-    }
+  // Handle unit toggle
+  const handleUnitToggle = () => {
+    dispatch({ type: 'TOGGLE_UNITS' });
   };
 
   // Get current location
@@ -169,18 +167,18 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lon: longitude });
+          dispatch({ type: 'SET_CURRENT_LOCATION', payload: { lat: latitude, lon: longitude } });
           fetchWeatherData(latitude, longitude);
         },
         (error) => {
           console.error('Geolocation error:', error);
-          setError('Unable to access your location. Please search for a city.');
+          dispatch({ type: 'SET_ERROR', payload: 'Unable to access your location. Please search for a city.' });
           // Default to London as fallback
           fetchWeatherData(51.5074, -0.1278, 'London, UK');
         }
       );
     } else {
-      setError('Geolocation is not supported by this browser.');
+      dispatch({ type: 'SET_ERROR', payload: 'Geolocation is not supported by this browser.' });
       // Default to London as fallback
       fetchWeatherData(51.5074, -0.1278, 'London, UK');
     }
@@ -189,7 +187,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   // Fetch weather data
   const fetchWeatherData = async (lat?: number, lon?: number, locationName?: string) => {
     try {
-      setError(null);
+      dispatch({ type: 'SET_ERROR', payload: null });
       
       let params: any = {
         units: useFahrenheit ? 'imperial' : 'metric'
@@ -312,15 +310,14 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
         alerts
       };
 
-      setWeatherData(processedData);
-      setLastUpdated(new Date());
+      dispatch({ type: 'SET_WEATHER_DATA', payload: processedData });
 
     } catch (err) {
       const rawMessage = err instanceof Error ? err.message : 'Failed to fetch weather data';
       const friendlyMessage = /404/.test(rawMessage) || /city not found/i.test(rawMessage)
         ? 'City not found. Try "City, State, Country" (e.g., "Sacramento, CA, US").'
         : rawMessage;
-      setError(friendlyMessage);
+      dispatch({ type: 'SET_ERROR', payload: friendlyMessage });
       console.error('Weather fetch error:', err);
     }
   };
@@ -442,7 +439,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setActiveTab(activeTab === 'search' ? 'current' : 'search')}
+          onClick={() => dispatch({ type: 'SET_ACTIVE_TAB', payload: activeTab === 'search' ? 'current' : 'search' })}
           className="text-white/80 hover:text-white hover:bg-white/10"
           title="Search location"
         >
@@ -456,7 +453,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
             <Input
               placeholder="Search city..."
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => dispatch({ type: 'SET_LOCATION', payload: e.target.value })}
               onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
               className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
             />
