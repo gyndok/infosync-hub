@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '@/lib/logger';
 
 interface TrafficIncident {
   id: string;
@@ -90,7 +91,7 @@ export const useHoustonTraffic = () => {
   const refreshData = async () => {
     try {
       setError(null);
-      console.log('Refreshing Houston traffic data...');
+      logger.debug('Refreshing Houston traffic data...');
 
       const { data, error } = await supabase.functions.invoke('houston-traffic', {
         body: { action: 'fetch' }
@@ -98,7 +99,7 @@ export const useHoustonTraffic = () => {
 
       if (error) throw error;
 
-      console.log('Traffic data refresh response:', data);
+      logger.debug('Traffic data refresh response:', data);
       
       // After successful refresh, fetch updated data from database
       await Promise.all([

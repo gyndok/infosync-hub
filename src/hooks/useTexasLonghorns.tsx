@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '@/lib/logger';
 
 interface LonghornsArticle {
   title: string;
@@ -16,7 +17,7 @@ interface LonghornsData {
 
 export const useTexasLonghorns = () => {
   const fetchLonghornsNews = async (): Promise<LonghornsData> => {
-    console.log('🏈 Fetching Texas Longhorns football news...');
+    logger.debug('🏈 Fetching Texas Longhorns football news...');
     
     try {
       const { data, error } = await supabase.functions.invoke('rss-fetcher', {
@@ -28,7 +29,7 @@ export const useTexasLonghorns = () => {
 
       if (error) throw error;
 
-      console.log('🏈 Longhorns data received:', data);
+      logger.debug('🏈 Longhorns data received:', data);
       return data;
     } catch (error) {
       console.error('Error fetching Longhorns news:', error);

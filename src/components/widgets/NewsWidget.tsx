@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import logger from '@/lib/logger';
 import { 
   Newspaper, 
   Search, 
@@ -113,7 +114,7 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
         delete params.category;
       }
 
-      console.log('Fetching news with params:', params);
+      logger.debug('Fetching news with params:', params);
 
       const response = await makeRequest({
         service: 'news',
