@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const DEBUG = Deno.env.get('DEBUG') === 'true';
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -35,7 +37,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'list';
 
-    console.log(`Manage secrets action: ${action} for user ${user.id}`);
+    if (DEBUG) console.log(`Manage secrets action: ${action} for user ${user.id}`);
 
     if (action === 'list') {
       // List available API services and their secret requirements

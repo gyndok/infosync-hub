@@ -19,6 +19,7 @@ export const BreakingNewsBanner = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { makeRequest } = useApiProxy();
+  const debug = import.meta.env.DEV;
 
   useEffect(() => {
     const fetchBreakingNews = async () => {
@@ -28,15 +29,15 @@ export const BreakingNewsBanner = () => {
 
         // Try RSS feeds first via edge function (fast, no API rate limits)
         try {
-          console.log('🔄 Fetching breaking news from RSS...');
+          if (debug) console.log('🔄 Fetching breaking news from RSS...');
           const { data: rssData } = await supabase.functions.invoke('rss-fetcher', {
             body: { sources: ['ap'], limit: 20 }
           });
 
-          console.log('📰 RSS Data received:', rssData);
+          if (debug) console.log('📰 RSS Data received:', rssData);
 
           if (rssData?.success && rssData.items?.length) {
-            console.log(`✅ Found ${rssData.items.length} RSS items`);
+            if (debug) console.log(`✅ Found ${rssData.items.length} RSS items`);
             const breakingNews: BreakingNewsItem[] = rssData.items
               .slice(0, 10)
               .map((item: any, index: number) => ({
@@ -48,11 +49,11 @@ export const BreakingNewsBanner = () => {
                 isBreaking: true,
               }));
 
-            console.log('🎯 Setting breaking news:', breakingNews);
+            if (debug) console.log('🎯 Setting breaking news:', breakingNews);
             setNews(breakingNews);
             return; // Done if RSS succeeded
           } else {
-            console.log('⚠️ RSS data invalid or empty');
+            if (debug) console.log('⚠️ RSS data invalid or empty');
           }
         } catch (rssError) {
           console.error('❌ RSS fetch error:', rssError);

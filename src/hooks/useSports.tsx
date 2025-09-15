@@ -52,6 +52,7 @@ export const useSports = () => {
   const { makeRequest } = useApiProxy();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const debug = import.meta.env.DEV;
 
   const defaultConfig = {
     favoriteTeams: ['Astros', 'Texans', 'Rockets', 'Lightning'],
@@ -417,7 +418,7 @@ export const useSports = () => {
       }
       
       // Debug: Log some sample events to see team names
-      console.log('Sample sports events:', allEvents.slice(0, 5));
+      if (debug) console.log('Sample sports events:', allEvents.slice(0, 5));
       
       // Sort by date (upcoming first, then recent) and return latest 20 events
       return allEvents

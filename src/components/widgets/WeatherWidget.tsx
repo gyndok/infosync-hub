@@ -138,6 +138,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
   const [activeTab, setActiveTab] = useState('current');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(true);
+  const debug = import.meta.env.DEV;
 
   // Convert temperature between Celsius and Fahrenheit
   const convertTemp = (temp: number, toFahrenheit: boolean) => {
@@ -282,7 +283,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ onRemove }) => {
         }
       } catch (alertError) {
         // Alerts API might not be available for all locations
-        console.log('Weather alerts not available for this location');
+        if (debug) console.log('Weather alerts not available for this location');
       }
 
       const processedData: WeatherData = {

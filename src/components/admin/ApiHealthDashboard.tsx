@@ -16,6 +16,17 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+const debug = import.meta.env.DEV;
+
+interface HealthCheck {
+  service_name: string;
+  is_healthy: boolean;
+  status_code: number;
+  response_time_ms: number;
+  error_message: string | null;
+  checked_at: string;
+}
+
 interface HealthSummary {
   service_name: string;
   is_enabled: boolean;
@@ -37,7 +48,7 @@ interface SecretsStatus {
 const ApiHealthDashboard = () => {
   const { getHealthStatus, getSecretsStatus, testApiKey, loading } = useApiProxy();
   const [healthData, setHealthData] = useState<{
-    health_checks: any[];
+    health_checks: HealthCheck[];
     summary: HealthSummary[];
   } | null>(null);
   const [secretsData, setSecretsData] = useState<{
@@ -70,7 +81,7 @@ const ApiHealthDashboard = () => {
   const handleTestApiKey = async (service: string) => {
     try {
       const result = await testApiKey(service);
-      console.log('API key test result:', result);
+      if (debug) console.log('API key test result:', result);
       // Refresh data after test
       await fetchData();
     } catch (error) {

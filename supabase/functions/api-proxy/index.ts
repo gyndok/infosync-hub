@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const DEBUG = Deno.env.get('DEBUG') === 'true';
+
 interface ApiServiceConfig {
   service_name: string;
   base_url: string;
@@ -52,7 +54,7 @@ serve(async (req) => {
       throw new Error('Service and endpoint are required');
     }
 
-    console.log(`API Proxy request: ${service} - ${endpoint} for user ${user.id}`);
+    if (DEBUG) console.log(`API Proxy request: ${service} - ${endpoint} for user ${user.id}`);
 
     // Get service configuration
     const { data: serviceConfig, error: configError } = await supabase
@@ -123,7 +125,7 @@ serve(async (req) => {
       .single() as { data: CacheEntry | null };
 
     if (cachedData) {
-      console.log(`Cache hit for ${service} - ${endpoint}`);
+      if (DEBUG) console.log(`Cache hit for ${service} - ${endpoint}`);
       return new Response(JSON.stringify({
         success: true,
         data: cachedData.data,
@@ -191,7 +193,7 @@ serve(async (req) => {
       fullUrl += `?${urlParams.toString()}`;
     }
 
-    console.log(`Making API request to: ${fullUrl}`);
+    if (DEBUG) console.log(`Making API request to: ${fullUrl}`);
 
     // Make the API request with timeout
     const controller = new AbortController();
@@ -267,7 +269,7 @@ serve(async (req) => {
       expires_at: expiresAt.toISOString(),
     });
 
-    console.log(`Successful API response for ${service} - ${endpoint} (${responseTime}ms)`);
+    if (DEBUG) console.log(`Successful API response for ${service} - ${endpoint} (${responseTime}ms)`);
 
     return new Response(JSON.stringify({
       success: true,

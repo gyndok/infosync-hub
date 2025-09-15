@@ -83,6 +83,7 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState('headlines');
   const [showFilters, setShowFilters] = useState(false);
+  const debug = import.meta.env.DEV;
 
   // Fetch news based on current filters
   const fetchNews = async () => {
@@ -113,7 +114,7 @@ export const NewsWidget: React.FC<NewsWidgetProps> = ({ onRemove }) => {
         delete params.category;
       }
 
-      console.log('Fetching news with params:', params);
+      if (debug) console.log('Fetching news with params:', params);
 
       const response = await makeRequest({
         service: 'news',

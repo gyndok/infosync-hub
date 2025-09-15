@@ -15,6 +15,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // API Keys
 const googleMapsApiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
 
+const DEBUG = Deno.env.get('DEBUG') === 'true';
+
 interface TrafficIncident {
   title: string;
   description?: string;
@@ -45,7 +47,7 @@ interface MetroAlert {
 // Fetch Houston Metro alerts
 async function fetchMetroAlerts(): Promise<MetroAlert[]> {
   try {
-    console.log('Fetching Houston Metro alerts...');
+    if (DEBUG) console.log('Fetching Houston Metro alerts...');
     
     // Houston Metro doesn't have a public API, so we'll simulate some alerts for now
     // In production, you would scrape their website or find alternative data sources
@@ -63,7 +65,7 @@ async function fetchMetroAlerts(): Promise<MetroAlert[]> {
       }
     ];
     
-    console.log(`Found ${mockAlerts.length} Metro alerts (simulated)`);
+    if (DEBUG) console.log(`Found ${mockAlerts.length} Metro alerts (simulated)`);
     return mockAlerts;
   } catch (error) {
     console.error('Error fetching Metro alerts:', error);
@@ -74,12 +76,12 @@ async function fetchMetroAlerts(): Promise<MetroAlert[]> {
 // Fetch traffic incidents from Google Maps
 async function fetchGoogleTrafficIncidents(): Promise<TrafficIncident[]> {
   if (!googleMapsApiKey) {
-    console.log('Google Maps API key not configured, skipping traffic incidents');
+    if (DEBUG) console.log('Google Maps API key not configured, skipping traffic incidents');
     return [];
   }
 
   try {
-    console.log('Fetching Google Maps traffic data...');
+    if (DEBUG) console.log('Fetching Google Maps traffic data...');
     
     // Google Maps doesn't have a direct traffic incidents API
     // We'll use Places API to find points of interest and simulate incidents
@@ -134,7 +136,7 @@ async function fetchGoogleTrafficIncidents(): Promise<TrafficIncident[]> {
       }
     ];
     
-    console.log(`Found ${mockIncidents.length} traffic incidents (simulated)`);
+    if (DEBUG) console.log(`Found ${mockIncidents.length} traffic incidents (simulated)`);
     return mockIncidents;
   } catch (error) {
     console.error('Error fetching Google traffic data:', error);
@@ -147,7 +149,7 @@ async function storeTrafficIncidents(incidents: TrafficIncident[]) {
   if (incidents.length === 0) return;
 
   try {
-    console.log(`Storing ${incidents.length} traffic incidents...`);
+    if (DEBUG) console.log(`Storing ${incidents.length} traffic incidents...`);
     
     for (const incident of incidents) {
       // Check if incident already exists
@@ -175,7 +177,7 @@ async function storeTrafficIncidents(incidents: TrafficIncident[]) {
         if (error) {
           console.error('Error updating traffic incident:', error);
         } else {
-          console.log(`Updated traffic incident: ${incident.title}`);
+          if (DEBUG) console.log(`Updated traffic incident: ${incident.title}`);
         }
       } else {
         // Insert new incident
@@ -198,7 +200,7 @@ async function storeTrafficIncidents(incidents: TrafficIncident[]) {
         if (error) {
           console.error('Error inserting traffic incident:', error);
         } else {
-          console.log(`Inserted new traffic incident: ${incident.title}`);
+          if (DEBUG) console.log(`Inserted new traffic incident: ${incident.title}`);
         }
       }
     }
@@ -212,7 +214,7 @@ async function storeMetroAlerts(alerts: MetroAlert[]) {
   if (alerts.length === 0) return;
 
   try {
-    console.log(`Storing ${alerts.length} Metro alerts...`);
+    if (DEBUG) console.log(`Storing ${alerts.length} Metro alerts...`);
     
     for (const alert of alerts) {
       // Check if alert already exists
@@ -240,7 +242,7 @@ async function storeMetroAlerts(alerts: MetroAlert[]) {
         if (error) {
           console.error('Error updating Metro alert:', error);
         } else {
-          console.log(`Updated Metro alert: ${alert.title}`);
+          if (DEBUG) console.log(`Updated Metro alert: ${alert.title}`);
         }
       } else {
         // Insert new alert
@@ -262,7 +264,7 @@ async function storeMetroAlerts(alerts: MetroAlert[]) {
         if (error) {
           console.error('Error inserting Metro alert:', error);
         } else {
-          console.log(`Inserted new Metro alert: ${alert.title}`);
+          if (DEBUG) console.log(`Inserted new Metro alert: ${alert.title}`);
         }
       }
     }
@@ -281,7 +283,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'fetch';
 
-    console.log(`Houston Traffic API called with action: ${action}`);
+    if (DEBUG) console.log(`Houston Traffic API called with action: ${action}`);
 
     if (action === 'fetch') {
       // Fetch traffic data from all sources
