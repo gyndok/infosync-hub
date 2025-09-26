@@ -39,7 +39,7 @@ const NewsHeatmap: React.FC = () => {
         // Try to fetch from API first, fall back to sample data
         let data;
         try {
-          const response = await fetch('/api/news?' + new URLSearchParams({
+          const response = await fetch(`https://xahzovelzrdgpweymlqq.supabase.co/functions/v1/news-api?` + new URLSearchParams({
             query: filters.query,
             topics: filters.topics.join(','),
             lang: filters.language,
@@ -58,6 +58,8 @@ const NewsHeatmap: React.FC = () => {
           data = await sampleResponse.json();
         }
         
+        console.log('Sample data loaded successfully:', data);
+        console.log('Number of points:', data.points?.length);
         setNewsData(data);
       } catch (err) {
         setError('Failed to load news data');
@@ -77,9 +79,14 @@ const NewsHeatmap: React.FC = () => {
 
   // Filter news points based on current filters
   const filteredPoints = useMemo(() => {
-    if (!newsData?.points) return [];
+    if (!newsData?.points) {
+      console.log('No news data available');
+      return [];
+    }
     
-    return newsData.points.filter(point => {
+    console.log('Filtering points:', newsData.points.length, 'total points');
+    
+    const result = newsData.points.filter(point => {
       // Search query filter
       if (filters.query) {
         const query = filters.query.toLowerCase();
@@ -111,11 +118,17 @@ const NewsHeatmap: React.FC = () => {
       
       return true;
     });
+    
+    console.log('Filtered points result:', result.length, 'points after filtering');
+    return result;
   }, [newsData, filters]);
 
   const handlePointClick = (point: NewsPoint) => {
-    setSelectedPoint(point);
-    setIsDrawerOpen(true);
+    if (point) {
+      console.log('Point clicked:', point);
+      setSelectedPoint(point);
+      setIsDrawerOpen(true);
+    }
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -289,7 +302,7 @@ const NewsHeatmap: React.FC = () => {
         </div>
       </div>
 
-      {/* News Drawer */}
+      {/* NewsDrawer with summarization */}
       <NewsDrawer 
         point={selectedPoint}
         isOpen={isDrawerOpen}

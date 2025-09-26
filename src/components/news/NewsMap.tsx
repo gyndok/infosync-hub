@@ -161,7 +161,8 @@ const NewsMap: React.FC<NewsMapProps> = ({ newsPoints, onPointClick, selectedPoi
       });
 
       // Add click handler
-      marker.on('click', () => {
+      marker.on('click', (e) => {
+        e.originalEvent?.stopPropagation();
         onPointClick(point);
       });
 

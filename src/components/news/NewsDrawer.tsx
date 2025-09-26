@@ -71,12 +71,15 @@ const NewsDrawer: React.FC<NewsDrawerProps> = ({ point, isOpen, onClose }) => {
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[500px] overflow-y-auto z-[9999] relative">
+      <SheetContent side="right" className="w-[500px] overflow-y-auto z-[9999] relative" aria-describedby="news-drawer-description">
         <SheetHeader className="space-y-4">
           <SheetTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
             {point.place}
           </SheetTitle>
+          <div id="news-drawer-description" className="sr-only">
+            Detailed news analysis and headlines for {point.place}
+          </div>
           
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
