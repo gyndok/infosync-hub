@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NewsDemo from "./pages/NewsDemo";
+import NewsHeatmap from "./pages/NewsHeatmap";
 import ApiHealthDashboard from "./components/admin/ApiHealthDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -51,6 +52,10 @@ const App = () => (
                   <NewsDemo />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/news-heatmap" 
+              element={<NewsHeatmap />} 
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -1,0 +1,134 @@
+{
+  "points": [
+    {
+      "id": "tokyo-2025-09-26-01",
+      "lat": 35.6762,
+      "lon": 139.6503,
+      "place": "Tokyo, Japan",
+      "article_count": 42,
+      "top_topics": ["tech", "economy"],
+      "last_updated": "2025-09-26T22:05:00Z",
+      "sample_headlines": [
+        {"title": "Chipmakers rally on new export guidance", "source": "Nikkei", "url": "https://example.com/a", "published_at": "2025-09-26T21:40:00Z"},
+        {"title": "Yen spikes after BoJ remarks", "source": "Reuters", "url": "https://example.com/b", "published_at": "2025-09-26T21:10:00Z"}
+      ]
+    },
+    {
+      "id": "london-2025-09-26-01",
+      "lat": 51.5074,
+      "lon": -0.1278,
+      "place": "London, UK",
+      "article_count": 38,
+      "top_topics": ["politics", "economy"],
+      "last_updated": "2025-09-26T21:55:00Z",
+      "sample_headlines": [
+        {"title": "Parliament debates new climate legislation", "source": "BBC", "url": "https://example.com/c", "published_at": "2025-09-26T21:30:00Z"},
+        {"title": "Sterling rises on inflation data", "source": "Financial Times", "url": "https://example.com/d", "published_at": "2025-09-26T21:00:00Z"}
+      ]
+    },
+    {
+      "id": "newyork-2025-09-26-01",
+      "lat": 40.7128,
+      "lon": -74.0060,
+      "place": "New York, USA",
+      "article_count": 67,
+      "top_topics": ["business", "tech"],
+      "last_updated": "2025-09-26T22:10:00Z",
+      "sample_headlines": [
+        {"title": "Wall Street opens higher on Fed signals", "source": "Wall Street Journal", "url": "https://example.com/e", "published_at": "2025-09-26T21:45:00Z"},
+        {"title": "Tech giants report strong earnings", "source": "Bloomberg", "url": "https://example.com/f", "published_at": "2025-09-26T21:15:00Z"}
+      ]
+    },
+    {
+      "id": "beijing-2025-09-26-01",
+      "lat": 39.9042,
+      "lon": 116.4074,
+      "place": "Beijing, China",
+      "article_count": 29,
+      "top_topics": ["politics", "economy"],
+      "last_updated": "2025-09-26T21:50:00Z",
+      "sample_headlines": [
+        {"title": "Manufacturing PMI shows growth", "source": "China Daily", "url": "https://example.com/g", "published_at": "2025-09-26T21:20:00Z"},
+        {"title": "Trade talks continue with EU", "source": "Reuters", "url": "https://example.com/h", "published_at": "2025-09-26T20:55:00Z"}
+      ]
+    },
+    {
+      "id": "berlin-2025-09-26-01",
+      "lat": 52.5200,
+      "lon": 13.4050,
+      "place": "Berlin, Germany",
+      "article_count": 31,
+      "top_topics": ["politics", "energy"],
+      "last_updated": "2025-09-26T22:00:00Z",
+      "sample_headlines": [
+        {"title": "Renewable energy targets exceeded", "source": "Deutsche Welle", "url": "https://example.com/i", "published_at": "2025-09-26T21:35:00Z"},
+        {"title": "Coalition government announces new policies", "source": "Der Spiegel", "url": "https://example.com/j", "published_at": "2025-09-26T21:05:00Z"}
+      ]
+    },
+    {
+      "id": "sydney-2025-09-26-01",
+      "lat": -33.8688,
+      "lon": 151.2093,
+      "place": "Sydney, Australia",
+      "article_count": 24,
+      "top_topics": ["environment", "economy"],
+      "last_updated": "2025-09-26T21:40:00Z",
+      "sample_headlines": [
+        {"title": "Great Barrier Reef shows recovery signs", "source": "ABC News", "url": "https://example.com/k", "published_at": "2025-09-26T21:25:00Z"},
+        {"title": "Mining sector drives economic growth", "source": "The Australian", "url": "https://example.com/l", "published_at": "2025-09-26T20:50:00Z"}
+      ]
+    },
+    {
+      "id": "mumbai-2025-09-26-01",
+      "lat": 19.0760,
+      "lon": 72.8777,
+      "place": "Mumbai, India",
+      "article_count": 45,
+      "top_topics": ["tech", "business"],
+      "last_updated": "2025-09-26T21:45:00Z",
+      "sample_headlines": [
+        {"title": "IT services sector shows strong growth", "source": "Economic Times", "url": "https://example.com/m", "published_at": "2025-09-26T21:30:00Z"},
+        {"title": "Startup funding reaches new highs", "source": "Business Standard", "url": "https://example.com/n", "published_at": "2025-09-26T21:00:00Z"}
+      ]
+    },
+    {
+      "id": "saopaulo-2025-09-26-01",
+      "lat": -23.5558,
+      "lon": -46.6396,
+      "place": "São Paulo, Brazil",
+      "article_count": 33,
+      "top_topics": ["economy", "politics"],
+      "last_updated": "2025-09-26T22:05:00Z",
+      "sample_headlines": [
+        {"title": "Central bank maintains interest rates", "source": "Folha de S.Paulo", "url": "https://example.com/o", "published_at": "2025-09-26T21:40:00Z"},
+        {"title": "Presidential approval ratings improve", "source": "O Globo", "url": "https://example.com/p", "published_at": "2025-09-26T21:10:00Z"}
+      ]
+    },
+    {
+      "id": "moscow-2025-09-26-01",
+      "lat": 55.7558,
+      "lon": 37.6176,
+      "place": "Moscow, Russia",
+      "article_count": 28,
+      "top_topics": ["politics", "energy"],
+      "last_updated": "2025-09-26T21:55:00Z",
+      "sample_headlines": [
+        {"title": "Energy exports reach record levels", "source": "TASS", "url": "https://example.com/q", "published_at": "2025-09-26T21:35:00Z"},
+        {"title": "Diplomatic meetings scheduled", "source": "RT", "url": "https://example.com/r", "published_at": "2025-09-26T21:05:00Z"}
+      ]
+    },
+    {
+      "id": "cairo-2025-09-26-01",
+      "lat": 30.0444,
+      "lon": 31.2357,
+      "place": "Cairo, Egypt",
+      "article_count": 19,
+      "top_topics": ["politics", "economy"],
+      "last_updated": "2025-09-26T21:30:00Z",
+      "sample_headlines": [
+        {"title": "Tourism sector shows strong recovery", "source": "Al Ahram", "url": "https://example.com/s", "published_at": "2025-09-26T21:15:00Z"},
+        {"title": "Infrastructure projects accelerate", "source": "Egypt Today", "url": "https://example.com/t", "published_at": "2025-09-26T20:45:00Z"}
+      ]
+    }
+  ]
+}
