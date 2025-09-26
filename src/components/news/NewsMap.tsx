@@ -185,7 +185,7 @@ const NewsMap: React.FC<NewsMapProps> = ({ newsPoints, onPointClick, selectedPoi
       {/* Custom tooltip */}
       {tooltipContent && tooltipPosition && (
         <div
-          className="fixed pointer-events-none z-[1000]"
+          className="fixed pointer-events-none z-[500]"
           style={{
             left: tooltipPosition.x,
             top: tooltipPosition.y,
@@ -196,7 +196,7 @@ const NewsMap: React.FC<NewsMapProps> = ({ newsPoints, onPointClick, selectedPoi
       )}
       
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[1000]">
+      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[400]">
         <h4 className="font-semibold text-sm mb-2">Topics</h4>
         <div className="grid grid-cols-2 gap-1 text-xs">
           {Object.entries(TOPIC_COLORS).map(([topic, color]) => (

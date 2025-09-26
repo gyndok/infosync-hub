@@ -210,7 +210,7 @@ const NewsHeatmap: React.FC = () => {
         </div>
 
         {/* Map Container */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative z-0">
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
               <div className="text-center space-y-4">
@@ -228,7 +228,7 @@ const NewsHeatmap: React.FC = () => {
 
           {/* Results Counter */}
           {!loading && (
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg z-10">
               <span className="text-sm font-medium">
                 {filteredPoints.length} locations • {filteredPoints.reduce((sum, p) => sum + p.article_count, 0)} articles
               </span>
@@ -237,7 +237,7 @@ const NewsHeatmap: React.FC = () => {
 
           {/* Empty State */}
           {!loading && filteredPoints.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-20">
               <div className="text-center space-y-4 bg-white rounded-lg p-8 shadow-lg">
                 <h3 className="text-xl font-semibold">No results found</h3>
                 <p className="text-muted-foreground">
