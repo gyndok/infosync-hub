@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.rss-fetcher]
 verify_jwt = false
+
+[functions.news-api]
+verify_jwt = false
+
+[functions.news-summarize]
+verify_jwt = false

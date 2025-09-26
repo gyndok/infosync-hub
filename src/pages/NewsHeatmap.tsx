@@ -87,9 +87,9 @@ const NewsHeatmap: React.FC = () => {
     console.log('Filtering points:', newsData.points.length, 'total points');
     
     const result = newsData.points.filter(point => {
-      // Search query filter
-      if (filters.query) {
-        const query = filters.query.toLowerCase();
+      // Search query filter - only apply if there's a query
+      if (filters.query && filters.query.trim()) {
+        const query = filters.query.toLowerCase().trim();
         const matchesHeadlines = point.sample_headlines.some(h => 
           h.title.toLowerCase().includes(query)
         );
@@ -97,7 +97,7 @@ const NewsHeatmap: React.FC = () => {
         if (!matchesHeadlines && !matchesPlace) return false;
       }
       
-      // Topic filter
+      // Topic filter - only apply if topics are selected
       if (filters.topics.length > 0) {
         const hasMatchingTopic = point.top_topics.some(topic => 
           filters.topics.includes(topic)
@@ -108,7 +108,7 @@ const NewsHeatmap: React.FC = () => {
       // Minimum count filter
       if (point.article_count < filters.minCount) return false;
       
-      // Source filter
+      // Source filter - only apply if sources are specified
       if (filters.sources.length > 0) {
         const hasMatchingSource = point.sample_headlines.some(h =>
           filters.sources.some(source => h.source.toLowerCase().includes(source.toLowerCase()))
