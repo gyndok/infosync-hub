@@ -216,16 +216,17 @@ serve(async (req) => {
       clearTimeout(timeoutId);
       
       // Log the error
+      const errorMessage = error instanceof Error ? error.message : 'API request failed';
       await supabase.from('api_error_logs').insert({
         service_name: service,
         user_id: user.id,
         endpoint,
         error_type: 'API_REQUEST_FAILED',
-        error_message: error.message,
+        error_message: errorMessage,
         request_payload: { params, fullUrl },
       });
 
-      throw new Error(`API request failed: ${error.message}`);
+      throw new Error(`API request failed: ${errorMessage}`);
     }
 
     const responseTime = Date.now() - startTime;
@@ -281,15 +282,16 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in api-proxy function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('Error in api-proxy function:', errorMessage);
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: errorMessage,
       timestamp: new Date().toISOString()
     }), {
-      status: error.message.includes('Rate limit') ? 429 : 
-             error.message.includes('not found') ? 404 : 500,
+      status: errorMessage.includes('Rate limit') ? 429 : 
+             errorMessage.includes('not found') ? 404 : 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

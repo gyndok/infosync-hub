@@ -78,11 +78,12 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in summarize API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('Error in summarize API:', errorMessage);
     
     return new Response(JSON.stringify({ 
       error: 'Failed to generate summary',
-      details: error.message 
+      details: errorMessage 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

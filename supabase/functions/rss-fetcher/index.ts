@@ -91,7 +91,8 @@ Deno.serve(async (req) => {
         limit = body.limit || 20;
         console.log('Parsed request body:', { sources, limit });
       } catch (e) {
-        console.log('Failed to parse JSON body, using defaults:', e.message);
+        const errorMessage = e instanceof Error ? e.message : 'Failed to parse JSON';
+        console.log('Failed to parse JSON body, using defaults:', errorMessage);
       }
     }
 
@@ -117,7 +118,8 @@ Deno.serve(async (req) => {
           console.log(`Parsed ${items.length} items from ${src}`);
           return items;
         } catch (err) {
-          console.log(`Error fetching ${src}:`, err.message);
+          const errorMessage = err instanceof Error ? err.message : 'Unknown fetch error';
+          console.log(`Error fetching ${src}:`, errorMessage);
           return [] as ReturnType<typeof parseItems>;
         }
       }),

@@ -152,11 +152,12 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in health-monitor function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Health monitor error';
+    console.error('Error in health-monitor function:', errorMessage);
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: errorMessage,
       timestamp: new Date().toISOString()
     }), {
       status: 500,
@@ -231,7 +232,8 @@ async function checkServiceHealth(supabase: any, serviceConfig: ApiServiceConfig
     }
 
   } catch (error) {
-    errorMessage = error.message;
+    const errorMessage = error instanceof Error ? error.message : 'Health check failed';
+    console.error('Health check error:', errorMessage);
     isHealthy = false;
   }
 

@@ -159,6 +159,7 @@ serve(async (req) => {
         });
 
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Test failed';
         return new Response(JSON.stringify({
           success: true,
           test_result: {
@@ -166,7 +167,7 @@ serve(async (req) => {
             is_valid: false,
             status_code: 0,
             response_time_ms: Date.now() - startTime,
-            error_message: error.message,
+            error_message: errorMessage,
             tested_at: new Date().toISOString()
           }
         }), {
@@ -223,11 +224,12 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in manage-secrets function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error('Error in manage-secrets function:', errorMessage);
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: errorMessage,
       timestamp: new Date().toISOString()
     }), {
       status: 500,

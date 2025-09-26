@@ -74,11 +74,12 @@ serve(async (req) => {
     try {
       // Try GDELT first (if available)
       const gdeltData = await fetchFromGDELT(query, from, to);
-      if (gdeltData?.length > 0) {
+      if (gdeltData && gdeltData.length > 0) {
         newsPoints = processGDELTData(gdeltData);
       }
     } catch (error) {
-      console.log('GDELT failed, trying fallback APIs:', error);
+      const errorMessage = error instanceof Error ? error.message : 'GDELT API failed';
+      console.log('GDELT failed, trying fallback APIs:', errorMessage);
     }
 
     // Fallback to NewsAPI if GDELT failed
@@ -92,7 +93,8 @@ serve(async (req) => {
           }
         }
       } catch (error) {
-        console.log('NewsAPI failed, using sample data:', error);
+        const errorMessage = error instanceof Error ? error.message : 'NewsAPI failed';
+        console.log('NewsAPI failed, using sample data:', errorMessage);
       }
     }
 
@@ -131,7 +133,8 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in news API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('Error in news API:', errorMessage);
     
     // Return sample data on error
     const sampleData = await getSampleData();
@@ -141,7 +144,7 @@ serve(async (req) => {
   }
 });
 
-async function fetchFromGDELT(query: string, from: string, to: string) {
+async function fetchFromGDELT(query: string, from: string, to: string): Promise<any[] | null> {
   // GDELT API implementation would go here
   // For now, return null to use fallback
   return null;
